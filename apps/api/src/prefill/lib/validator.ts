@@ -1,4 +1,4 @@
-import { enums as defaultEnums, prefillSchemas as defaultPrefillSchemas, type FieldDef } from "./schema.js";
+import { enums as defaultEnums, prefillSchemas as defaultPrefillSchemas, type FieldDef } from './schema';
 
 export interface ValidationError {
   path: string;

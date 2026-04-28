@@ -1,4 +1,4 @@
-import type { FieldDef } from "./schema.js";
+import type { FieldDef } from './schema';
 
 export interface StageConfig {
   name: string;
