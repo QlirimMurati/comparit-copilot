@@ -37,7 +37,7 @@ libs/jira-client/                ← MCP wrapper if extracted
 
 ---
 
-## 2. Workstreams (10)
+## 2. Workstreams (10 + 7 deepening = 17)
 
 ### W1 — Streaming responses (Phase 3 polish)
 - Switch `intake-agent.service.ts` from `messages.create` → `messages.stream`.
@@ -110,16 +110,86 @@ libs/jira-client/                ← MCP wrapper if extracted
 
 ---
 
+## 2b. Phase 3 deepening (extras not covered in Lirim's / Donart's plans)
+
+Things from `IMPLEMENTATION_PLAN.md` §13 (extra ideas) that fall in my lane and aren't picked up elsewhere. All AI / backend / data work — fits the intake & analysis story Phase 3 is about. Order them after W1–W10 unless a stakeholder pulls one forward.
+
+### W11 — AI auto-triage on submit
+- New agent `apps/api/src/ai/triage-agent.service.ts`.
+- Runs on report create (BullMQ job, async — don't block the submit response).
+- Inputs: title, description, captured_context (URL/IDs/sparte), recent similar reports (W4).
+- Outputs (written to `bug_reports.ai_proposed_*` jsonb fields): proposed severity, sparte (correction/refinement), suggested assignee (from `users` who fixed similar reports — uses `bug_reports.reporterId` + `jira_issue_key` history).
+- Confidence score on each proposal; surfaces only if confidence > threshold.
+- Lirim consumes the proposals on the report-detail page (his W3 already renders `ai_proposed_ticket`; same panel can show triage suggestions).
+- **Coordinate:** depends on W2 (polisher schema patterns) + W4 (similarity to compute "who fixed similar before").
+
+### W12 — Test-case generator (extends ticket polisher)
+- New agent or extension of W2: given a polished bug report (steps to reproduce, expected vs actual), generate a Cypress or Playwright test stub.
+- Output: text block stored in `bug_reports.ai_proposed_ticket.testStub`.
+- Endpoint: `POST /api/reports/:id/generate-test-stub`.
+- The framework choice (Cypress vs Playwright) is configurable per sparte (env or config table) — comparer-ui uses Cypress today.
+- Lirim's W3 panel can show + copy the snippet.
+- **Coordinate:** depends on W2 polisher producing structured steps.
+
+### W13 — Daily digest worker
+- BullMQ scheduled job (cron-style, default 09:00 local).
+- Pulls yesterday's reports + Jira movement (uses W7 `tickets_cache`).
+- AI summarization agent (Sonnet 4.6 — cost-conscious; this is high-volume): groups by sparte, severity, status; highlights spikes, new blockers, freshly-resolved tickets.
+- Output: Markdown digest + post target. Local-only project, so the "post target" is a file written to `dist/digests/YYYY-MM-DD.md` and an endpoint `GET /api/admin/digests/:date` that returns it. (Slack/Teams/email integration is deferred — out of scope for local-only.)
+- **Coordinate:** depends on W7 ticket cache for Jira movement; useful pre-W7 with reports-only summary.
+
+### W14 — Bug pattern alerts (incident detection)
+- Extension of W4 dedup pipeline: when N (configurable, default 3) reports cluster within a rolling window (default 1 hr) above similarity threshold, emit a `pattern.detected` event on W10's WebSocket gateway.
+- Updates `bug_reports.cluster_id` (new column, migration) so all reports in the cluster link to one incident view.
+- New table `incidents` (id, cluster_key, opened_at, summary jsonb) — light schema, basically a denormalized rollup.
+- Lirim renders the cluster on the inbox; Donart's W9 widget surfaces "we're seeing several similar reports right now" before submit.
+- **Coordinate:** depends on W4 embeddings + W10 WebSocket; new pgvector ANN index for hot-path performance.
+
+### W15 — Codebase Q&A bot
+- New agent `apps/api/src/ai/qa-bot.service.ts`.
+- RAG over the W8 codebase index — semantic search (top-K) + read-file + grep tools.
+- Different from W9 (code-localizer) which is "where is the bug" — this is general "how does X work in this codebase".
+- Endpoint: `POST /api/qa/ask` — chat-style, supports multi-turn via `chat_sessions.kind = 'qa'` (already in schema).
+- Useful for onboarding / triage. Could later be reused inside Lirim's web app or Donart's widget as an opt-in chat mode.
+- **Coordinate:** depends on W8 index; lives in Phase 5 territory but cheap to build once W8 ships.
+
+### W16 — Confluence answer bot
+- Mirror structure to W15 but RAG source is Confluence (the team's actual product/policy docs, not code).
+- Atlassian MCP server already exposes `confluence.search` + `confluence.read` — reuse the W7 client.
+- Endpoint: `POST /api/qa/confluence/ask`. Multi-turn via `chat_sessions.kind = 'qa-confluence'`.
+- **Coordinate:** depends on W7 (MCP client); blocked until Q7 (Jira/Confluence access) is resolved.
+
+### W17 — Cross-source dedup (reports ↔ Jira tickets)
+- Extension of W4: at submit time, also check `tickets_cache` for similar resolved/in-progress tickets, not only past `bug_reports`.
+- Same embedding model (Voyage) so vectors are comparable; needs `embedding` column on `tickets_cache` (small migration on top of W7).
+- Endpoint enhancement: `POST /api/reports/check-duplicate` returns `{ similarReports: [...], similarTickets: [...] }`.
+- Donart's W9 surfaces "we already fixed this in v3.2.1" guidance.
+- **Coordinate:** depends on W4 + W7; tiny on top of either.
+
+---
+
 ## 3. Order of attack
 
+### Main batch (W1–W10)
 1. **W1 streaming** — small, unblocks UX, low conflict surface
 2. **W2 ticket polisher** — natural extension of intake agent
-3. **W4 dedup embeddings** — foundational for later (W7, W8)
+3. **W4 dedup embeddings** — foundational for later (W7, W8, W11, W14, W17)
 4. **W5 + W6 admin API** — unblocks Lirim's admin UI
 5. **W3 transcript decomposer** — bigger lift, needs new schema
 6. **W10 WebSocket gateway** — once 2+ consumers exist
 7. **W7 Jira** — once Q7 is resolved
 8. **W8 + W9 code indexing/localizer**
+
+### Phase 3 deepening (W11–W17)
+Tackle these once the main batch lands. Most layer on top of earlier workstreams (W4 / W7 / W8 / W10), so doing them out of order pays a re-work tax.
+
+9. **W11 auto-triage** — once W4 lands (needs similarity to suggest assignee)
+10. **W17 cross-source dedup** — tiny patch on top of W4 + W7
+11. **W14 incident detection** — once W4 + W10 land
+12. **W12 test-case generator** — once W2 polisher schema is stable
+13. **W13 daily digest** — once W7 ticket cache exists (or earlier with reports-only)
+14. **W15 codebase Q&A** — once W8 index lands
+15. **W16 Confluence Q&A** — once W7 MCP client is wired
 
 ---
 
