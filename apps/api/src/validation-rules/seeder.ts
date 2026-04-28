@@ -58,11 +58,32 @@ export class ValidationRulesSeeder implements OnModuleInit {
   }
 
   private readSeedDir(): Record<string, SeedEntry[]> {
-    const dir = join(__dirname, 'seed');
-    let entries: string[];
-    try {
-      entries = readdirSync(dir).filter((f) => f.endsWith('.json'));
-    } catch {
+    // Try multiple locations. webpack-bundled `__dirname` lands in dist/apps/api,
+    // so we also try the source tree (works in dev via `pnpm start:api`) and a
+    // path next to a copied assets folder.
+    const candidates = [
+      join(__dirname, 'seed'),
+      join(__dirname, 'validation-rules', 'seed'),
+      join(process.cwd(), 'apps/api/src/validation-rules/seed'),
+    ];
+    let dir: string | null = null;
+    let entries: string[] = [];
+    for (const c of candidates) {
+      try {
+        const found = readdirSync(c).filter((f) => f.endsWith('.json'));
+        if (found.length > 0) {
+          dir = c;
+          entries = found;
+          break;
+        }
+      } catch {
+        // try next
+      }
+    }
+    if (!dir) {
+      this.logger.warn(
+        `No seed directory found; tried: ${candidates.join(', ')}`,
+      );
       return {};
     }
     const out: Record<string, SeedEntry[]> = {};
