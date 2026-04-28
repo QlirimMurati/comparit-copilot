@@ -60,14 +60,17 @@ _none_
 
 ## Decisions
 
-_(record decisions specific to my workstreams; cross-team decisions go in master PROGRESS.md)_
+- **2026-04-28 — Jira write safety:** any code that touches the Comparit Jira tenant (W7, W11 assignee suggestion, W17, W12 stub-as-Jira-attachment, etc.) is **read-only against existing issues**. No DELETE endpoints, no PATCH/PUT against existing issues (no status transitions, no field updates, no comment edits, no relinks). **Creating new issues requires explicit per-request user confirmation** — implement push-to-Jira as a two-step flow: agent prepares payload → server returns preview → user confirms via separate explicit action. JQL queries scope to `JIRA_ALLOWED_PROJECTS` (currently `LV`). User-mandated; comparit.atlassian.net contains live business data.
+- **2026-04-28 — Confluence (W16) paused:** do not implement, scaffold, or call Confluence APIs / MCP `confluence.*` operations until user explicitly lifts the pause. W16 is no longer "blocked on Q7" — it is intentionally paused.
+- _(record decisions specific to my workstreams; cross-team decisions go in master PROGRESS.md)_
 
 ---
 
 ## Blockers / Open Questions
 
 - **Q4 (Anthropic API account)** — confirm `cm@comparit.de` org access at console.anthropic.com.
-- **Q7 (Jira details)** — instance URL, API token, sandbox availability. Blocks W7.
+- **Q7 (Jira details)** — RESOLVED 2026-04-28: tenant is `comparit.atlassian.net`, project key `LV`, credentials in `.env`. **Read-only mode mandated** (see Decisions). W7 unblocked subject to safety rules.
+- **W16 Confluence** — paused by user 2026-04-28. Not blocked, intentionally on hold.
 
 ---
 
