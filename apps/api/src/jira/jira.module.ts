@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AiModule } from '../ai/ai.module';
 import { AuthModule } from '../auth/auth.module';
 import { JiraClient } from './jira.client';
 import { JiraController } from './jira.controller';
@@ -8,7 +9,7 @@ import { PushToJiraService } from './push-to-jira.service';
 import { TicketsCacheService } from './tickets-cache.service';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, AiModule],
   controllers: [JiraController],
   providers: [
     JiraClient,

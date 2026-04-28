@@ -18,6 +18,7 @@ import {
 import {
   DedupService,
   type CheckDuplicateInput,
+  type CrossSourceDedupResult,
   type DuplicateCandidate,
 } from '../ai/dedup.service';
 import {
@@ -156,14 +157,19 @@ export class BugReportsController {
   @Post('check-duplicate')
   async checkDuplicate(
     @Body() body: CheckDuplicateInput
-  ): Promise<{ candidates: DuplicateCandidate[] }> {
+  ): Promise<
+    CrossSourceDedupResult & {
+      /** @deprecated alias for `similarReports`; will be removed once consumers update. */
+      candidates: DuplicateCandidate[];
+    }
+  > {
     if (!body.title || body.title.trim().length < 3) {
       throw new BadRequestException('title required (min 3 chars)');
     }
     if (!body.description || body.description.trim().length < 5) {
       throw new BadRequestException('description required (min 5 chars)');
     }
-    const candidates = await this.dedup.checkDuplicate(body);
-    return { candidates };
+    const result = await this.dedup.checkDuplicateAcrossSources(body);
+    return { ...result, candidates: result.similarReports };
   }
 }
