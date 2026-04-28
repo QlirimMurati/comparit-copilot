@@ -34,11 +34,19 @@ interface SwaggerSchema {
   items?: SwaggerSchema;
   $ref?: string;
   additionalProperties?: boolean;
+  required?: string[];
 }
 
 export interface LoadedSchema {
   enums: Record<string, readonly string[]>;
-  prefillSchemas: Record<string, { fields: Record<string, FieldDef> }>;
+  prefillSchemas: Record<
+    string,
+    {
+      fields: Record<string, FieldDef>;
+      required: string[];
+      requiredByPath: Record<string, string[]>;
+    }
+  >;
   loadedAt: number;
   stage: string;
 }
@@ -151,6 +159,49 @@ function convertProperties(
   return result;
 }
 
+function collectRequiredByPath(
+  schema: SwaggerSchema,
+  allSchemas: Record<string, SwaggerSchema>,
+  prefix: string,
+  out: Record<string, string[]>,
+): void {
+  const props: Record<string, SwaggerSchema> = { ...(schema.properties ?? {}) };
+  const requiredHere: string[] = [...(schema.required ?? [])];
+
+  if (schema.allOf) {
+    for (const part of schema.allOf) {
+      if (part.$ref) {
+        const resolved = resolveRef(part.$ref, allSchemas);
+        Object.assign(props, resolved.properties ?? {});
+        for (const r of resolved.required ?? []) requiredHere.push(r);
+      } else {
+        Object.assign(props, part.properties ?? {});
+        for (const r of part.required ?? []) requiredHere.push(r);
+      }
+    }
+  }
+
+  if (prefix && requiredHere.length > 0) {
+    out[prefix] = Array.from(new Set(requiredHere));
+  }
+
+  for (const [key, prop] of Object.entries(props)) {
+    const nextPath = prefix ? `${prefix}.${key}` : key;
+    let target: SwaggerSchema | null = null;
+    if (prop.$ref) {
+      const resolved = resolveRef(prop.$ref, allSchemas);
+      if (resolved.type === "object" || resolved.properties || resolved.allOf) {
+        target = resolved;
+      }
+    } else if (prop.type === "object" && (prop.properties || prop.allOf)) {
+      target = prop;
+    }
+    if (target) {
+      collectRequiredByPath(target, allSchemas, nextPath, out);
+    }
+  }
+}
+
 export async function loadSchema(stageName: string): Promise<LoadedSchema> {
   // Check cache
   const cached = cache[stageName];
@@ -176,14 +227,26 @@ export async function loadSchema(stageName: string): Promise<LoadedSchema> {
   }
 
   // Extract prefill schemas per sparte
-  const prefillSchemas: Record<string, { fields: Record<string, FieldDef> }> = {};
+  const prefillSchemas: Record<
+    string,
+    {
+      fields: Record<string, FieldDef>;
+      required: string[];
+      requiredByPath: Record<string, string[]>;
+    }
+  > = {};
   for (const [sparte, prefix] of Object.entries(sparteToSchemaName)) {
     const schemaName = `${prefix}PrefillDataInput`;
     const schema = allSchemas[schemaName];
     if (!schema) continue;
 
+    const requiredByPath: Record<string, string[]> = {};
+    collectRequiredByPath(schema, allSchemas, "", requiredByPath);
+
     prefillSchemas[sparte] = {
       fields: convertProperties(schema, allSchemas),
+      required: Array.from(new Set(schema.required ?? [])),
+      requiredByPath,
     };
   }
 
