@@ -214,19 +214,15 @@ body { overflow: hidden; }
   padding: 12px 0; gap: 4px;
 }
 .rail-logo {
-  width: 36px; height: 36px;
+  width: 40px; height: 40px;
   border-radius: 10px;
-  background: var(--grad-brand);
+  background: transparent;
+  color: var(--fg-1);
   display: grid; place-items: center;
   margin-bottom: 8px;
-  box-shadow: 0 4px 12px rgba(10,183,167,0.25);
-  position: relative; overflow: hidden;
 }
-.rail-logo::after {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,0.18), transparent);
-}
-.rail-logo svg { width: 22px; height: 22px; color: white; position: relative; z-index: 1; }
+.rail-logo::after { content: none; }
+.rail-logo svg { width: 32px; height: 32px; position: relative; z-index: 1; }
 .rail-btn {
   width: 40px; height: 40px;
   border-radius: 10px;
@@ -270,7 +266,7 @@ body { overflow: hidden; }
   overflow: hidden; min-width: 0;
 }
 .sb-header {
-  padding: 14px 14px 10px;
+  padding: 16px 14px 12px;
   display: flex; align-items: center; justify-content: space-between;
   gap: 8px;
 }
@@ -295,7 +291,7 @@ body { overflow: hidden; }
 .sb-icon-btn:hover { background: var(--primary-8); color: var(--fg-1); }
 .sb-icon-btn svg { width: 16px; height: 16px; }
 
-.sb-search { margin: 4px 14px 10px; position: relative; }
+.sb-search { margin: 12px 14px 10px; position: relative; }
 .sb-search input {
   width: 100%; height: 36px;
   padding: 0 12px 0 34px;
@@ -318,7 +314,7 @@ body { overflow: hidden; }
 }
 
 .sb-newchat {
-  margin: 0 14px 10px;
+  margin: 12px 14px 10px;
   height: 40px;
   border-radius: 10px;
   border: 1px solid var(--border-1);
@@ -630,18 +626,11 @@ body { overflow: hidden; }
 .empty-greet { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
 .empty-orb {
   width: 56px; height: 56px;
-  border-radius: 16px;
-  background: var(--grad-brand);
   display: grid; place-items: center;
-  position: relative;
-  box-shadow: 0 8px 24px rgba(10,183,167,0.30);
-  overflow: hidden;
+  color: var(--fg-1);
 }
-.empty-orb::before {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(circle at 30% 25%, rgba(255,255,255,0.4), transparent 50%);
-}
-.empty-orb svg { color: white; width: 28px; height: 28px; position: relative; z-index: 1; }
+.empty-orb::before { content: none; }
+.empty-orb svg { width: 44px; height: 44px; position: relative; z-index: 1; }
 .empty-greet h1 {
   font-family: var(--font-display);
   font-size: 32px; font-weight: 500;
@@ -680,7 +669,7 @@ body { overflow: hidden; }
 }
 .quick-card::before {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(135deg, transparent 60%, rgba(10,183,167,0.06));
+  background: var(--grad-brand-soft);
   opacity: 0; transition: opacity 200ms;
 }
 .quick-card:hover { border-color: var(--secondary-100); transform: translateY(-1px); box-shadow: var(--shadow-1); }

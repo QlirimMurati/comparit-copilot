@@ -81,14 +81,8 @@ export class CopilotComponent implements OnInit {
   });
 
   protected readonly greeting = computed(() => {
-    const hour = new Date().getHours();
-    const part =
-      hour < 5 ? 'Good evening' :
-      hour < 12 ? 'Good morning' :
-      hour < 18 ? 'Good afternoon' :
-      'Good evening';
     const name = (this.auth.user()?.name ?? '').split(/\s+/)[0] || 'there';
-    return `${part}, ${name}.`;
+    return `Hello, ${name}.`;
   });
 
   ngOnInit(): void {
