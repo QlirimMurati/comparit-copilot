@@ -7,7 +7,7 @@
 
 ## Current Focus
 
-- **Active workstream:** _none yet — start with W1 (reporter email config) + W10 tests half per plan_
+- **Active workstream:** W10 follow-on — apps/api test baseline (Clirim repo) still TODO
 - **Last updated:** 2026-04-28
 
 ---
@@ -16,16 +16,16 @@
 
 | W# | Workstream | Status | Notes |
 |---|---|---|---|
-| W1 | Reporter email config (no Keycloak) | TODO | Provider-input, simple override |
-| W2 | Console + unhandled rejection breadcrumbs | TODO | New `breadcrumb.service.ts` |
-| W3 | Network error breadcrumbs (HttpInterceptor) | TODO | In comparer-ui wrapper |
-| W4 | NgRx store snapshot capture | TODO | Needs W5 first |
-| W5 | Configurable PII sanitizer | TODO | Must land before W4 |
-| W6 | On-demand screenshot | TODO | Lazy-load `html2canvas` |
-| W7 | Streaming chat render in widget | TODO | Depends on Clirim W1 |
-| W8 | Bilingual widget UI strings | TODO | German default; sync with Lirim W10 |
-| W9 | WebSocket consumer + dedup pre-check | TODO | Depends on Clirim W4 + W10 |
-| W10 | Widget polish (config + Shadow DOM + tests) | TODO | Tests half early, polish later |
+| W1 | Reporter email config (no Keycloak) | DONE | Added `reporterEmail` to `CopilotWidgetConfig`, three-level fallback (input → config → CurrentUserService) |
+| W2 | Console + unhandled rejection breadcrumbs | DONE | `host/breadcrumb.service.ts`, ring buffer 50, auto-installed via `ENVIRONMENT_INITIALIZER` |
+| W3 | Network error breadcrumbs (HttpInterceptor) | DONE | `host/copilot-http-interceptor.ts` (functional), allowlist + blocklist + 401 ignore |
+| W4 | NgRx store snapshot capture | DONE | `storeAccessor` config field, applied in `enrichCaptured`, sanitizer covers it |
+| W5 | Configurable PII sanitizer | DONE | `widget/sanitizer.ts`, default block keys + IBAN/tax-ID/card/email regex masking, 9 unit tests |
+| W6 | On-demand screenshot | DONE | `screenshot.service.ts`, lazy `import('html2canvas')`, preview + remove |
+| W7 | Streaming chat render in widget | DONE | SSE via fetch, AbortController stop button, falls back to blocking on error |
+| W8 | Bilingual widget UI strings | DONE | `i18n.ts` with de/en dicts, auto-detect on chat input |
+| W9 | WebSocket consumer + dedup pre-check | DONE | `widget-socket.service.ts` (socket.io-client w/ reconnect), `checkDuplicate` gate before submit, dedup overlay UI |
+| W10 | Widget polish (config + Shadow DOM + tests) | PARTIAL | Sanitizer/breadcrumb config surfaced; ShadowDom encapsulation untouched; widget unit tests added (22 tests, 5 suites). **apps/api tests in Clirim repo NOT addressed.** |
 
 ---
 
@@ -49,7 +49,16 @@ _none_
 
 ## Done
 
-_(append entries here as workstreams complete; format: `YYYY-MM-DD — Wn name — verification line`)_
+- 2026-04-28 — W1 reporter email config — added to `CopilotWidgetConfig`, typecheck green, build green for `comparit`/`bu`/`kfz`
+- 2026-04-28 — W2 console breadcrumbs — `CopilotBreadcrumbService` auto-installs via `ENVIRONMENT_INITIALIZER`, 5 unit tests pass
+- 2026-04-28 — W3 network breadcrumbs — `copilotHttpInterceptor` functional interceptor + `CopilotNetworkBreadcrumbService` (3 unit tests pass)
+- 2026-04-28 — W4 store snapshot — `storeAccessor` flows through `enrichCaptured`, sanitizer test verifies redaction on a composition-state shape
+- 2026-04-28 — W5 PII sanitizer — `sanitize()` recursive, default block keys + IBAN/tax-ID/card/email regex (9 unit tests)
+- 2026-04-28 — W6 screenshot — lazy `html2canvas`, preview + remove, base64 attached to `captured_context.screenshot`
+- 2026-04-28 — W7 streaming chat — SSE via fetch + AbortController, stop button, fallback to blocking on stream error before any token received
+- 2026-04-28 — W8 bilingual UI — de/en inline dictionaries, auto-detect on chat input, locale input on wrapper
+- 2026-04-28 — W9 socket + dedup — `socket.io-client` reconnect, `checkDuplicate` gate before submit with confirm overlay
+- 2026-04-28 — W10 polish + tests (host-side) — 22 unit tests across sanitizer/i18n/breadcrumb/network buffer/store snapshot all green; `nx build comparit/bu/kfz` green
 
 ---
 
@@ -62,6 +71,9 @@ _(record decisions specific to my workstreams; cross-team decisions go in master
 ## Blockers / Open Questions
 
 - **Postgres/Redis port conflicts on macOS** — currently `55432` / `56379`; document in `infra/README.md` so new dev machines don't hit it.
+- **Backend dependencies for full E2E**: W7 needs Clirim's SSE endpoint `POST /api/widget/chat/message/stream`; W9 needs `POST /api/reports/check-duplicate` and the WebSocket gateway. Client gracefully degrades if missing (stream falls back to blocking; dedup proceeds with submit on error). Verify against Clirim's branch when merged.
+- **prototype-frontend dev server casing issue** (`pnpm start:cp:local` errors with `/users/dp/...` lowercase paths into `libs/comparer/...`) is **pre-existing, not caused by this work** — `nx build` for `comparit`/`bu`/`kfz` succeeds.
+- **apps/api test baseline (W10 second half) not addressed** — that's in `comparit-copilot` and depends on Clirim's API surface.
 
 ---
 
