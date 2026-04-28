@@ -1,98 +1,124 @@
-# ComparitCopilot
+# comparit-copilot
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+Internal automation platform for the Comparit team. See [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) for the master plan and [PROGRESS.md](./PROGRESS.md) for live status.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+> **Stack:** Nx 20 (pnpm) · NestJS 10 (`apps/api`) · Angular 19 (`apps/web`) · Tailwind 3 · Postgres 16 + pgvector · Redis 7 · Claude API
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+## Apps
 
-## Run tasks
+| Path | What | Dev URL |
+|---|---|---|
+| `apps/api` | NestJS backend | http://localhost:3000/api |
+| `apps/web` | Angular admin/web app | http://localhost:4240 |
+| `apps/widget` | Widget-host shim — registers `<copilot-widget>` custom element | http://localhost:4241 |
 
-To run tasks with Nx use:
+> Note: copilot uses uncommon ports `:4240`/`:4241` to leave the standard `:4200`/`:4201` free for `comparer-ui` and other Angular projects.
+| `apps/api-e2e` | API e2e tests (jest+supertest) | — |
+| `libs/widget` | Angular component + context capture for the embedded widget | — |
 
-```sh
-npx nx <target> <project-name>
+`apps/web` proxies `/api` → `http://localhost:3000` in dev (`apps/web/proxy.conf.json`).
+
+## Prerequisites
+
+- Node 20+
+- pnpm 10+
+- Docker Desktop (or OrbStack) running
+
+## Run locally
+
+```bash
+pnpm install                                      # once
+docker compose -f infra/docker-compose.yml up -d  # Postgres + Redis
+pnpm start:api                                    # runs migrations on boot
+pnpm start:web                                    # http://localhost:4240
 ```
 
-For example:
+The API auto-applies migrations and bootstraps an admin user (`admin@comparit.de` / `admin` from `.env`) on startup.
 
-```sh
-npx nx build myproject
+Stop infra:
+```bash
+docker compose -f infra/docker-compose.yml down
+# add -v to also wipe Postgres data volume
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+## Test / Build / Lint
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-To install a new plugin you can use the `nx add` command. Here's an example of adding the React plugin:
-
-```sh
-npx nx add @nx/react
+```bash
+pnpm nx test api
+pnpm nx test web
+pnpm nx run-many -t build    # build all
+pnpm nx run-many -t lint     # lint all
 ```
 
-Use the plugin's generator to create new projects. For example, to create a new React app or library:
+## Health checks
 
-```sh
-# Generate an app
-npx nx g @nx/react:app demo
+```bash
+curl http://localhost:3000/api/health
+# {"status":"ok","service":"comparit-copilot-api","version":"0.0.0","timestamp":"..."}
 
-# Generate a library
-npx nx g @nx/react:lib some-lib
+curl http://localhost:3000/api/health/db
+# {"status":"ok"}
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+## Database
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- ORM: Drizzle (`drizzle-orm` + `postgres-js`)
+- Schema: `apps/api/src/db/schema/`
+- Migrations: `apps/api/src/db/migrations/` (auto-applied on api startup)
+- Generate a new migration after schema changes: `pnpm exec drizzle-kit generate`
+- Inspect with Drizzle Studio: `pnpm exec drizzle-kit studio`
 
-## Set up CI!
+## Known gotcha
 
-### Step 1
+If `nx` commands fail with `Cannot find module '@nx/nest/package.json'` (or similar) when run from a shell that recently invoked nx/pnpm in another sibling Nx workspace (e.g. `comparer-ui`), open a fresh terminal session inside this directory. Env vars from the previous shell can pollute Nx's package resolution.
 
-To connect to Nx Cloud, run the following command:
+## Project layout
 
-```sh
-npx nx connect
+```
+apps/
+  api/                       # NestJS
+  web/                       # Angular standalone
+  api-e2e/
+libs/                        # (added in later phases)
+infra/                       # docker-compose, migrations (added next)
+prompts/                     # AI agent system prompts (Phase 3)
+schemas/                     # Zod schemas (Phase 3)
+few-shots/                   # AI example conversations (Phase 3)
 ```
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+## Phase progress
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+**Phase 1 — Foundation** ✅
+- Workspace, NestJS api, Angular web, Postgres+pgvector+Redis, Drizzle, stub auth, bug-report CRUD + UI
 
-### Step 2
+**Phase 2 — Embedded widget** ✅
+- Web Component widget at `libs/widget` + `apps/widget` (build target)
+- `POST /api/widget/reports` with HTTP Basic Auth
+- Wrapper lib `@comparit/copilot-widget` in comparer-ui, embedded in all 12 sparte apps
 
-Use the following command to configure a CI workflow for your workspace:
+**Phase 3 — AI bug-intake chatbot (MVP)** ✅
+- `chat_sessions` + `chat_messages` tables; Anthropic SDK; Claude Opus 4.7 with adaptive thinking
+- `BugIntakeAgent` with two tools (`update_intake`, `complete_intake`) and manual agentic loop
+- `POST /api/widget/chat/{start,message,submit}` endpoints
+- Widget chat mode (default) with message bubbles + typing indicator, falls back to Form tab
+- Requires `ANTHROPIC_API_KEY` set in `.env` (otherwise widget returns a config-error message but everything else still works)
 
-```sh
-npx nx g ci-workflow
+## Try it locally
+
+1. **Start Docker Desktop** (or OrbStack)
+2. `docker compose -f infra/docker-compose.yml up -d` — Postgres + Redis
+3. `pnpm install` (once)
+4. `pnpm start:api` — applies migrations, bootstraps admin user, listens on :3000
+5. `pnpm start:web` — http://localhost:4240
+6. Sign in with `admin@comparit.de` / `admin`
+7. Create a bug report at `/reports/new`
+
+### Try the embedded widget
+
+```bash
+pnpm nx serve widget-host    # http://localhost:4241
 ```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Visit http://localhost:4241 — you'll see the demo page with `<copilot-widget>` floating bottom-right. Click 🐞, fill the form, submit. The report shows up in the Copilot web app's `/reports` list (refresh the page).
 
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+The widget submits via HTTP Basic Auth (`widget:local` from `.env`) and includes auto-captured context (URL, IDs, viewport, timezone, etc.) in the `capturedContext` jsonb column.

@@ -1,0 +1,231 @@
+import type Anthropic from '@anthropic-ai/sdk';
+import { Injectable, Logger } from '@nestjs/common';
+import { AnthropicService } from './anthropic.service';
+import {
+  INTAKE_SYSTEM_INSTRUCTIONS,
+  INTAKE_TOOLS,
+  IntakeStateSchema,
+  isIntakeReady,
+  type IntakeState,
+} from './intake-schema';
+import { ChatSessionService } from './chat-session.service';
+import type { ChatMessage } from '../db/schema';
+
+const MODEL = 'claude-opus-4-7';
+const MAX_TOOL_LOOPS = 4;
+
+export interface AgentTurnInput {
+  sessionId: string;
+  /** When undefined, we generate the initial assistant greeting (no user input yet). */
+  userText?: string;
+}
+
+export interface AgentTurnResult {
+  assistantText: string;
+  intakeState: IntakeState;
+  isComplete: boolean;
+  stopReason: string | null;
+}
+
+@Injectable()
+export class IntakeAgentService {
+  private readonly logger = new Logger('IntakeAgentService');
+
+  constructor(
+    private readonly anthropic: AnthropicService,
+    private readonly sessions: ChatSessionService
+  ) {}
+
+  async runTurn(input: AgentTurnInput): Promise<AgentTurnResult> {
+    if (!this.anthropic.isConfigured) {
+      return {
+        assistantText:
+          'AI is not configured on this server. Set ANTHROPIC_API_KEY in the API .env to enable the chat assistant. You can still file reports via the form.',
+        intakeState: { isComplete: false },
+        isComplete: false,
+        stopReason: 'unconfigured',
+      };
+    }
+
+    const session = await this.sessions.getById(input.sessionId);
+    let intakeState = (session.intakeState as IntakeState | null) ?? {
+      isComplete: false,
+    };
+
+    if (input.userText !== undefined) {
+      await this.sessions.appendMessage({
+        sessionId: input.sessionId,
+        role: 'user',
+        content: input.userText,
+      });
+    }
+
+    const history = await this.sessions.listMessages(input.sessionId);
+    const apiMessages = this.toApiMessages(history);
+
+    const systemBlocks = this.buildSystemBlocks(
+      session.capturedContext,
+      intakeState
+    );
+
+    let stopReason: string | null = null;
+    let lastInputTokens = 0;
+    let lastOutputTokens = 0;
+    let assistantText = '';
+    const assistantContentForStorage: Anthropic.ContentBlock[] = [];
+
+    for (let loop = 0; loop < MAX_TOOL_LOOPS; loop++) {
+      const response = await this.anthropic.client.messages.create({
+        model: MODEL,
+        max_tokens: 1024,
+        system: systemBlocks,
+        tools: INTAKE_TOOLS,
+        messages: apiMessages,
+      });
+
+      stopReason = response.stop_reason ?? null;
+      lastInputTokens += response.usage?.input_tokens ?? 0;
+      lastOutputTokens += response.usage?.output_tokens ?? 0;
+
+      for (const block of response.content) {
+        assistantContentForStorage.push(block);
+        if (block.type === 'text') {
+          assistantText += block.text;
+        }
+      }
+
+      if (response.stop_reason !== 'tool_use') break;
+
+      // Process tool calls and feed results back so the loop can continue.
+      apiMessages.push({ role: 'assistant', content: response.content });
+
+      const toolResults: Anthropic.Messages.ToolResultBlockParam[] = [];
+      for (const block of response.content) {
+        if (block.type !== 'tool_use') continue;
+        const toolResult = this.handleTool(block, intakeState);
+        intakeState = toolResult.nextState;
+        toolResults.push({
+          type: 'tool_result',
+          tool_use_id: block.id,
+          content: toolResult.message,
+          is_error: toolResult.isError,
+        });
+      }
+      apiMessages.push({ role: 'user', content: toolResults });
+    }
+
+    await this.sessions.appendMessage({
+      sessionId: input.sessionId,
+      role: 'assistant',
+      content: assistantContentForStorage,
+      stopReason,
+      inputTokens: lastInputTokens,
+      outputTokens: lastOutputTokens,
+    });
+
+    await this.sessions.setIntakeState(input.sessionId, intakeState);
+
+    return {
+      assistantText: assistantText.trim() || '…',
+      intakeState,
+      isComplete: Boolean(intakeState.isComplete),
+      stopReason,
+    };
+  }
+
+  private buildSystemBlocks(
+    capturedContext: unknown,
+    intakeState: IntakeState
+  ): Anthropic.Messages.TextBlockParam[] {
+    return [
+      {
+        type: 'text',
+        text: INTAKE_SYSTEM_INSTRUCTIONS,
+        cache_control: { type: 'ephemeral' },
+      },
+      {
+        type: 'text',
+        text:
+          `## Captured page context\n\`\`\`json\n${JSON.stringify(capturedContext, null, 2)}\n\`\`\`\n\n` +
+          `## Current intake state\n\`\`\`json\n${JSON.stringify(intakeState, null, 2)}\n\`\`\``,
+      },
+    ];
+  }
+
+  private toApiMessages(
+    history: ChatMessage[]
+  ): Anthropic.Messages.MessageParam[] {
+    return history
+      .filter((m) => m.role !== 'system')
+      .map((m) => ({
+        role: m.role === 'assistant' ? ('assistant' as const) : ('user' as const),
+        content: m.content as Anthropic.Messages.ContentBlockParam[],
+      }));
+  }
+
+  private handleTool(
+    block: Anthropic.ToolUseBlock,
+    state: IntakeState
+  ): {
+    nextState: IntakeState;
+    message: string;
+    isError: boolean;
+  } {
+    if (block.name === 'update_intake') {
+      const partial = this.coerceUpdate(block.input);
+      const merged = { ...state, ...partial };
+      const parsed = IntakeStateSchema.safeParse(merged);
+      if (!parsed.success) {
+        this.logger.warn(
+          `update_intake validation failed: ${parsed.error.message}`
+        );
+        return {
+          nextState: state,
+          message: `Validation error: ${parsed.error.message}`,
+          isError: true,
+        };
+      }
+      return {
+        nextState: parsed.data,
+        message: `Intake state updated: ${JSON.stringify(parsed.data)}`,
+        isError: false,
+      };
+    }
+
+    if (block.name === 'complete_intake') {
+      if (!isIntakeReady(state)) {
+        return {
+          nextState: state,
+          message:
+            'Cannot complete intake yet — title, description, and severity must all be set first.',
+          isError: true,
+        };
+      }
+      return {
+        nextState: { ...state, isComplete: true },
+        message: 'Intake marked complete. The user can now submit.',
+        isError: false,
+      };
+    }
+
+    return {
+      nextState: state,
+      message: `Unknown tool: ${block.name}`,
+      isError: true,
+    };
+  }
+
+  private coerceUpdate(input: unknown): Partial<IntakeState> {
+    if (!input || typeof input !== 'object') return {};
+    const out: Partial<IntakeState> = {};
+    const obj = input as Record<string, unknown>;
+    if (typeof obj['title'] === 'string') out.title = obj['title'];
+    if (typeof obj['description'] === 'string')
+      out.description = obj['description'];
+    if (typeof obj['severity'] === 'string')
+      out.severity = obj['severity'] as IntakeState['severity'];
+    if (typeof obj['sparte'] === 'string')
+      out.sparte = obj['sparte'] as IntakeState['sparte'];
+    return out;
+  }
+}

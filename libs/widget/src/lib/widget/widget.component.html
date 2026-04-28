@@ -1,0 +1,178 @@
+<button
+  type="button"
+  class="fab"
+  (click)="toggle()"
+  [attr.aria-label]="open() ? 'Close report panel' : 'Report a bug'"
+  [attr.aria-expanded]="open()"
+>
+  @if (open()) {
+    ✕
+  } @else {
+    🐞
+  }
+</button>
+
+@if (open()) {
+  <div class="panel" role="dialog" aria-label="Report a bug">
+    <header class="panel-header">
+      <h2>Report a bug</h2>
+      <button
+        type="button"
+        class="close-btn"
+        (click)="close()"
+        aria-label="Close"
+      >
+        ✕
+      </button>
+    </header>
+
+    <nav class="tabs" role="tablist">
+      <button
+        type="button"
+        role="tab"
+        [class.active]="mode() === 'chat'"
+        [attr.aria-selected]="mode() === 'chat'"
+        (click)="switchMode('chat')"
+      >
+        💬 Chat
+      </button>
+      <button
+        type="button"
+        role="tab"
+        [class.active]="mode() === 'form'"
+        [attr.aria-selected]="mode() === 'form'"
+        (click)="switchMode('form')"
+      >
+        📝 Form
+      </button>
+    </nav>
+
+    @if (mode() === 'chat') {
+      <div class="chat-body">
+        <div class="messages" role="log">
+          @for (m of chatMessages(); track $index) {
+            <div [class]="'msg msg-' + m.role">{{ m.text }}</div>
+          }
+          @if (chatLoading()) {
+            <div class="msg msg-assistant typing">…</div>
+          }
+        </div>
+
+        @if (chatError(); as err) {
+          <div class="alert error">{{ err }}</div>
+        }
+        @if (chatSubmitted(); as id) {
+          <div class="alert success">
+            Report submitted — id {{ id.slice(0, 8) }}…
+          </div>
+        }
+        @if (chatSubmitError(); as err) {
+          <div class="alert error">{{ err }}</div>
+        }
+
+        @if (chatComplete() && !chatSubmitted()) {
+          <button
+            type="button"
+            class="primary-btn"
+            (click)="submitChat()"
+            [disabled]="chatSubmitting()"
+          >
+            @if (chatSubmitting()) {
+              Submitting…
+            } @else {
+              Submit report
+            }
+          </button>
+        } @else if (!chatSubmitted()) {
+          <form
+            class="chat-input"
+            (ngSubmit)="sendMessage()"
+          >
+            <input
+              type="text"
+              [formControl]="chatInput"
+              placeholder="Type a message…"
+              [disabled]="chatLoading() || !chatSessionId()"
+              autocomplete="off"
+              autofocus
+            />
+            <button
+              type="submit"
+              [disabled]="chatLoading() || !chatInput.value.trim()"
+            >
+              Send
+            </button>
+          </form>
+        }
+      </div>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="submit()" class="panel-body">
+        <label>
+          <span>Title</span>
+          <input
+            type="text"
+            formControlName="title"
+            placeholder="One-line summary"
+          />
+        </label>
+
+        <label>
+          <span>Description</span>
+          <textarea
+            formControlName="description"
+            rows="5"
+            placeholder="Steps to reproduce, expected vs actual"
+          ></textarea>
+        </label>
+
+        <div class="row">
+          <label>
+            <span>Severity</span>
+            <select formControlName="severity">
+              @for (s of severities; track s) {
+                <option [value]="s">{{ s }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            <span>Sparte</span>
+            <select formControlName="sparte">
+              <option [ngValue]="null">— none —</option>
+              @for (s of sparten; track s) {
+                <option [value]="s">{{ s }}</option>
+              }
+            </select>
+          </label>
+        </div>
+
+        <details [attr.open]="contextExpanded() ? '' : null">
+          <summary (click)="toggleContext($event)">
+            Page context attached
+          </summary>
+          <pre>{{ capturedJson() }}</pre>
+        </details>
+
+        @if (success(); as msg) {
+          <div class="alert success">{{ msg }}</div>
+        }
+        @if (error(); as msg) {
+          <div class="alert error">{{ msg }}</div>
+        }
+
+        <footer class="panel-footer">
+          <button
+            type="submit"
+            class="primary-btn"
+            [disabled]="form.invalid || submitting()"
+          >
+            @if (submitting()) {
+              Submitting…
+            } @else {
+              Submit
+            }
+          </button>
+        </footer>
+      </form>
+    }
+  </div>
+}

@@ -40,3 +40,11 @@ Thumbs.db
 
 .nx/cache
 .nx/workspace-data
+
+.angular
+
+# Env files (kept locally only)
+.env
+.env.local
+*.env.local
+

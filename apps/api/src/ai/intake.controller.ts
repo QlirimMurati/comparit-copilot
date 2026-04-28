@@ -1,0 +1,152 @@
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Logger,
+  Post,
+} from '@nestjs/common';
+import { DRIZZLE, type Database } from '../db/db.module';
+import { bugReports } from '../db/schema';
+import { findOrCreateReporter } from '../users/find-or-create-reporter';
+import { ChatSessionService } from './chat-session.service';
+import { IntakeAgentService } from './intake-agent.service';
+import { isIntakeReady, type IntakeState } from './intake-schema';
+import type {
+  ChatMessageInput,
+  ChatMessageResult,
+  ChatStartInput,
+  ChatStartResult,
+  ChatSubmitInput,
+  ChatSubmitResult,
+} from './intake.types';
+
+@Controller('widget/chat')
+export class IntakeController {
+  private readonly logger = new Logger('IntakeController');
+
+  constructor(
+    @Inject(DRIZZLE) private readonly db: Database,
+    private readonly sessions: ChatSessionService,
+    private readonly agent: IntakeAgentService
+  ) {}
+
+  @Post('start')
+  async start(@Body() body: ChatStartInput): Promise<ChatStartResult> {
+    if (!body.reporterEmail) {
+      throw new BadRequestException('reporterEmail required');
+    }
+    const session = await this.sessions.create({
+      reporterEmail: body.reporterEmail,
+      capturedContext: body.capturedContext ?? null,
+    });
+    const result = await this.runTurnSafely({ sessionId: session.id });
+    return {
+      sessionId: session.id,
+      assistantText: result.assistantText,
+      intakeState: result.intakeState,
+      isComplete: result.isComplete,
+    };
+  }
+
+  @Post('message')
+  async message(@Body() body: ChatMessageInput): Promise<ChatMessageResult> {
+    if (!body.sessionId) throw new BadRequestException('sessionId required');
+    const text = body.text?.trim();
+    if (!text) throw new BadRequestException('text required');
+    const result = await this.runTurnSafely({
+      sessionId: body.sessionId,
+      userText: text,
+    });
+    return {
+      assistantText: result.assistantText,
+      intakeState: result.intakeState,
+      isComplete: result.isComplete,
+    };
+  }
+
+  @Post('submit')
+  async submit(@Body() body: ChatSubmitInput): Promise<ChatSubmitResult> {
+    if (!body.sessionId) throw new BadRequestException('sessionId required');
+
+    const session = await this.sessions.getById(body.sessionId);
+    if (session.status === 'submitted') {
+      throw new BadRequestException('session already submitted');
+    }
+    const intake = (session.intakeState as IntakeState | null) ?? {
+      isComplete: false,
+    };
+    if (!isIntakeReady(intake)) {
+      throw new BadRequestException(
+        'intake incomplete — title, description, and severity required'
+      );
+    }
+    if (!session.reporterEmail) {
+      throw new BadRequestException('session has no reporterEmail');
+    }
+
+    const reporterId = await findOrCreateReporter(
+      this.db,
+      session.reporterEmail
+    );
+
+    const transcript = await this.sessions.listMessages(session.id);
+    const capturedContext = (session.capturedContext as Record<string, unknown> | null) ?? {};
+    const reportContext = {
+      ...capturedContext,
+      chatSessionId: session.id,
+      transcriptMessageCount: transcript.length,
+    };
+
+    const sparteFromContext =
+      typeof capturedContext['sparte'] === 'string'
+        ? (capturedContext['sparte'] as string)
+        : null;
+
+    const [row] = await this.db
+      .insert(bugReports)
+      .values({
+        reporterId,
+        title: intake.title!.trim(),
+        description: intake.description!.trim(),
+        severity: intake.severity ?? 'medium',
+        sparte: (intake.sparte ?? sparteFromContext) as
+          | (typeof bugReports)['sparte']['_']['data']
+          | null,
+        capturedContext: reportContext,
+      })
+      .returning({
+        id: bugReports.id,
+        status: bugReports.status,
+        createdAt: bugReports.createdAt,
+      });
+
+    await this.sessions.markSubmitted(session.id, row.id);
+
+    return {
+      bugReportId: row.id,
+      status: row.status,
+      createdAt: row.createdAt.toISOString(),
+    };
+  }
+
+  private async runTurnSafely(input: {
+    sessionId: string;
+    userText?: string;
+  }) {
+    try {
+      return await this.agent.runTurn(input);
+    } catch (err) {
+      this.logger.error(
+        `agent.runTurn failed: ${(err as Error).message}`,
+        (err as Error).stack
+      );
+      throw new HttpException(
+        `AI request failed: ${(err as Error).message}`,
+        HttpStatus.SERVICE_UNAVAILABLE
+      );
+    }
+  }
+}
