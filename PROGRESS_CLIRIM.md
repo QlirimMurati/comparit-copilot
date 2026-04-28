@@ -7,7 +7,7 @@
 
 ## Current Focus
 
-- **Active workstream:** W2 next (ticket polisher) — W1 streaming shipped
+- **Active workstream:** W4 next (dedup via embeddings) — W1 + W2 shipped
 - **Last updated:** 2026-04-28
 
 ---
@@ -18,7 +18,7 @@
 | W# | Workstream | Status | Notes |
 |---|---|---|---|
 | W1 | Streaming responses | Done (2026-04-28) | SSE endpoint live; unblocks Donart W7 |
-| W2 | Ticket polisher agent | TODO | Unblocks Lirim W3, W12 |
+| W2 | Ticket polisher agent | Done (2026-04-28) | `POST /api/reports/:id/polish` writes to `bug_reports.ai_proposed_ticket`; unblocks Lirim W3 + my W12 |
 | W3 | Transcript decomposer | TODO | New tables + tools |
 | W4 | Dedup via embeddings | TODO | Unblocks Donart W9 + Lirim W3 + W11/W14/W17 |
 | W5 | Few-shot loading + admin API | TODO | Unblocks Lirim W5 |
@@ -50,6 +50,7 @@ _none_
 ## Done
 
 - 2026-04-28 — W1 streaming responses — `POST /api/widget/chat/message/stream` returns SSE (text_delta / state / done / error events); `IntakeAgentService.runTurnStream` wraps the tool loop around `messages.stream()`; final assistant turn persisted to `chat_messages` after stream end; existing blocking `/message` endpoint kept as fallback. Verified: `nx run api:build` green; `nx run api:test` 10/10 passing including 3 new tests for `runTurnStream`.
+- 2026-04-28 — W2 ticket polisher agent — `POST /api/reports/:id/polish` (JWT-guarded) loads the bug report + linked chat transcript and runs Claude with `tool_choice` forcing a single `submit_polished_ticket` tool call. Output validated against `PolishedTicketSchema` (Zod), persisted to `bug_reports.ai_proposed_ticket`. New column added via migration `0003_add_ai_proposed_ticket.sql`. Schema lives at `apps/api/src/ai/ticket-polisher.schema.ts` (deviation from plan's `schemas/` path — kept inline beside the service, matching the existing `intake-schema.ts` pattern). Verified: build green; api test suite 17/17 passing including 7 new tests for the polisher service + Zod schema.
 
 ---
 

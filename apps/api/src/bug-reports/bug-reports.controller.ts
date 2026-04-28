@@ -9,6 +9,8 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { TicketPolisherService } from '../ai/ticket-polisher.service';
+import type { PolishedTicket } from '../ai/ticket-polisher.schema';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import type { PublicUser } from '../auth/auth.types';
@@ -24,7 +26,10 @@ import type {
 @UseGuards(JwtAuthGuard)
 @Controller('reports')
 export class BugReportsController {
-  constructor(private readonly reports: BugReportsService) {}
+  constructor(
+    private readonly reports: BugReportsService,
+    private readonly polisher: TicketPolisherService
+  ) {}
 
   @Get()
   list(
@@ -63,5 +68,10 @@ export class BugReportsController {
     @Body() body: UpdateBugReportInput
   ): Promise<BugReport> {
     return this.reports.update(id, body);
+  }
+
+  @Post(':id/polish')
+  polish(@Param('id') id: string): Promise<PolishedTicket> {
+    return this.polisher.polish(id);
   }
 }

@@ -55,6 +55,7 @@ export const bugReports = pgTable(
       .default('medium'),
     sparte: text('sparte').$type<Sparte>(),
     capturedContext: jsonb('captured_context'),
+    aiProposedTicket: jsonb('ai_proposed_ticket'),
     jiraIssueKey: text('jira_issue_key'),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
