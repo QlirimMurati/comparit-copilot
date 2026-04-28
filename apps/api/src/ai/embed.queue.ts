@@ -56,7 +56,7 @@ export class EmbedQueueService implements OnModuleInit, OnModuleDestroy {
     await this.queue.add(
       EMBED_REPORT_JOB,
       { reportId },
-      { jobId: `report:${reportId}` }
+      { jobId: `report-${reportId}` }
     );
   }
 

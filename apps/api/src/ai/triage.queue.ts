@@ -65,7 +65,7 @@ export class TriageQueueService
     await this.queue.add(
       TRIAGE_REPORT_JOB,
       { reportId },
-      { jobId: `triage:${reportId}`, delay: 2_000 }
+      { jobId: `triage-${reportId}`, delay: 2_000 }
     );
   }
 
