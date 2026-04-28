@@ -12,6 +12,7 @@ import { FewShotRegistryService } from './few-shot-registry.service';
 import { IntakeAgentService } from './intake-agent.service';
 import { IntakeController } from './intake.controller';
 import { PromptRegistryService } from './prompt-registry.service';
+import { TestCaseGeneratorService } from './test-case-generator.service';
 import { TicketPolisherService } from './ticket-polisher.service';
 import { TranscriptDecomposerService } from './transcript-decomposer/transcript-decomposer.service';
 import { TranscriptsController } from './transcript-decomposer/transcripts.controller';
@@ -30,6 +31,7 @@ import { VoyageService } from './voyage.service';
     ChatSessionService,
     IntakeAgentService,
     TicketPolisherService,
+    TestCaseGeneratorService,
     VoyageService,
     EmbedQueueService,
     EmbedWorker,
@@ -43,6 +45,7 @@ import { VoyageService } from './voyage.service';
     ChatSessionService,
     IntakeAgentService,
     TicketPolisherService,
+    TestCaseGeneratorService,
     VoyageService,
     EmbedQueueService,
     DedupService,

@@ -14,6 +14,10 @@ import {
   type CheckDuplicateInput,
   type DuplicateCandidate,
 } from '../ai/dedup.service';
+import {
+  TestCaseGeneratorService,
+  type GeneratedTestStub,
+} from '../ai/test-case-generator.service';
 import { TicketPolisherService } from '../ai/ticket-polisher.service';
 import type { PolishedTicket } from '../ai/ticket-polisher.schema';
 import { CurrentUser } from '../auth/current-user.decorator';
@@ -34,7 +38,8 @@ export class BugReportsController {
   constructor(
     private readonly reports: BugReportsService,
     private readonly polisher: TicketPolisherService,
-    private readonly dedup: DedupService
+    private readonly dedup: DedupService,
+    private readonly testGenerator: TestCaseGeneratorService
   ) {}
 
   @Get()
@@ -79,6 +84,11 @@ export class BugReportsController {
   @Post(':id/polish')
   polish(@Param('id') id: string): Promise<PolishedTicket> {
     return this.polisher.polish(id);
+  }
+
+  @Post(':id/generate-test-stub')
+  generateTestStub(@Param('id') id: string): Promise<GeneratedTestStub> {
+    return this.testGenerator.generate(id);
   }
 
   @Post('check-duplicate')
