@@ -13,6 +13,7 @@ import type { Response } from 'express';
 import { DRIZZLE, type Database } from '../db/db.module';
 import { bugReports } from '../db/schema';
 import { findOrCreateReporter } from '../users/find-or-create-reporter';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
 import { ChatSessionService } from './chat-session.service';
 import { EmbedQueueService } from './embed.queue';
 import { IntakeAgentService } from './intake-agent.service';
@@ -35,7 +36,8 @@ export class IntakeController {
     @Inject(DRIZZLE) private readonly db: Database,
     private readonly sessions: ChatSessionService,
     private readonly agent: IntakeAgentService,
-    private readonly embedQueue: EmbedQueueService
+    private readonly embedQueue: EmbedQueueService,
+    private readonly realtime: RealtimeGateway
   ) {}
 
   @Post('start')
@@ -169,6 +171,13 @@ export class IntakeController {
 
     await this.sessions.markSubmitted(session.id, row.id);
     await this.embedQueue.enqueueReportEmbedding(row.id);
+    this.realtime.emitBugReportCreated({
+      reportId: row.id,
+      reporterId,
+      status: row.status,
+      severity: intake.severity ?? 'medium',
+      sparte: (intake.sparte ?? sparteFromContext) ?? null,
+    });
 
     return {
       bugReportId: row.id,

@@ -4,10 +4,12 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { asc, eq } from 'drizzle-orm';
 import { DRIZZLE, type Database } from '../../db/db.module';
+import { RealtimeGateway } from '../../realtime/realtime.gateway';
 import {
   transcriptNodes,
   transcriptSessions,
@@ -48,7 +50,8 @@ export class TranscriptDecomposerService {
 
   constructor(
     @Inject(DRIZZLE) private readonly db: Database,
-    private readonly anthropic: AnthropicService
+    private readonly anthropic: AnthropicService,
+    @Optional() private readonly realtime?: RealtimeGateway
   ) {}
 
   async start(input: {
@@ -355,6 +358,13 @@ export class TranscriptDecomposerService {
         sortOrder,
       })
       .returning();
+    this.realtime?.emitTranscriptNodeAdded({
+      sessionId,
+      nodeId: row.id,
+      parentId: row.parentId,
+      nodeType: row.nodeType,
+      title: row.title,
+    });
     return row;
   }
 

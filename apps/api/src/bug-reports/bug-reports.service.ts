@@ -7,6 +7,7 @@ import {
 import { and, desc, eq, type SQL } from 'drizzle-orm';
 import { EmbedQueueService } from '../ai/embed.queue';
 import { DRIZZLE, type Database } from '../db/db.module';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
 import {
   REPORT_SEVERITIES,
   REPORT_STATUSES,
@@ -29,7 +30,8 @@ import type {
 export class BugReportsService {
   constructor(
     @Inject(DRIZZLE) private readonly db: Database,
-    private readonly embedQueue: EmbedQueueService
+    private readonly embedQueue: EmbedQueueService,
+    private readonly realtime: RealtimeGateway
   ) {}
 
   async list(filter: ListBugReportsFilter): Promise<BugReportRecord[]> {
@@ -96,6 +98,13 @@ export class BugReportsService {
       .returning();
 
     await this.embedQueue.enqueueReportEmbedding(row.id);
+    this.realtime.emitBugReportCreated({
+      reportId: row.id,
+      reporterId: row.reporterId,
+      status: row.status,
+      severity: row.severity,
+      sparte: row.sparte,
+    });
 
     return row;
   }

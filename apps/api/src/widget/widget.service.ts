@@ -1,6 +1,7 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { EmbedQueueService } from '../ai/embed.queue';
 import { DRIZZLE, type Database } from '../db/db.module';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
 import {
   REPORT_SEVERITIES,
   SPARTEN,
@@ -15,7 +16,8 @@ import type { WidgetReportInput, WidgetReportResult } from './widget.types';
 export class WidgetService {
   constructor(
     @Inject(DRIZZLE) private readonly db: Database,
-    private readonly embedQueue: EmbedQueueService
+    private readonly embedQueue: EmbedQueueService,
+    private readonly realtime: RealtimeGateway
   ) {}
 
   async submit(input: WidgetReportInput): Promise<WidgetReportResult> {
@@ -60,6 +62,13 @@ export class WidgetService {
       });
 
     await this.embedQueue.enqueueReportEmbedding(row.id);
+    this.realtime.emitBugReportCreated({
+      reportId: row.id,
+      reporterId,
+      status: row.status,
+      severity: input.severity ?? 'medium',
+      sparte: (input.sparte as string | undefined) ?? null,
+    });
 
     return {
       id: row.id,

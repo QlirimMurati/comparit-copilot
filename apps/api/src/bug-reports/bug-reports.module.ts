@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AiModule } from '../ai/ai.module';
 import { AuthModule } from '../auth/auth.module';
+import { RealtimeModule } from '../realtime/realtime.module';
 import { BugReportsController } from './bug-reports.controller';
 import { BugReportsService } from './bug-reports.service';
 
 @Module({
-  imports: [AuthModule, AiModule],
+  imports: [AuthModule, AiModule, RealtimeModule],
   controllers: [BugReportsController],
   providers: [BugReportsService],
   exports: [BugReportsService],

@@ -4,10 +4,12 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  Optional,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { DRIZZLE, type Database } from '../db/db.module';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
 import {
   bugReports,
   chatSessions,
@@ -30,7 +32,8 @@ export class TicketPolisherService {
   constructor(
     @Inject(DRIZZLE) private readonly db: Database,
     private readonly anthropic: AnthropicService,
-    private readonly sessions: ChatSessionService
+    private readonly sessions: ChatSessionService,
+    @Optional() private readonly realtime?: RealtimeGateway
   ) {}
 
   async polish(reportId: string): Promise<PolishedTicket> {
@@ -81,6 +84,11 @@ export class TicketPolisherService {
       .update(bugReports)
       .set({ aiProposedTicket: parsed.data, updatedAt: new Date() })
       .where(eq(bugReports.id, reportId));
+
+    this.realtime?.emitAiProposalReady({
+      reportId,
+      kind: 'polished_ticket',
+    });
 
     return parsed.data;
   }
