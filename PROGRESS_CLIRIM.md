@@ -7,7 +7,7 @@
 
 ## Current Focus
 
-- **Active workstream:** W3 transcript decomposer next — W1/W2/W4/W5/W6 shipped
+- **Active workstream:** _all unblocked workstreams shipped (W1, W2, W3, W4, W5, W6, W8, W9, W10, W11, W12, W13, W14, W15)._ Remaining: W7 (Jira MCP — blocked by Q7), W16 (Confluence — also blocked by Q7), W17 (cross-source dedup — depends on W7).
 - **Last updated:** 2026-04-28
 
 ---
@@ -35,7 +35,7 @@
 | W12 | Test-case generator | Done (2026-04-28) | `POST /api/reports/:id/generate-test-stub` writes Cypress/Playwright stub to `aiProposedTicket.testStub` |
 | W13 | Daily digest worker | Done (2026-04-28) | BullMQ scheduled at 09:00 Europe/Berlin; manual trigger + GET endpoint; writes dist/digests/YYYY-MM-DD.md |
 | W14 | Bug pattern alerts (incidents) | Done (2026-04-28) | Cluster detection in embed worker; opens `incidents` row, tags `bug_reports.cluster_id`, emits `pattern.detected` |
-| W15 | Codebase Q&A bot | TODO | Depends on W8 |
+| W15 | Codebase Q&A bot | Done (2026-04-28) | `POST /api/qa/ask` multi-turn over W8 index using semantic_search/grep_chunks/read_chunk; persists to chat_sessions |
 | W16 | Confluence Q&A bot | TODO | Depends on W7 + Q7 |
 | W17 | Cross-source dedup (reports ↔ tickets) | TODO | Tiny patch on W4 + W7 |
 
