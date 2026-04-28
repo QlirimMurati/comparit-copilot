@@ -180,14 +180,18 @@ export class ReportDetailComponent {
     });
   }
 
-  protected confidenceTone(c: LocalizationCandidate['confidence']): string {
+  protected confidenceBadgeClass(c: LocalizationCandidate['confidence']): string {
     switch (c) {
-      case 'high':
-        return 'bg-emerald-100 text-emerald-800';
-      case 'medium':
-        return 'bg-amber-100 text-amber-800';
-      case 'low':
-        return 'bg-slate-100 text-slate-700';
+      case 'high': return 'badge-resolved';
+      case 'medium': return 'badge-medium';
+      case 'low': return 'badge-low';
+    }
+  }
+  protected confidencePct(c: LocalizationCandidate['confidence']): number {
+    switch (c) {
+      case 'high': return 90;
+      case 'medium': return 60;
+      case 'low': return 30;
     }
   }
 
@@ -234,32 +238,24 @@ export class ReportDetailComponent {
     return e?.error?.message ?? e?.message ?? fallback;
   }
 
-  protected statusTone(s: ReportStatus): string {
+  protected statusBadgeClass(s: ReportStatus): string {
     switch (s) {
-      case 'new':
-        return 'bg-sky-100 text-sky-800';
-      case 'triaged':
-        return 'bg-amber-100 text-amber-800';
-      case 'in_progress':
-        return 'bg-indigo-100 text-indigo-800';
-      case 'resolved':
-        return 'bg-emerald-100 text-emerald-800';
+      case 'new': return 'badge-new';
+      case 'triaged': return 'badge-medium';
+      case 'in_progress': return 'badge-progress';
+      case 'resolved': return 'badge-resolved';
       case 'wontfix':
       case 'duplicate':
-        return 'bg-slate-200 text-slate-700';
+        return 'badge-low';
     }
   }
 
-  protected severityTone(s: ReportSeverity): string {
+  protected severityBadgeClass(s: ReportSeverity): string {
     switch (s) {
-      case 'blocker':
-        return 'bg-rose-100 text-rose-800';
-      case 'high':
-        return 'bg-orange-100 text-orange-800';
-      case 'medium':
-        return 'bg-amber-100 text-amber-800';
-      case 'low':
-        return 'bg-slate-100 text-slate-700';
+      case 'blocker': return 'badge-blocker';
+      case 'high': return 'badge-high';
+      case 'medium': return 'badge-medium';
+      case 'low': return 'badge-low';
     }
   }
 }

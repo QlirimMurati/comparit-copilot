@@ -1,362 +1,312 @@
-<section class="space-y-6">
-  <div class="flex items-center gap-3">
-    <a
-      routerLink="/reports"
-      class="text-sm text-slate-600 hover:text-slate-900"
-    >
-      ← Back to reports
-    </a>
-  </div>
+<div class="detail">
+  <a routerLink="/reports" class="detail-back">← Back to reports</a>
 
   @switch (state().kind) {
     @case ('loading') {
-      <div class="rounded border border-slate-200 bg-white px-6 py-10 text-center text-sm text-slate-500">
-        Loading report…
-      </div>
+      <div class="card"><div class="state-empty">Loading report…</div></div>
     }
     @case ('error') {
-      <div class="rounded border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
-        {{ $any(state()).message }}
+      <div class="alert alert-error">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>
+          </svg>
+        </div>
+        <div class="content">{{ $any(state()).message }}</div>
       </div>
     }
     @case ('ok') {
       @if (report(); as r) {
         @if (clusterId()) {
-          <div class="flex items-center gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
-            <span class="inline-flex items-center rounded bg-rose-200 px-2 py-0.5 text-xs font-medium text-rose-900">incident</span>
-            <span>This report is part of a cluster — multiple similar reports were filed close together.</span>
-            <span class="ml-auto font-mono text-xs text-rose-700">cluster {{ clusterId() }}</span>
+          <div class="alert alert-error">
+            <div class="icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>
+              </svg>
+            </div>
+            <div class="content"><strong>incident</strong> &nbsp; This report is part of a cluster — multiple similar reports were filed close together.</div>
+            <div class="right">cluster {{ clusterId() }}</div>
           </div>
         }
 
-        <header class="space-y-2">
-          <div class="flex flex-wrap items-center gap-2">
-            <span [class]="'inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ' + statusTone(r.status)">
-              {{ r.status }}
-            </span>
-            <span [class]="'inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ' + severityTone(r.severity)">
-              {{ r.severity }}
-            </span>
-            @if (r.sparte) {
-              <span class="inline-flex items-center rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
-                {{ sparteLabels[r.sparte] }}
-              </span>
-            }
-            @if (r.jiraIssueKey) {
-              <span class="inline-flex items-center rounded bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-800">
-                Jira · {{ r.jiraIssueKey }}
-              </span>
-            }
-          </div>
-          <h2 class="text-2xl font-semibold tracking-tight text-slate-900">{{ r.title }}</h2>
-          <p class="text-sm text-slate-500">
-            Reported by {{ r.reporter?.name ?? '—' }}
-            @if (r.reporter?.email) {
-              · {{ r.reporter?.email }}
-            }
-            · created {{ formatDate(r.createdAt) }}
-            @if (r.updatedAt && r.updatedAt !== r.createdAt) {
-              · updated {{ formatDate(r.updatedAt) }}
-            }
-          </p>
-        </header>
-
-        <article class="rounded-xl border border-slate-200 bg-white p-6">
-          <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Description</h3>
-          <p class="mt-2 whitespace-pre-wrap text-sm text-slate-800">{{ r.description }}</p>
-        </article>
-
-        <form
-          [formGroup]="form"
-          (ngSubmit)="save()"
-          class="space-y-4 rounded-xl border border-slate-200 bg-white p-6"
-        >
-          <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Edit</h3>
-
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <label class="block">
-              <span class="block text-sm font-medium text-slate-700">Status</span>
-              <select
-                formControlName="status"
-                class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
-              >
-                @for (s of statuses; track s) {
-                  <option [value]="s">{{ s }}</option>
-                }
-              </select>
-            </label>
-
-            <label class="block">
-              <span class="block text-sm font-medium text-slate-700">Severity</span>
-              <select
-                formControlName="severity"
-                class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
-              >
-                @for (s of severities; track s) {
-                  <option [value]="s">{{ s }}</option>
-                }
-              </select>
-            </label>
-
-            <label class="block">
-              <span class="block text-sm font-medium text-slate-700">Sparte</span>
-              <select
-                formControlName="sparte"
-                class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
-              >
-                <option [ngValue]="null">— none —</option>
-                @for (s of sparten; track s) {
-                  <option [value]="s">{{ sparteLabels[s] }}</option>
-                }
-              </select>
-            </label>
-
-            <label class="block">
-              <span class="block text-sm font-medium text-slate-700">Jira issue key</span>
-              <input
-                type="text"
-                formControlName="jiraIssueKey"
-                placeholder="e.g. COP-123"
-                class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
-              />
-            </label>
-          </div>
-
-          @if (saveError(); as msg) {
-            <div class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
-              {{ msg }}
-            </div>
+        <div class="detail-tags">
+          <span class="badge" [class]="statusBadgeClass(r.status)">{{ r.status }}</span>
+          <span class="badge" [class]="severityBadgeClass(r.severity)">{{ r.severity }}</span>
+          @if (r.sparte) {
+            <span class="badge badge-bu">{{ sparteLabels[r.sparte] }}</span>
           }
-          @if (saved()) {
-            <div class="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
-              Changes saved.
-            </div>
+          @if (r.jiraIssueKey) {
+            <span class="badge badge-bu">Jira · {{ r.jiraIssueKey }}</span>
           }
+        </div>
+        <h1 class="detail-h">{{ r.title }}</h1>
+        <div class="detail-meta">
+          Reported by {{ r.reporter?.name ?? '—' }}
+          @if (r.reporter?.email) { · {{ r.reporter?.email }} }
+          · created {{ formatDate(r.createdAt) }}
+          @if (r.updatedAt && r.updatedAt !== r.createdAt) {
+            · updated {{ formatDate(r.updatedAt) }}
+          }
+        </div>
 
-          <div class="flex items-center gap-3">
-            <button
-              type="submit"
-              [disabled]="form.invalid || saving()"
-              class="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
-            >
-              @if (saving()) {
-                Saving…
-              } @else {
-                Save changes
-              }
-            </button>
+        <div class="section">
+          <div class="section-head"><h3>Description</h3></div>
+          <div class="section-body">
+            <p style="margin: 0; font-size: 14px; color: var(--fg-2); line-height: 1.55; white-space: pre-wrap;">{{ r.description }}</p>
+          </div>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="save()" class="section">
+          <div class="section-head"><h3>Edit</h3></div>
+          <div class="section-body">
+            <div class="field-grid">
+              <div class="field">
+                <label class="field-label">Status</label>
+                <select class="select" formControlName="status">
+                  @for (s of statuses; track s) { <option [value]="s">{{ s }}</option> }
+                </select>
+              </div>
+              <div class="field">
+                <label class="field-label">Severity</label>
+                <select class="select" formControlName="severity">
+                  @for (s of severities; track s) { <option [value]="s">{{ s }}</option> }
+                </select>
+              </div>
+              <div class="field">
+                <label class="field-label">Sparte</label>
+                <select class="select" formControlName="sparte">
+                  <option [ngValue]="null">— none —</option>
+                  @for (s of sparten; track s) { <option [value]="s">{{ sparteLabels[s] }}</option> }
+                </select>
+              </div>
+              <div class="field">
+                <label class="field-label">Jira issue key</label>
+                <input class="input" type="text" formControlName="jiraIssueKey" placeholder="e.g. COP-123"/>
+              </div>
+            </div>
+
+            @if (saveError(); as msg) {
+              <div class="alert alert-error" style="margin: 16px 0 0;">
+                <div class="content">{{ msg }}</div>
+              </div>
+            }
+            @if (saved()) {
+              <div class="alert alert-success" style="margin: 16px 0 0;">
+                <div class="content">Changes saved.</div>
+              </div>
+            }
+
+            <div style="margin-top: 16px; display: flex; gap: 8px;">
+              <button type="submit" class="btn btn-primary" [disabled]="form.invalid || saving()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 9.5 17 19 7"/></svg>
+                @if (saving()) { Saving… } @else { Save changes }
+              </button>
+            </div>
           </div>
         </form>
 
-        <article class="rounded-xl border border-slate-200 bg-white p-6 space-y-4">
-          <div class="flex flex-wrap items-center gap-3">
-            <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">AI proposal</h3>
-            <button
-              type="button"
-              (click)="runPolisher()"
-              [disabled]="polishing()"
-              class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-            >
-              @if (polishing()) { Polishing… }
-              @else if (aiProposed()) { Re-run polisher }
-              @else { Run polisher }
-            </button>
-            <button
-              type="button"
-              disabled
-              title="Push to Jira is blocked on Q7 (Jira credentials)"
-              class="rounded-md border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-400"
-            >
-              Push to Jira (pending Q7)
-            </button>
+        <div class="section">
+          <div class="section-head">
+            <h3>AI proposal</h3>
+            <div class="right">
+              <button type="button" class="btn btn-ghost btn-sm" (click)="runPolisher()" [disabled]="polishing()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/>
+                </svg>
+                @if (polishing()) { Polishing… } @else if (aiProposed()) { Re-run polisher } @else { Run polisher }
+              </button>
+              <button type="button" class="btn btn-ghost btn-sm" disabled title="Push to Jira is blocked on Q7">
+                Push to Jira (pending Q7)
+              </button>
+            </div>
           </div>
+          <div class="section-body">
+            @if (polishError(); as msg) {
+              <div class="alert alert-error" style="margin: 0 0 12px;"><div class="content">{{ msg }}</div></div>
+            }
+            @if (aiProposed(); as p) {
+              <div class="eyebrow">Proposed title</div>
+              <div style="font-weight: 700; font-size: 15px; margin-bottom: 12px; color: var(--fg-1);">{{ p.title }}</div>
 
-          @if (polishError(); as msg) {
-            <div class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{{ msg }}</div>
-          }
-
-          @if (aiProposed(); as p) {
-            <div class="space-y-3">
-              <div>
-                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Proposed title</p>
-                <p class="mt-1 text-sm font-medium text-slate-900">{{ p.title }}</p>
-              </div>
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="inline-flex items-center rounded bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-800">{{ p.proposedType }}</span>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px;">
+                <span class="chip">{{ p.proposedType }}</span>
                 @for (label of p.proposedLabels; track label) {
-                  <span class="inline-flex items-center rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">{{ label }}</span>
+                  <span class="chip">{{ label }}</span>
                 }
               </div>
-              <div>
-                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Description</p>
-                <pre class="mt-1 max-h-72 overflow-auto whitespace-pre-wrap rounded bg-slate-50 p-3 text-xs text-slate-800">{{ p.description }}</pre>
-              </div>
-              <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+
+              <div class="eyebrow">Description</div>
+              <pre class="code-block" style="margin-bottom: 16px;">{{ p.description }}</pre>
+
+              <div class="field-grid">
                 <div>
-                  <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Steps to reproduce</p>
-                  <ol class="mt-1 list-decimal space-y-1 pl-5 text-sm text-slate-800">
+                  <div class="eyebrow">Steps to reproduce</div>
+                  <ol style="margin: 4px 0 0; padding-left: 20px; font-size: 13.5px; color: var(--fg-1); line-height: 1.5;">
                     @for (step of p.repro_steps; track $index) {
-                      <li>{{ step }}</li>
+                      <li style="margin-bottom: 4px;">{{ step }}</li>
                     }
                   </ol>
                 </div>
-                <div class="space-y-2">
-                  <div>
-                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Expected</p>
-                    <p class="mt-1 text-sm text-slate-800">{{ p.expected }}</p>
-                  </div>
-                  <div>
-                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Actual</p>
-                    <p class="mt-1 text-sm text-slate-800">{{ p.actual }}</p>
-                  </div>
+                <div>
+                  <div class="eyebrow">Expected</div>
+                  <p style="margin: 4px 0 12px; font-size: 13.5px; color: var(--fg-1);">{{ p.expected }}</p>
+                  <div class="eyebrow">Actual</div>
+                  <p style="margin: 4px 0 0; font-size: 13.5px; color: var(--fg-1);">{{ p.actual }}</p>
                 </div>
               </div>
-            </div>
-          } @else {
-            <p class="text-sm text-slate-500 italic">No AI proposal yet — run the polisher to generate a Jira-ready ticket draft.</p>
-          }
-        </article>
+            } @else {
+              <p style="margin: 0; font-size: 13px; color: var(--fg-3); font-style: italic;">No AI proposal yet — run the polisher to generate a Jira-ready ticket draft.</p>
+            }
+          </div>
+        </div>
 
         @if (triage(); as t) {
-          <article class="rounded-xl border border-slate-200 bg-white p-6 space-y-3">
-            <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Auto-triage</h3>
-            <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
-              <div>
-                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Severity</p>
-                <p class="mt-1 text-sm text-slate-900">
-                  <span [class]="'inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ' + severityTone(t.proposedSeverity.value)">
-                    {{ t.proposedSeverity.value }}
-                  </span>
-                  <span class="ml-2 text-xs text-slate-500">{{ formatPercent(t.proposedSeverity.confidence) }}</span>
-                </p>
-                <p class="mt-1 text-xs text-slate-700">{{ t.proposedSeverity.rationale }}</p>
-              </div>
-              @if (t.proposedSparte) {
+          <div class="section">
+            <div class="section-head"><h3>Auto-triage</h3></div>
+            <div class="section-body">
+              <div class="field-grid">
                 <div>
-                  <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Sparte</p>
-                  <p class="mt-1 text-sm text-slate-900">
-                    <span class="inline-flex items-center rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
-                      {{ sparteLabels[t.proposedSparte.value] }}
+                  <div class="eyebrow">Severity</div>
+                  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <span class="badge" [class]="severityBadgeClass(t.proposedSeverity.value)">{{ t.proposedSeverity.value }}</span>
+                    <span class="confidence">
+                      <span class="confidence-bar"><span class="confidence-fill" [style.width.%]="t.proposedSeverity.confidence * 100"></span></span>
+                      {{ formatPercent(t.proposedSeverity.confidence) }}
                     </span>
-                    <span class="ml-2 text-xs text-slate-500">{{ formatPercent(t.proposedSparte.confidence) }}</span>
-                  </p>
-                  <p class="mt-1 text-xs text-slate-700">{{ t.proposedSparte.rationale }}</p>
+                  </div>
+                  <p style="font-size: 13px; color: var(--fg-3); margin: 0; line-height: 1.5;">{{ t.proposedSeverity.rationale }}</p>
                 </div>
-              }
-              @if (t.suggestedAssignee) {
-                <div>
-                  <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Suggested assignee</p>
-                  <p class="mt-1 text-sm text-slate-900">
-                    @if (t.suggestedAssignee.userId) {
-                      <span class="font-mono text-xs">{{ t.suggestedAssignee.userId }}</span>
-                    } @else {
-                      <span class="italic text-slate-500">no candidate</span>
-                    }
-                    <span class="ml-2 text-xs text-slate-500">{{ formatPercent(t.suggestedAssignee.confidence) }}</span>
-                  </p>
-                  <p class="mt-1 text-xs text-slate-700">{{ t.suggestedAssignee.reason }}</p>
-                </div>
-              }
+                @if (t.proposedSparte) {
+                  <div>
+                    <div class="eyebrow">Sparte</div>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                      <span class="badge badge-bu">{{ sparteLabels[t.proposedSparte.value] }}</span>
+                      <span class="confidence">
+                        <span class="confidence-bar"><span class="confidence-fill" [style.width.%]="t.proposedSparte.confidence * 100"></span></span>
+                        {{ formatPercent(t.proposedSparte.confidence) }}
+                      </span>
+                    </div>
+                    <p style="font-size: 13px; color: var(--fg-3); margin: 0; line-height: 1.5;">{{ t.proposedSparte.rationale }}</p>
+                  </div>
+                }
+                @if (t.suggestedAssignee) {
+                  <div>
+                    <div class="eyebrow">Suggested assignee</div>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                      @if (t.suggestedAssignee.userId) {
+                        <span class="chip" style="font-family: var(--font-mono);">{{ t.suggestedAssignee.userId }}</span>
+                      } @else {
+                        <span style="font-style: italic; color: var(--fg-3); font-size: 13px;">no candidate</span>
+                      }
+                      <span class="confidence">
+                        <span class="confidence-bar"><span class="confidence-fill" [style.width.%]="t.suggestedAssignee.confidence * 100"></span></span>
+                        {{ formatPercent(t.suggestedAssignee.confidence) }}
+                      </span>
+                    </div>
+                    <p style="font-size: 13px; color: var(--fg-3); margin: 0; line-height: 1.5;">{{ t.suggestedAssignee.reason }}</p>
+                  </div>
+                }
+              </div>
             </div>
-          </article>
+          </div>
         }
 
-        <article class="rounded-xl border border-slate-200 bg-white p-6 space-y-3">
-          <div class="flex flex-wrap items-center gap-3">
-            <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Likely affected files</h3>
-            <button
-              type="button"
-              (click)="localize()"
-              [disabled]="localizing()"
-              class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-            >
-              @if (localizing()) { Localizing… }
-              @else if (localization()) { Re-run localizer }
-              @else { Find affected files }
-            </button>
-          </div>
-          @if (localizeError(); as msg) {
-            <div class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{{ msg }}</div>
-          }
-          @if (localization(); as loc) {
-            @if (loc.summary) {
-              <p class="text-xs text-slate-600 italic">{{ loc.summary }}</p>
-            }
-            @if (loc.candidates.length === 0) {
-              <p class="text-sm text-slate-500 italic">No candidate files identified.</p>
-            } @else {
-              <ul class="divide-y divide-slate-100 rounded border border-slate-200 bg-white">
-                @for (c of loc.candidates; track $index) {
-                  <li class="space-y-1 px-4 py-3 text-sm">
-                    <div class="flex flex-wrap items-center gap-2">
-                      <span [class]="'inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ' + confidenceTone(c.confidence)">
-                        {{ c.confidence }}
-                      </span>
-                      <span class="font-mono text-xs text-slate-800">{{ c.path }}</span>
-                      <span class="font-mono text-[10px] text-slate-500">L{{ c.startLine }}–{{ c.endLine }}</span>
-                      @if (c.symbol) {
-                        <span class="font-mono text-xs text-violet-700">{{ c.symbol }}</span>
-                      }
-                    </div>
-                    <p class="text-xs text-slate-700">{{ c.rationale }}</p>
-                  </li>
-                }
-              </ul>
-            }
-          } @else {
-            <p class="text-sm text-slate-500 italic">No localization yet — run the localizer to get top-K candidate file/line ranges.</p>
-          }
-        </article>
-
-        <article class="rounded-xl border border-slate-200 bg-white p-6 space-y-3">
-          <div class="flex flex-wrap items-center gap-3">
-            <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Possible duplicates</h3>
-            <button
-              type="button"
-              (click)="checkDuplicates()"
-              [disabled]="duplicateChecking()"
-              class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-            >
-              @if (duplicateChecking()) { Checking… } @else { Check duplicates }
-            </button>
-          </div>
-          @if (duplicateError(); as msg) {
-            <div class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{{ msg }}</div>
-          }
-          @if (duplicates(); as cands) {
-            @if (cands.length === 0) {
-              <p class="text-sm text-slate-500 italic">No similar reports above the threshold.</p>
-            } @else {
-              <ul class="divide-y divide-slate-100 rounded border border-slate-200 bg-white">
-                @for (c of cands; track c.id) {
-                  <li class="flex items-center justify-between px-4 py-2 text-sm">
-                    <a [routerLink]="['/reports', c.id]" class="font-medium text-slate-900 hover:underline">{{ c.title }}</a>
-                    <span class="flex items-center gap-2 text-xs text-slate-500">
-                      <span class="rounded bg-slate-100 px-2 py-0.5 font-mono">d={{ formatDistance(c.distance) }}</span>
-                      <span>{{ c.status }}</span>
-                      @if (c.jiraIssueKey) {
-                        <span class="rounded bg-violet-100 px-2 py-0.5 text-violet-800">{{ c.jiraIssueKey }}</span>
-                      }
-                    </span>
-                  </li>
-                }
-              </ul>
-            }
-          }
-        </article>
-
-
-        <article class="rounded-xl border border-slate-200 bg-white p-6">
-          <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Captured context</h3>
-          @if (capturedContext()) {
-            <div class="mt-3">
-              <lib-context-viewer [context]="capturedContext()" />
+        <div class="section">
+          <div class="section-head">
+            <h3>Likely affected files</h3>
+            <div class="right">
+              <button type="button" class="btn btn-ghost btn-sm" (click)="localize()" [disabled]="localizing()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/>
+                </svg>
+                @if (localizing()) { Localizing… } @else if (localization()) { Re-run localizer } @else { Find affected files }
+              </button>
             </div>
-          } @else {
-            <p class="mt-2 text-sm text-slate-500 italic">No captured context attached.</p>
-          }
-        </article>
+          </div>
+          <div class="section-body">
+            @if (localizeError(); as msg) {
+              <div class="alert alert-error" style="margin: 0 0 12px;"><div class="content">{{ msg }}</div></div>
+            }
+            @if (localization(); as loc) {
+              @if (loc.summary) {
+                <p style="font-size: 13px; color: var(--fg-3); font-style: italic; margin: 0 0 12px;">{{ loc.summary }}</p>
+              }
+              @if (loc.candidates.length === 0) {
+                <p style="font-size: 13px; color: var(--fg-3); font-style: italic; margin: 0;">No candidate files identified.</p>
+              } @else {
+                @for (c of loc.candidates; track $index) {
+                  <div class="tool-row">
+                    <div class="icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/>
+                      </svg>
+                    </div>
+                    <div class="meta">
+                      <div class="title">{{ c.path }} <span class="lines">L{{ c.startLine }}–{{ c.endLine }}</span></div>
+                      <div class="sub">{{ c.symbol ?? c.rationale }}</div>
+                    </div>
+                    <span class="badge" [class]="confidenceBadgeClass(c.confidence)">{{ c.confidence }}</span>
+                  </div>
+                }
+              }
+            } @else {
+              <p style="font-size: 13px; color: var(--fg-3); font-style: italic; margin: 0;">No localization yet — run the localizer to get top-K candidate file/line ranges.</p>
+            }
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <h3>Possible duplicates</h3>
+            <div class="right">
+              <button type="button" class="btn btn-ghost btn-sm" (click)="checkDuplicates()" [disabled]="duplicateChecking()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4"/>
+                </svg>
+                @if (duplicateChecking()) { Checking… } @else { Check duplicates }
+              </button>
+            </div>
+          </div>
+          <div class="section-body">
+            @if (duplicateError(); as msg) {
+              <div class="alert alert-error" style="margin: 0 0 12px;"><div class="content">{{ msg }}</div></div>
+            }
+            @if (duplicates(); as cands) {
+              @if (cands.length === 0) {
+                <p style="font-size: 13px; color: var(--fg-3); font-style: italic; margin: 0;">No similar reports above the threshold.</p>
+              } @else {
+                @for (c of cands; track c.id) {
+                  <a class="tool-row" [routerLink]="['/reports', c.id]">
+                    <div class="icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/>
+                      </svg>
+                    </div>
+                    <div class="meta">
+                      <div class="title">{{ c.title }}</div>
+                      <div class="sub">d={{ formatDistance(c.distance) }} · {{ c.status }}@if (c.jiraIssueKey) { · {{ c.jiraIssueKey }} }</div>
+                    </div>
+                    <span class="score">{{ formatPercent(1 - c.distance) }}</span>
+                  </a>
+                }
+              }
+            } @else {
+              <p style="font-size: 13px; color: var(--fg-3); font-style: italic; margin: 0;">Click "Check duplicates" to find similar reports.</p>
+            }
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head"><h3>Captured context</h3></div>
+          <div class="section-body">
+            @if (capturedContext()) {
+              <lib-context-viewer [context]="capturedContext()" />
+            } @else {
+              <p style="margin: 0; font-size: 13px; color: var(--fg-3); font-style: italic;">No captured context attached.</p>
+            }
+          </div>
+        </div>
       }
     }
   }
-</section>
+</div>

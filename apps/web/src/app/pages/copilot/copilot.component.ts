@@ -9,9 +9,11 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AuthService } from '../../core/auth/auth.service';
 import { CopilotService } from '../../core/api/copilot.service';
 import type {
   BugSubmitData,
@@ -37,7 +39,7 @@ type JiraPushFlowState =
 @Component({
   selector: 'app-copilot',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, NgTemplateOutlet],
   templateUrl: './copilot.component.html',
   styleUrl: './copilot.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,6 +49,8 @@ export class CopilotComponent implements OnInit {
   @ViewChild('composerInput') private composerInput?: ElementRef<HTMLTextAreaElement>;
 
   private readonly api = inject(CopilotService);
+  private readonly auth = inject(AuthService);
+  private readonly route = inject(ActivatedRoute);
   private readonly zone = inject(NgZone);
 
   protected readonly sessions = signal<CopilotSessionSummary[]>([]);
@@ -62,11 +66,43 @@ export class CopilotComponent implements OnInit {
   protected inputText = '';
 
   protected readonly showSuggestions = computed(
-    () => !this.activeSessionId() && this.messages().length === 0
+    () => !this.activeSessionId() && this.messages().length === 0 && !this.streaming()
   );
+
+  protected readonly initials = computed(() => {
+    const name = this.auth.user()?.name ?? '?';
+    return name
+      .split(/\s+/)
+      .map((s) => s[0])
+      .filter(Boolean)
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+  });
+
+  protected readonly greeting = computed(() => {
+    const hour = new Date().getHours();
+    const part =
+      hour < 5 ? 'Good evening' :
+      hour < 12 ? 'Good morning' :
+      hour < 18 ? 'Good afternoon' :
+      'Good evening';
+    const name = (this.auth.user()?.name ?? '').split(/\s+/)[0] || 'there';
+    return `${part}, ${name}.`;
+  });
 
   ngOnInit(): void {
     this.loadSessions();
+
+    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      const sessionId = params.get('session');
+      const isNew = params.get('new');
+      if (isNew) {
+        this.newSession();
+      } else if (sessionId && sessionId !== this.activeSessionId()) {
+        this.loadSession(sessionId);
+      }
+    });
   }
 
   private loadSessions(): void {
@@ -81,6 +117,7 @@ export class CopilotComponent implements OnInit {
     this.messages.set([]);
     this.streamingText.set('');
     this.error.set(null);
+    setTimeout(() => this.composerInput?.nativeElement.focus(), 0);
   }
 
   protected loadSession(id: string): void {
@@ -108,6 +145,8 @@ export class CopilotComponent implements OnInit {
   }
 
   protected onKeydown(event: KeyboardEvent): void {
+    const ta = event.target as HTMLTextAreaElement;
+    queueMicrotask(() => this.autosize(ta));
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.send();
@@ -122,6 +161,12 @@ export class CopilotComponent implements OnInit {
     }
   }
 
+  private autosize(ta: HTMLTextAreaElement): void {
+    if (!ta) return;
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight, 200) + 'px';
+  }
+
   protected sendSuggestion(text: string): void {
     this.inputText = text;
     this.send();
@@ -134,6 +179,7 @@ export class CopilotComponent implements OnInit {
       if (el) {
         el.focus();
         el.setSelectionRange(text.length, text.length);
+        this.autosize(el);
       }
     }, 0);
   }
@@ -149,7 +195,6 @@ export class CopilotComponent implements OnInit {
     this.inputText = '';
     this.error.set(null);
 
-    // Ensure we have a session
     let sessionId = this.activeSessionId();
     if (!sessionId) {
       try {
@@ -167,14 +212,12 @@ export class CopilotComponent implements OnInit {
       }
     }
 
-    // Append user message
     this.messages.update((msgs) => [
       ...msgs,
       { id: crypto.randomUUID(), role: 'user', text, toolResults: [], createdAt: new Date() },
     ]);
     this.scrollBottom();
 
-    // Stream assistant response
     this.streaming.set(true);
     this.streamingText.set('');
     this.activeToolName.set(null);
@@ -214,8 +257,6 @@ export class CopilotComponent implements OnInit {
             }
             this.streamingText.set('');
             this.streamingToolResults.set([]);
-
-            // Refresh session list (title may have been set)
             this.loadSessions();
             this.scrollBottom();
           }
@@ -235,7 +276,6 @@ export class CopilotComponent implements OnInit {
     }, 0);
   }
 
-  // Template helpers
   protected toolLabel(name: string): string {
     const labels: Record<string, string> = {
       update_bug_draft: 'Updating bug draft…',
@@ -251,25 +291,11 @@ export class CopilotComponent implements OnInit {
     return labels[name] ?? `Running ${name}…`;
   }
 
-  protected asBugSubmit(data: unknown): BugSubmitData {
-    return data as BugSubmitData;
-  }
-
-  protected asDuplicates(data: unknown): DuplicateCheckData {
-    return data as DuplicateCheckData;
-  }
-
-  protected asJiraSearch(data: unknown): JiraSearchData {
-    return data as JiraSearchData;
-  }
-
-  protected asTranscript(data: unknown): TranscriptData {
-    return data as TranscriptData;
-  }
-
-  protected asCodeLocalization(data: unknown): CodeLocalizationData {
-    return data as CodeLocalizationData;
-  }
+  protected asBugSubmit(data: unknown): BugSubmitData { return data as BugSubmitData; }
+  protected asDuplicates(data: unknown): DuplicateCheckData { return data as DuplicateCheckData; }
+  protected asJiraSearch(data: unknown): JiraSearchData { return data as JiraSearchData; }
+  protected asTranscript(data: unknown): TranscriptData { return data as TranscriptData; }
+  protected asCodeLocalization(data: unknown): CodeLocalizationData { return data as CodeLocalizationData; }
 
   protected jiraPushFor(reportId: string): JiraPushFlowState {
     return this.jiraPush()[reportId] ?? { stage: 'idle' };
@@ -284,10 +310,7 @@ export class CopilotComponent implements OnInit {
     this.api.previewJiraPush(reportId).subscribe({
       next: (preview) => this.setJiraPush(reportId, { stage: 'preview', preview }),
       error: (err) =>
-        this.setJiraPush(reportId, {
-          stage: 'error',
-          message: this.errMsg(err, 'Preview failed'),
-        }),
+        this.setJiraPush(reportId, { stage: 'error', message: this.errMsg(err, 'Preview failed') }),
     });
   }
 
@@ -296,10 +319,7 @@ export class CopilotComponent implements OnInit {
     this.api.confirmJiraPush(reportId, preview.previewHash).subscribe({
       next: (result) => this.setJiraPush(reportId, { stage: 'pushed', result }),
       error: (err) =>
-        this.setJiraPush(reportId, {
-          stage: 'error',
-          message: this.errMsg(err, 'Confirm failed'),
-        }),
+        this.setJiraPush(reportId, { stage: 'error', message: this.errMsg(err, 'Confirm failed') }),
     });
   }
 

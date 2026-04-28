@@ -1,174 +1,131 @@
-<section class="space-y-6">
-  <header class="flex items-center justify-between gap-4">
-    <div>
-      <h2 class="text-2xl font-semibold tracking-tight">Prefill validator</h2>
-      <p class="text-sm text-slate-600">
-        Validate prefill JSON against the comparit Pool API schema.
-      </p>
+<div class="page" style="max-width: 1100px;">
+  <div class="page-head">
+    <div class="left">
+      <h1 class="page-h">Prefill validator</h1>
+      <p class="page-sub">Validate prefill JSON against the comparit Pool API schema.</p>
     </div>
-    <div class="inline-flex overflow-hidden rounded-lg border border-slate-200">
+    <div class="env-toggle">
       @for (s of stages; track s) {
-        <button
-          type="button"
-          [class]="
-            'px-4 py-1.5 text-xs font-semibold uppercase tracking-wide ' +
-            stageButtonTone(s, stage() === s)
-          "
-          (click)="setStage(s)"
-        >{{ s }}</button>
+        <button type="button" [attr.data-active]="stage() === s" (click)="setStage(s)">{{ s }}</button>
       }
     </div>
-  </header>
-
-  <div class="grid gap-4 md:grid-cols-2">
-    <article class="rounded-xl border border-slate-200 bg-white">
-      <div
-        class="flex items-center justify-between border-b border-slate-200 px-4 py-2"
-      >
-        <h3
-          class="text-xs font-semibold uppercase tracking-wide text-slate-500"
-        >Input</h3>
-        <button
-          type="button"
-          class="rounded border border-slate-200 px-2 py-1 text-xs text-slate-600 hover:bg-slate-50"
-          (click)="formatJson()"
-        >Format JSON</button>
-      </div>
-      <div class="space-y-3 p-4">
-        <div class="flex gap-2">
-          <select
-            class="flex-1 rounded border border-slate-200 bg-white px-3 py-2 text-sm"
-            [ngModel]="sparte()"
-            (ngModelChange)="sparte.set($event)"
-          >
-            <option value="">Select Sparte…</option>
-            @for (s of sparten(); track s.key) {
-              <option [value]="s.key">{{ s.key }} — {{ s.label }}</option>
-            }
-          </select>
-          <button
-            type="button"
-            class="rounded bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
-            [disabled]="loading()"
-            (click)="validate()"
-          >{{ loading() ? 'Validating…' : 'Validate' }}</button>
-        </div>
-        <textarea
-          class="block h-[460px] w-full rounded border border-slate-200 bg-slate-50 p-3 font-mono text-xs leading-relaxed text-slate-800"
-          spellcheck="false"
-          placeholder="Paste prefill JSON here… (Cmd/Ctrl+Enter to validate)"
-          [ngModel]="json()"
-          (ngModelChange)="json.set($event)"
-          (keydown)="onTextareaKeydown($event)"
-        ></textarea>
-        @if (autoDetected(); as ad) {
-          <p class="text-xs text-slate-500">
-            Auto-detected:
-            <span class="font-medium text-slate-700">{{ ad }}</span>
-          </p>
-        }
-      </div>
-    </article>
-
-    <article class="rounded-xl border border-slate-200 bg-white">
-      <div class="border-b border-slate-200 px-4 py-2">
-        <h3
-          class="text-xs font-semibold uppercase tracking-wide text-slate-500"
-        >Result</h3>
-      </div>
-      <div class="p-4">
-        @if (loading()) {
-          <div class="rounded bg-slate-100 px-3 py-2 text-sm text-slate-600">
-            Validating…
-          </div>
-        } @else if (errorMessage()) {
-          <div class="rounded bg-rose-50 px-3 py-2 text-sm text-rose-800">
-            {{ errorMessage() }}
-          </div>
-        } @else if (isOk()) {
-          <div
-            class="flex flex-wrap items-center gap-2 rounded bg-emerald-50 px-3 py-2 text-sm text-emerald-800"
-          >
-            <span>All prefill data is valid</span>
-            @if (resultStage(); as s) {
-              <span
-                [class]="
-                  'rounded px-2 py-0.5 text-[10px] uppercase ' +
-                  stageBadgeTone(s)
-                "
-              >{{ s }}</span>
-            }
-            @if (schemaIsStatic()) {
-              <span
-                class="rounded bg-amber-100 px-2 py-0.5 text-[10px] uppercase text-amber-800"
-              >offline schema (fallback)</span>
-            }
-          </div>
-        } @else if (isErr()) {
-          <div class="space-y-3">
-            <div
-              class="flex flex-wrap items-center gap-2 rounded bg-rose-50 px-3 py-2 text-sm text-rose-800"
-            >
-              <span>
-                {{ resultErrors().length }} validation error{{
-                  resultErrors().length === 1 ? '' : 's'
-                }}
-              </span>
-              @if (resultStage(); as s) {
-                <span
-                  [class]="
-                    'rounded px-2 py-0.5 text-[10px] uppercase ' +
-                    stageBadgeTone(s)
-                  "
-                >{{ s }}</span>
-              }
-              @if (schemaIsStatic()) {
-                <span
-                  class="rounded bg-amber-100 px-2 py-0.5 text-[10px] uppercase text-amber-800"
-                >offline schema (fallback)</span>
-              }
-            </div>
-            <div
-              class="max-h-[420px] overflow-auto rounded border border-slate-200"
-            >
-              <table class="w-full text-left text-xs">
-                <thead class="sticky top-0 bg-slate-50">
-                  <tr>
-                    <th class="px-3 py-2 font-semibold text-slate-500">Field</th>
-                    <th class="px-3 py-2 font-semibold text-slate-500">Error</th>
-                    <th class="px-3 py-2 font-semibold text-slate-500">Value</th>
-                    <th class="px-3 py-2 font-semibold text-slate-500">
-                      Expected
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (e of resultErrors(); track e.path + '|' + e.message) {
-                    <tr class="border-t border-slate-200">
-                      <td class="px-3 py-2 font-mono text-indigo-700">
-                        {{ e.path }}
-                      </td>
-                      <td class="px-3 py-2 text-slate-600">{{ e.message }}</td>
-                      <td class="px-3 py-2 font-mono text-rose-700">
-                        {{ e.value | json }}
-                      </td>
-                      <td class="px-3 py-2 font-mono text-emerald-700">
-                        {{ e.expected || '—' }}
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          </div>
-        } @else {
-          <div
-            class="flex h-[420px] items-center justify-center text-sm text-slate-400"
-          >
-            Paste JSON and click Validate
-          </div>
-        }
-      </div>
-    </article>
   </div>
-</section>
+
+  <div class="prefill-grid">
+    <!-- Input -->
+    <div class="card">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+        <div class="card-h" style="margin: 0;">Input</div>
+        <button type="button" class="btn btn-ghost btn-sm" (click)="formatJson()">Format JSON</button>
+      </div>
+      <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+        <select class="select" style="flex: 1;" [ngModel]="sparte()" (ngModelChange)="sparte.set($event)">
+          <option value="">Select Sparte…</option>
+          @for (s of sparten(); track s.key) {
+            <option [value]="s.key">{{ s.key }} — {{ s.label }}</option>
+          }
+        </select>
+        <button type="button" class="btn btn-primary" (click)="validate()" [disabled]="loading()">
+          @if (loading()) {
+            Validating…
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 9.5 17 19 7"/></svg>
+            Validate
+          }
+        </button>
+      </div>
+      <textarea
+        class="textarea"
+        spellcheck="false"
+        placeholder="Paste prefill JSON here… (Cmd/Ctrl+Enter to validate)"
+        style="min-height: 420px;"
+        [ngModel]="json()"
+        (ngModelChange)="json.set($event)"
+        (keydown)="onTextareaKeydown($event)"
+      ></textarea>
+      @if (autoDetected(); as ad) {
+        <p style="margin-top: 8px; font-size: 12px; color: var(--fg-3);">
+          Auto-detected: <strong style="color: var(--fg-1);">{{ ad }}</strong>
+        </p>
+      }
+    </div>
+
+    <!-- Result -->
+    <div class="card">
+      <div class="card-h">Result</div>
+      @if (loading()) {
+        <div class="state-empty">Validating…</div>
+      } @else if (errorMessage()) {
+        <div class="alert alert-error" style="margin: 0;">
+          <div class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>
+            </svg>
+          </div>
+          <div class="content"><strong>Invalid request</strong><br/><span style="font-family: var(--font-mono); font-size: 12px;">{{ errorMessage() }}</span></div>
+        </div>
+      } @else if (isOk()) {
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--success-bg); color: var(--secondary-hover-100); display: grid; place-items: center;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="M5 12.5 9.5 17 19 7"/></svg>
+            </div>
+            <div>
+              <div style="font-weight: 700; color: var(--fg-1);">Schema valid</div>
+              <div style="font-size: 12px; color: var(--fg-3);">
+                @if (resultStage(); as s) { stage = {{ s }} }
+                @if (schemaIsStatic()) { · offline schema (fallback) }
+              </div>
+            </div>
+          </div>
+        </div>
+      } @else if (isErr()) {
+        <div>
+          <div class="alert alert-error" style="margin: 0 0 12px;">
+            <div class="icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>
+              </svg>
+            </div>
+            <div class="content">
+              {{ resultErrors().length }} validation error{{ resultErrors().length === 1 ? '' : 's' }}
+              @if (resultStage(); as s) { · {{ s }} }
+              @if (schemaIsStatic()) { · offline schema (fallback) }
+            </div>
+          </div>
+          <div class="table-card" style="max-height: 420px; overflow: auto;">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>Field</th>
+                  <th>Error</th>
+                  <th>Value</th>
+                  <th>Expected</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (e of resultErrors(); track e.path + '|' + e.message) {
+                  <tr>
+                    <td class="mono" style="color: var(--primary-100);">{{ e.path }}</td>
+                    <td>{{ e.message }}</td>
+                    <td class="mono" style="color: #B7270B;">{{ e.value | json }}</td>
+                    <td class="mono" style="color: var(--secondary-hover-100);">{{ e.expected || '—' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      } @else {
+        <div class="state-empty">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/>
+            </svg>
+          </div>
+          Paste JSON and click <strong style="color: var(--fg-1);">Validate</strong>
+        </div>
+      }
+    </div>
+  </div>
+</div>

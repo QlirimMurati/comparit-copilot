@@ -1,17 +1,5 @@
 :host {
-  display: flex;
-  flex-direction: column;
+  display: block;
   height: 100vh;
   overflow: hidden;
-}
-
-.app-header {
-  flex-shrink: 0;
-}
-
-.fullscreen-outlet {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
 }

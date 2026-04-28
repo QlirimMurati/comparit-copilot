@@ -137,19 +137,15 @@ export class DashboardsComponent {
     return `${(hours / 24).toFixed(1)} d`;
   }
 
-  protected statusTone(s: ReportStatus): string {
+  protected statusBadgeClass(s: ReportStatus): string {
     switch (s) {
-      case 'new':
-        return 'bg-sky-100 text-sky-800';
-      case 'triaged':
-        return 'bg-amber-100 text-amber-800';
-      case 'in_progress':
-        return 'bg-indigo-100 text-indigo-800';
-      case 'resolved':
-        return 'bg-emerald-100 text-emerald-800';
+      case 'new': return 'badge-new';
+      case 'triaged': return 'badge-medium';
+      case 'in_progress': return 'badge-progress';
+      case 'resolved': return 'badge-resolved';
       case 'wontfix':
       case 'duplicate':
-        return 'bg-slate-200 text-slate-700';
+        return 'badge-low';
     }
   }
 }

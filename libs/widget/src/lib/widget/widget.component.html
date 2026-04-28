@@ -1,91 +1,106 @@
 <button
   type="button"
-  class="fab"
+  class="bug-fab"
   (click)="toggle()"
   [attr.aria-label]="open() ? 'Close report panel' : 'Report a bug'"
   [attr.aria-expanded]="open()"
 >
   @if (open()) {
-    ✕
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="M18 6 6 18M6 6l12 12"/>
+    </svg>
   } @else {
-    🐞
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 6V4a4 4 0 0 1 8 0v2"/><rect x="6" y="7" width="12" height="14" rx="6"/>
+      <path d="M6 13H3M21 13h-3M6 17H3M21 17h-3M6 9 4 7M18 9l2-2"/>
+    </svg>
+    <span class="pulse"></span>
   }
 </button>
 
 @if (open()) {
-  <div class="panel" role="dialog" aria-label="Report a bug">
-    <header class="panel-header">
-      <h2>Report a bug</h2>
-      <button
-        type="button"
-        class="close-btn"
-        (click)="close()"
-        aria-label="Close"
-      >
-        ✕
+  <div class="bug-panel" role="dialog" aria-label="Report a bug">
+    <div class="bug-head">
+      <div class="brand-dot">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 6V4a4 4 0 0 1 8 0v2"/><rect x="6" y="7" width="12" height="14" rx="6"/>
+          <path d="M6 13H3M21 13h-3M6 17H3M21 17h-3"/>
+        </svg>
+      </div>
+      <h3>Report a bug</h3>
+      <button type="button" class="sb-icon-btn" (click)="close()" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M18 6 6 18M6 6l12 12"/>
+        </svg>
       </button>
-    </header>
+    </div>
 
-    <nav class="tabs" role="tablist">
+    <nav class="bug-tabs" role="tablist">
       <button
         type="button"
+        class="tab"
         role="tab"
-        [class.active]="mode() === 'chat'"
+        [attr.data-active]="mode() === 'chat'"
         [attr.aria-selected]="mode() === 'chat'"
         (click)="switchMode('chat')"
       >
-        💬 Chat
+        Chat
       </button>
       <button
         type="button"
+        class="tab"
         role="tab"
-        [class.active]="mode() === 'form'"
+        [attr.data-active]="mode() === 'form'"
         [attr.aria-selected]="mode() === 'form'"
         (click)="switchMode('form')"
       >
-        📝 Form
+        Form
       </button>
     </nav>
 
     @if (mode() === 'chat') {
-      <div class="chat-body">
-        <div class="messages" role="log">
+      <div class="bug-body">
+        <div class="bug-msgs" role="log">
           @for (m of chatMessages(); track $index) {
-            <div [class]="'msg msg-' + m.role">{{ m.text }}</div>
+            <div class="bug-msg" [class.user]="m.role === 'user'">{{ m.text }}</div>
           }
           @if (chatLoading()) {
-            <div class="msg msg-assistant typing">…</div>
+            <div class="bug-msg typing">…</div>
           }
         </div>
 
         @if (chatError(); as err) {
-          <div class="alert error">{{ err }}</div>
+          <div class="bug-alert error">{{ err }}</div>
         }
         @if (chatSubmitted(); as id) {
-          <div class="alert success">
-            Report submitted — id {{ id.slice(0, 8) }}…
+          <div class="bug-alert success">
+            ✓ Report submitted — id {{ id.slice(0, 8) }}…
           </div>
         }
         @if (chatSubmitError(); as err) {
-          <div class="alert error">{{ err }}</div>
+          <div class="bug-alert error">{{ err }}</div>
         }
 
         @if (chatComplete() && !chatSubmitted()) {
           <button
             type="button"
-            class="primary-btn"
+            class="btn btn-brand"
+            style="width: 100%; justify-content: center; margin-top: 8px;"
             (click)="submitChat()"
             [disabled]="chatSubmitting()"
           >
             @if (chatSubmitting()) {
               Submitting…
             } @else {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>
+              </svg>
               Submit report
             }
           </button>
         } @else if (!chatSubmitted()) {
           <form
-            class="chat-input"
+            class="bug-input-row"
             (submit)="$event.preventDefault(); sendMessage()"
           >
             <input
@@ -98,80 +113,81 @@
             />
             <button
               type="submit"
+              class="btn btn-brand btn-sm"
               [disabled]="chatLoading() || !chatInput.value.trim()"
+              aria-label="Send"
             >
-              Send
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>
+              </svg>
             </button>
           </form>
         }
       </div>
     } @else {
-      <form [formGroup]="form" (ngSubmit)="submit()" class="panel-body">
-        <label>
-          <span>Title</span>
-          <input
-            type="text"
-            formControlName="title"
-            placeholder="One-line summary"
-          />
-        </label>
+      <form [formGroup]="form" (ngSubmit)="submit()" class="bug-body bug-form">
+        <div class="field">
+          <label class="field-label">Title</label>
+          <input class="input" type="text" formControlName="title" placeholder="One-line summary"/>
+        </div>
 
-        <label>
-          <span>Description</span>
+        <div class="field">
+          <label class="field-label">Description</label>
           <textarea
+            class="textarea"
             formControlName="description"
-            rows="5"
+            rows="4"
             placeholder="Steps to reproduce, expected vs actual"
           ></textarea>
-        </label>
+        </div>
 
         <div class="row">
-          <label>
-            <span>Severity</span>
-            <select formControlName="severity">
+          <div class="field">
+            <label class="field-label">Severity</label>
+            <select class="select" formControlName="severity">
               @for (s of severities; track s) {
                 <option [value]="s">{{ s }}</option>
               }
             </select>
-          </label>
-          <label>
-            <span>Sparte</span>
-            <select formControlName="sparte">
+          </div>
+          <div class="field">
+            <label class="field-label">Sparte</label>
+            <select class="select" formControlName="sparte">
               <option [ngValue]="null">— none —</option>
               @for (s of sparten; track s) {
                 <option [value]="s">{{ s }}</option>
               }
             </select>
-          </label>
+          </div>
         </div>
 
-        <details [attr.open]="contextExpanded() ? '' : null">
-          <summary (click)="toggleContext($event)">
-            Page context attached
-          </summary>
+        <details class="bug-context" [attr.open]="contextExpanded() ? '' : null">
+          <summary (click)="toggleContext($event)">Page context attached</summary>
           <pre>{{ capturedJson() }}</pre>
         </details>
 
         @if (success(); as msg) {
-          <div class="alert success">{{ msg }}</div>
+          <div class="bug-alert success">{{ msg }}</div>
         }
         @if (error(); as msg) {
-          <div class="alert error">{{ msg }}</div>
+          <div class="bug-alert error">{{ msg }}</div>
         }
 
-        <footer class="panel-footer">
-          <button
-            type="submit"
-            class="primary-btn"
-            [disabled]="form.invalid || submitting()"
-          >
-            @if (submitting()) {
-              Submitting…
-            } @else {
-              Submit
-            }
-          </button>
-        </footer>
+        <button
+          type="submit"
+          class="btn btn-brand"
+          style="width: 100%; justify-content: center;"
+          [disabled]="form.invalid || submitting()"
+        >
+          @if (submitting()) {
+            Submitting…
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>
+            </svg>
+            Submit report
+          }
+        </button>
       </form>
     }
   </div>

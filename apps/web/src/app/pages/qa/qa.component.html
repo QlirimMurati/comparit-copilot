@@ -1,21 +1,13 @@
-<section class="space-y-4">
-  <header class="flex items-end justify-between gap-3">
-    <div>
-      <h2 class="text-2xl font-semibold tracking-tight">Codebase Q&A</h2>
-      <p class="text-sm text-slate-600">
-        Ask how something works in the indexed codebase. Multi-turn — context carries between questions.
-      </p>
+<div class="page"><section class="space-y-4">
+  <div class="page-head">
+    <div class="left">
+      <h1 class="page-h">Codebase Q&amp;A</h1>
+      <p class="page-sub">Ask how something works in the indexed codebase. Multi-turn — context carries between questions.</p>
     </div>
     @if (sessionId()) {
-      <button
-        type="button"
-        (click)="reset()"
-        class="text-sm text-slate-600 hover:text-slate-900"
-      >
-        Start new session
-      </button>
+      <button type="button" class="btn btn-ghost btn-sm" (click)="reset()">Start new session</button>
     }
-  </header>
+  </div>
 
   @if (turns().length > 0) {
     <div class="space-y-3">
@@ -73,4 +65,4 @@
       Tip: the bot uses semantic search + grep + read-file over the indexed comparer-ui codebase. Start broad, refine in follow-ups.
     </p>
   }
-</section>
+</section></div>

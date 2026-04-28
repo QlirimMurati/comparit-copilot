@@ -1,89 +1,90 @@
-<section class="space-y-6">
-  <header>
-    <h2 class="text-2xl font-semibold tracking-tight">Dashboards</h2>
-    <p class="text-sm text-slate-600">Bug-report distribution across sparten and statuses.</p>
-  </header>
+<div class="page">
+  <div class="page-head">
+    <div class="left">
+      <h1 class="page-h">Dashboards</h1>
+      <p class="page-sub">Bug-report distribution across sparten and statuses.</p>
+    </div>
+  </div>
 
   @if (loading()) {
-    <div class="rounded border border-slate-200 bg-white px-6 py-6 text-center text-sm text-slate-500">
-      Loading…
-    </div>
+    <div class="card"><div class="state-empty">Loading…</div></div>
   } @else if (hasError()) {
-    <div class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
-      Failed to load reports.
+    <div class="alert alert-error">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>
+        </svg>
+      </div>
+      <div class="content">Failed to load reports.</div>
     </div>
   } @else {
-    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      <div class="rounded-xl border border-slate-200 bg-white p-4">
-        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Total reports</p>
-        <p class="mt-1 text-3xl font-semibold text-slate-900">{{ total() }}</p>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-eyebrow"><span class="swatch" style="background: var(--primary-100);"></span> Total reports</div>
+        <div class="stat-value">{{ total() }}</div>
+        <div class="stat-trend">across all sparten</div>
       </div>
-      <div class="rounded-xl border border-slate-200 bg-white p-4">
-        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Open</p>
-        <p class="mt-1 text-3xl font-semibold text-amber-700">{{ openCount() }}</p>
+      <div class="stat" data-tone="open">
+        <div class="stat-eyebrow"><span class="swatch" style="background: var(--error-100);"></span> Open</div>
+        <div class="stat-value">{{ openCount() }}</div>
+        <div class="stat-trend">awaiting triage / in progress</div>
       </div>
-      <div class="rounded-xl border border-slate-200 bg-white p-4">
-        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Resolved / closed</p>
-        <p class="mt-1 text-3xl font-semibold text-emerald-700">{{ resolvedCount() }}</p>
+      <div class="stat" data-tone="resolved">
+        <div class="stat-eyebrow"><span class="swatch" style="background: var(--secondary-100);"></span> Resolved / closed</div>
+        <div class="stat-value">{{ resolvedCount() }}</div>
+        <div class="stat-trend">resolved · wontfix · duplicate</div>
       </div>
-      <div class="rounded-xl border border-slate-200 bg-white p-4">
-        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Avg time-to-resolution</p>
+      <div class="stat" [attr.data-tone]="avgTtrHours() === null ? 'muted' : null">
+        <div class="stat-eyebrow"><span class="swatch" style="background: var(--highlight-mid-100);"></span> Avg time-to-resolution</div>
         @if (avgTtrHours(); as h) {
-          <p class="mt-1 text-3xl font-semibold text-indigo-700">{{ formatTtr(h) }}</p>
-          <p class="text-xs text-slate-500">across {{ resolvedSampleSize() }} resolved</p>
+          <div class="stat-value">{{ formatTtr(h) }}</div>
+          <div class="stat-trend">across {{ resolvedSampleSize() }} resolved</div>
         } @else {
-          <p class="mt-1 text-3xl font-semibold text-slate-400">—</p>
-          <p class="text-xs text-slate-500">no resolved reports yet</p>
+          <div class="stat-value">—</div>
+          <div class="stat-trend">no resolved reports yet</div>
         }
       </div>
     </div>
 
-    <article class="rounded-xl border border-slate-200 bg-white p-6">
-      <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Bugs per sparte</h3>
+    <div class="card" style="margin-bottom: 12px;">
+      <div class="card-h">Bugs per sparte</div>
       @if (sparteRows().length === 0) {
-        <p class="mt-2 text-sm text-slate-500 italic">No reports yet.</p>
+        <p style="margin: 0; font-size: 13px; color: var(--fg-3); font-style: italic;">No reports yet.</p>
       } @else {
-        <ul class="mt-3 space-y-2">
+        <div class="barlist">
           @for (row of sparteRows(); track row.sparte) {
-            <li class="grid grid-cols-[8rem_1fr_auto] items-center gap-3 text-sm">
-              <span class="truncate text-slate-700">{{ row.label }}</span>
-              <div class="relative h-5 overflow-hidden rounded bg-slate-100">
-                <div
-                  class="absolute inset-y-0 left-0 rounded bg-slate-700"
-                  [style.width]="barWidth(row.count)"
-                ></div>
+            <div class="barlist-row">
+              <div class="barlist-label">{{ row.label }}</div>
+              <div class="barlist-track">
+                <div class="barlist-fill" [style.width]="barWidth(row.count)"></div>
               </div>
-              <span class="font-mono text-xs text-slate-600">
-                {{ row.count }}
-                <span class="text-slate-400">({{ row.open }} open · {{ row.resolved }} closed)</span>
-              </span>
-            </li>
+              <div class="barlist-meta">
+                <span class="v">{{ row.count }}</span>
+                <span class="sub">({{ row.open }} open · {{ row.resolved }} closed)</span>
+              </div>
+            </div>
           }
-        </ul>
+        </div>
       }
-    </article>
+    </div>
 
-    <article class="rounded-xl border border-slate-200 bg-white p-6">
-      <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Status breakdown</h3>
+    <div class="card">
+      <div class="card-h">Status breakdown</div>
       @if (statusRows().length === 0) {
-        <p class="mt-2 text-sm text-slate-500 italic">No reports yet.</p>
+        <p style="margin: 0; font-size: 13px; color: var(--fg-3); font-style: italic;">No reports yet.</p>
       } @else {
-        <ul class="mt-3 flex flex-wrap gap-2">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
           @for (s of statusRows(); track s.status) {
-            <li
-              [class]="'inline-flex items-center gap-2 rounded px-3 py-1.5 text-sm ' + statusTone(s.status)"
-            >
-              <span>{{ s.status }}</span>
-              <span class="font-mono text-xs">{{ s.count }}</span>
-            </li>
+            <span class="badge" [class]="statusBadgeClass(s.status)" style="height: 28px; padding: 0 12px; font-size: 12px;">
+              {{ s.status }}
+              <strong style="margin-left: 6px;">{{ s.count }}</strong>
+            </span>
           }
-        </ul>
+        </div>
       }
-    </article>
-
-    <p class="text-xs text-slate-500">
-      Time-to-resolution and deploy-correlation tiles will land once a small aggregation endpoint is wired
-      (Clirim coordinate, or a read-only addition to <code>apps/api/src/bug-reports/</code>).
-    </p>
+      <p style="margin-top: 16px; font-size: 12px; color: var(--fg-3);">
+        Time-to-resolution and deploy-correlation tiles will land once a small aggregation endpoint is wired.
+      </p>
+    </div>
   }
-</section>
+</div>

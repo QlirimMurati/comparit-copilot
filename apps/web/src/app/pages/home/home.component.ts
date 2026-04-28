@@ -28,8 +28,8 @@ export class HomeComponent {
 
   protected readonly statusTone = computed(() => {
     const s = this.state();
-    if (!s || s === 'loading') return 'bg-slate-100 text-slate-700';
-    if (s === 'offline') return 'bg-rose-100 text-rose-800';
-    return 'bg-emerald-100 text-emerald-800';
+    if (!s || s === 'loading') return 'badge-low';
+    if (s === 'offline') return 'badge-blocker';
+    return 'badge-resolved';
   });
 }

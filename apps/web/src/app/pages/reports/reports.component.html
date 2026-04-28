@@ -1,137 +1,109 @@
-<section class="space-y-4">
-  <div class="flex items-center justify-between">
-    <div>
-      <h2 class="text-2xl font-semibold tracking-tight">Reports</h2>
-      <p class="text-sm text-slate-600">Bug reports raised across all sparten.</p>
+<div class="page">
+  <div class="page-head">
+    <div class="left">
+      <h1 class="page-h">Reports</h1>
+      <p class="page-sub">Bug reports raised across all sparten.</p>
     </div>
-    <a
-      routerLink="/reports/new"
-      class="inline-flex items-center rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
-    >
-      New report
-    </a>
+    <div class="actions">
+      @if (filterCount > 0) {
+        <button type="button" class="btn btn-ghost btn-sm" (click)="clearFilters()">
+          Clear filters
+        </button>
+      }
+      <a routerLink="/reports/new" class="btn btn-brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        New report
+      </a>
+    </div>
   </div>
 
-  <div class="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-3">
-    <label class="block">
-      <span class="block text-xs font-medium text-slate-600">Status</span>
-      <select
-        (change)="onStatusChange($any($event.target).value)"
-        class="mt-1 rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
-      >
+  <div class="filterbar">
+    <div class="field">
+      <span class="field-label">Status</span>
+      <select class="select" (change)="onStatusChange($any($event.target).value)">
         <option value="">all</option>
-        @for (s of statuses; track s) {
-          <option [value]="s">{{ s }}</option>
-        }
+        @for (s of statuses; track s) { <option [value]="s">{{ s }}</option> }
       </select>
-    </label>
-    <label class="block">
-      <span class="block text-xs font-medium text-slate-600">Severity</span>
-      <select
-        (change)="onSeverityChange($any($event.target).value)"
-        class="mt-1 rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
-      >
+    </div>
+    <div class="field">
+      <span class="field-label">Severity</span>
+      <select class="select" (change)="onSeverityChange($any($event.target).value)">
         <option value="">all</option>
-        @for (s of severities; track s) {
-          <option [value]="s">{{ s }}</option>
-        }
+        @for (s of severities; track s) { <option [value]="s">{{ s }}</option> }
       </select>
-    </label>
-    <label class="block">
-      <span class="block text-xs font-medium text-slate-600">Sparte</span>
-      <select
-        (change)="onSparteChange($any($event.target).value)"
-        class="mt-1 rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
-      >
+    </div>
+    <div class="field">
+      <span class="field-label">Sparte</span>
+      <select class="select" (change)="onSparteChange($any($event.target).value)">
         <option value="">all</option>
-        @for (s of sparten; track s) {
-          <option [value]="s">{{ s }}</option>
-        }
+        @for (s of sparten; track s) { <option [value]="s">{{ s }}</option> }
       </select>
-    </label>
-    <label class="ml-2 flex items-center gap-2 text-sm text-slate-700">
-      <input
-        type="checkbox"
-        (change)="onMineChange($any($event.target).checked)"
-      />
+    </div>
+    <label class="check">
+      <input type="checkbox" (change)="onMineChange($any($event.target).checked)"/>
       Mine only
     </label>
-    @if (filterCount > 0) {
-      <button
-        type="button"
-        (click)="clearFilters()"
-        class="ml-auto text-xs text-slate-600 hover:text-slate-900"
-      >
-        Clear filters
-      </button>
-    }
+    <div class="spacer"></div>
   </div>
 
   @if (hasError()) {
-    <div class="rounded border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
-      Failed to load reports. Make sure the API is running.
+    <div class="alert alert-error">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>
+        </svg>
+      </div>
+      <div class="content">Failed to load reports. Make sure the API is running.</div>
     </div>
   }
 
   @if (loading()) {
-    <div class="rounded border border-slate-200 bg-white px-6 py-10 text-center text-sm text-slate-500">
-      Loading…
+    <div class="card">
+      <div class="state-empty">Loading…</div>
     </div>
   } @else if (empty()) {
-    <div class="rounded border border-slate-200 bg-white px-6 py-10 text-center text-sm text-slate-600">
-      @if (filterCount > 0) {
-        No reports match these filters.
-      } @else {
-        No reports yet. Create the first one to see it here.
-      }
+    <div class="card">
+      <div class="state-empty">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/>
+          </svg>
+        </div>
+        @if (filterCount > 0) {
+          No reports match these filters.
+        } @else {
+          No reports yet. Create the first one to see it here.
+        }
+      </div>
     </div>
   } @else if (!hasError()) {
-    <div class="overflow-hidden rounded-lg border border-slate-200 bg-white">
-      <table class="min-w-full divide-y divide-slate-200 text-sm">
-        <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+    <div class="table-card">
+      <table class="tbl">
+        <thead>
           <tr>
-            <th class="px-4 py-2">Title</th>
-            <th class="px-4 py-2">Status</th>
-            <th class="px-4 py-2">Severity</th>
-            <th class="px-4 py-2">Sparte</th>
-            <th class="px-4 py-2">Reporter</th>
-            <th class="px-4 py-2">Created</th>
-            <th class="px-4 py-2"></th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Severity</th>
+            <th>Sparte</th>
+            <th>Reporter</th>
+            <th>Created</th>
+            <th></th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-100">
+        <tbody>
           @for (r of rows(); track r.id) {
-            <tr class="hover:bg-slate-50">
-              <td class="px-4 py-2 font-medium text-slate-900">
-                <a [routerLink]="['/reports', r.id]" class="hover:text-slate-700 hover:underline">
-                  {{ r.title }}
-                </a>
-              </td>
-              <td class="px-4 py-2">
-                <span [class]="'inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ' + statusTone(r.status)">
-                  {{ r.status }}
-                </span>
-              </td>
-              <td class="px-4 py-2">
-                <span [class]="'inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ' + severityTone(r.severity)">
-                  {{ r.severity }}
-                </span>
-              </td>
-              <td class="px-4 py-2 text-slate-700">{{ sparteLabel(r.sparte) }}</td>
-              <td class="px-4 py-2 text-slate-700">{{ r.reporter?.name ?? '—' }}</td>
-              <td class="px-4 py-2 text-slate-500">{{ formatDate(r.createdAt) }}</td>
-              <td class="px-4 py-2 text-right">
-                <a
-                  [routerLink]="['/reports', r.id]"
-                  class="text-sm font-medium text-slate-700 hover:text-slate-900"
-                >
-                  View →
-                </a>
-              </td>
+            <tr [routerLink]="['/reports', r.id]">
+              <td class="title-cell">{{ r.title }}</td>
+              <td><span class="badge" [class]="statusBadgeClass(r.status)">{{ r.status }}</span></td>
+              <td><span class="badge" [class]="severityBadgeClass(r.severity)">{{ r.severity }}</span></td>
+              <td>{{ sparteLabel(r.sparte) }}</td>
+              <td>{{ r.reporter?.name ?? '—' }}</td>
+              <td class="mono">{{ formatDate(r.createdAt) }}</td>
+              <td class="action-cell">View →</td>
             </tr>
           }
         </tbody>
       </table>
     </div>
   }
-</section>
+</div>

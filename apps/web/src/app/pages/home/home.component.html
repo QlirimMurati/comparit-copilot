@@ -1,15 +1,13 @@
-<section class="space-y-6">
-  <div class="space-y-2">
-    <h2 class="text-2xl font-semibold tracking-tight">Welcome to Copilot</h2>
-    <p class="text-slate-600 max-w-2xl">
-      Internal automation platform for the Comparit team. Phase 1 — Foundation.
-    </p>
+<div class="page">
+  <div class="page-head">
+    <div class="left">
+      <h1 class="page-h">Welcome to Cpit Workdesk</h1>
+      <p class="page-sub">Internal automation platform for the Comparit team.</p>
+    </div>
   </div>
 
-  <div class="rounded-lg border border-slate-200 bg-white p-4 flex items-center gap-3 text-sm">
-    <span class="font-medium text-slate-700">API status</span>
-    <span [class]="'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ' + statusTone()">
-      {{ statusLabel() }}
-    </span>
+  <div class="card" style="display: flex; align-items: center; gap: 12px;">
+    <span style="font: 700 13px var(--font-sans); color: var(--fg-2);">API status</span>
+    <span class="badge" [class]="statusTone()">{{ statusLabel() }}</span>
   </div>
-</section>
+</div>

@@ -1,350 +1,498 @@
-<div class="copilot-shell">
-  <!-- Sidebar -->
-  <aside class="copilot-sidebar">
-    <button class="new-chat-btn" (click)="newSession()">+ New chat</button>
-    <nav class="session-list">
-      @for (s of sessions(); track s.id) {
-        <button
-          class="session-item"
-          [class.active]="s.id === activeSessionId()"
-          (click)="loadSession(s.id)"
-          [title]="s.title ?? 'New conversation'"
-        >
-          <span class="session-title">{{ s.title ?? 'New conversation' }}</span>
-          <span class="session-date">{{ s.updatedAt | date:'MMM d' }}</span>
-        </button>
-      }
-    </nav>
-  </aside>
-
-  <!-- Main chat -->
-  <div class="copilot-main">
+<div class="copilot">
+  <div class="copilot-stream" #stream>
     <!-- Empty state -->
     @if (showSuggestions()) {
-      <div class="empty-state">
-        <h1>Comparit Copilot</h1>
-        <p>Report bugs, search Jira, decompose transcripts, find affected code, check application rules.</p>
-        <div class="suggestions">
-          <button class="suggestion-chip" (click)="sendSuggestion('I want to report a bug')">
-            🐛 Report a bug
+      <div class="empty">
+        <div class="empty-greet">
+          <div class="empty-orb">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3l1.8 5.4 5.4 1.8-5.4 1.8L12 17.4l-1.8-5.4L4.8 10.2l5.4-1.8L12 3z"/>
+              <path d="M19 4v3M21 5.5h-3" opacity=".6"/>
+            </svg>
+          </div>
+          <h1>{{ greeting() }}</h1>
+        </div>
+        <p class="empty-sub">
+          Cpit Workdesk helps you triage incoming reports, search Jira, decompose support transcripts, locate affected files in the codebase, and validate prefills against the Pool API schema.
+        </p>
+
+        <div class="quick-grid">
+          <button type="button" class="quick-card" data-tone="warning" (click)="sendSuggestion('I want to report a bug')">
+            <div class="quick-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 6V4a4 4 0 0 1 8 0v2"/><rect x="6" y="7" width="12" height="14" rx="6"/>
+                <path d="M6 13H3M21 13h-3M6 17H3M21 17h-3M6 9 4 7M18 9l2-2"/>
+              </svg>
+            </div>
+            <div class="quick-text">
+              <div class="quick-title">Report a bug</div>
+              <div class="quick-desc">Capture context, describe the issue, push to Jira.</div>
+            </div>
+            <div class="quick-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </div>
           </button>
-          <button class="suggestion-chip" (click)="sendSuggestion('Search Jira for login issues')">
-            🔍 Search Jira
+
+          <button type="button" class="quick-card" data-tone="indigo" (click)="sendSuggestion('Search Jira for login issues')">
+            <div class="quick-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 3 3 11l5 5"/><path d="M13 21 21 13l-5-5"/>
+              </svg>
+            </div>
+            <div class="quick-text">
+              <div class="quick-title">Search Jira</div>
+              <div class="quick-desc">Find tickets by keyword, sparte or reporter.</div>
+            </div>
+            <div class="quick-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </div>
           </button>
-          <button class="suggestion-chip" (click)="sendSuggestion('Decompose this transcript:')">
-            📋 Decompose transcript
+
+          <button type="button" class="quick-card" data-tone="violet" (click)="sendSuggestion('Decompose this transcript:\n\n')">
+            <div class="quick-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+            </div>
+            <div class="quick-text">
+              <div class="quick-title">Decompose transcript</div>
+              <div class="quick-desc">Paste a session, split into atomic bug reports.</div>
+            </div>
+            <div class="quick-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </div>
           </button>
-          <button class="suggestion-chip" (click)="sendSuggestion('Find duplicates for: ')">
-            🔗 Check duplicates
+
+          <button type="button" class="quick-card" (click)="sendSuggestion('Find duplicates for: ')">
+            <div class="quick-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4"/>
+              </svg>
+            </div>
+            <div class="quick-text">
+              <div class="quick-title">Check duplicates</div>
+              <div class="quick-desc">Compare a new report to the last 30 days.</div>
+            </div>
+            <div class="quick-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </div>
           </button>
-          <button class="suggestion-chip" (click)="focusComposer()">
-            📐 Check in application
+
+          <button type="button" class="quick-card" data-tone="indigo" (click)="sendSuggestion('Find affected files for ')">
+            <div class="quick-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/>
+              </svg>
+            </div>
+            <div class="quick-text">
+              <div class="quick-title">Find affected files</div>
+              <div class="quick-desc">Localize candidate files & line ranges.</div>
+            </div>
+            <div class="quick-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </div>
           </button>
+
+          <button type="button" class="quick-card" (click)="prefillSuggestion('Check this in application: ')">
+            <div class="quick-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12.5 9.5 17 19 7"/>
+              </svg>
+            </div>
+            <div class="quick-text">
+              <div class="quick-title">Check application rules</div>
+              <div class="quick-desc">Validate a quote against current rule set.</div>
+            </div>
+            <div class="quick-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </div>
+          </button>
+        </div>
+
+        <div class="tips">
+          <div class="tip">
+            <div class="tip-eyebrow">Tip</div>
+            <h4>Paste a transcript</h4>
+            <p>Workdesk will split it into a list of clean, separable bug reports.</p>
+          </div>
+          <div class="tip">
+            <div class="tip-eyebrow">Try</div>
+            <h4>Mention a sparte</h4>
+            <p>Say "BU" or "KFZ" to scope the search and triage.</p>
+          </div>
+          <div class="tip">
+            <div class="tip-eyebrow">New</div>
+            <h4>Auto-triage</h4>
+            <p>Severity and sparte are inferred — you confirm or override.</p>
+          </div>
         </div>
       </div>
     }
 
-    <!-- Message list -->
-    <div class="messages-area">
-      @if (loadingHistory()) {
-        <div class="loading-indicator">Loading…</div>
-      }
-
-      @for (msg of messages(); track msg.id) {
-        @if (msg.role === 'user') {
-          <div class="message-row user-row">
-            <div class="bubble user-bubble">{{ msg.text }}</div>
+    <!-- Messages -->
+    @if (!showSuggestions() || messages().length > 0 || streaming()) {
+      <div class="msgs">
+        @if (loadingHistory()) {
+          <div class="msg">
+            <div class="msg-avatar assistant">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3l1.8 5.4 5.4 1.8-5.4 1.8L12 17.4l-1.8-5.4L4.8 10.2l5.4-1.8L12 3z"/>
+              </svg>
+            </div>
+            <div class="msg-body">
+              <div class="msg-name">Workdesk <span class="time">loading…</span></div>
+            </div>
           </div>
-        } @else {
-          <div class="message-row assistant-row">
-            <div class="assistant-content">
-              @if (msg.text) {
-                <div class="bubble assistant-bubble">{{ msg.text }}</div>
-              }
-              @for (tr of msg.toolResults; track tr.toolName) {
-                <div class="tool-card">
-                  @switch (tr.toolName) {
-                    @case ('submit_bug_report') {
-                      <div class="tool-card-header success">✓ Bug report created</div>
-                      <div class="tool-card-body">
-                        <strong>{{ asBugSubmit(tr.data).title }}</strong>
-                        <a class="report-link" [routerLink]="['/reports', asBugSubmit(tr.data).reportId]">
-                          View report →
-                        </a>
+        }
 
-                        @let push = jiraPushFor(asBugSubmit(tr.data).reportId);
-                        @switch (push.stage) {
-                          @case ('idle') {
-                            <div class="action-row">
-                              <button
-                                class="action-btn primary"
-                                (click)="startJiraPush(asBugSubmit(tr.data).reportId)"
-                              >
-                                ↗ Create Jira ticket
-                              </button>
-                              <button
-                                class="action-btn ghost"
-                                (click)="keepAsReport(asBugSubmit(tr.data).reportId)"
-                              >
-                                Keep as internal report
-                              </button>
-                            </div>
-                          }
-                          @case ('previewing') {
-                            <div class="action-status">
-                              <span class="spinner"></span>
-                              Building Jira preview…
-                            </div>
-                          }
-                          @case ('preview') {
-                            <div class="jira-preview">
-                              <div class="preview-row">
-                                <span class="preview-label">Project</span>
-                                <span class="preview-value">{{ push.preview.projectKey }}</span>
-                              </div>
-                              <div class="preview-row">
-                                <span class="preview-label">Type</span>
-                                <span class="preview-value">{{ push.preview.issueType }}</span>
-                              </div>
-                              <div class="preview-row">
-                                <span class="preview-label">Summary</span>
-                                <span class="preview-value">{{ push.preview.summary }}</span>
-                              </div>
-                              @if (push.preview.labels.length) {
-                                <div class="preview-row">
-                                  <span class="preview-label">Labels</span>
-                                  <span class="preview-value">
-                                    @for (l of push.preview.labels; track l) {
-                                      <span class="jira-label">{{ l }}</span>
-                                    }
-                                  </span>
-                                </div>
-                              }
-                              <details class="preview-desc">
-                                <summary>Description preview</summary>
-                                <pre>{{ push.preview.description }}</pre>
-                              </details>
-                              @if (push.preview.warning) {
-                                <div class="preview-warning">⚠ {{ push.preview.warning }}</div>
-                              }
-                              <div class="action-row">
-                                <button
-                                  class="action-btn primary"
-                                  (click)="confirmJiraPush(asBugSubmit(tr.data).reportId, push.preview)"
-                                >
-                                  Confirm and push
-                                </button>
-                                <button
-                                  class="action-btn ghost"
-                                  (click)="cancelJiraPush(asBugSubmit(tr.data).reportId)"
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          }
-                          @case ('confirming') {
-                            <div class="action-status">
-                              <span class="spinner"></span>
-                              Pushing to Jira…
-                            </div>
-                          }
-                          @case ('pushed') {
-                            <div class="action-success">
-                              ✓ Pushed to Jira:
-                              <a [href]="push.result.jiraIssueUrl" target="_blank" rel="noopener">
-                                {{ push.result.jiraIssueKey }} ↗
-                              </a>
-                            </div>
-                          }
-                          @case ('kept') {
-                            <div class="action-success">
-                              ✓ Kept as internal report only
-                            </div>
-                          }
-                          @case ('error') {
-                            <div class="action-error">
-                              ✗ {{ push.message }}
-                              <button
-                                class="action-btn ghost small"
-                                (click)="cancelJiraPush(asBugSubmit(tr.data).reportId)"
-                              >Retry</button>
-                            </div>
-                          }
-                        }
-                      </div>
-                    }
-                    @case ('check_duplicates') {
-                      <div class="tool-card-header">Duplicate check</div>
-                      <div class="tool-card-body">
-                        @if (asDuplicates(tr.data).similarReports.length > 0) {
-                          <div class="dedup-section">
-                            <div class="dedup-label">Similar reports</div>
-                            @for (r of asDuplicates(tr.data).similarReports; track r.id) {
-                              <a class="dedup-item" [routerLink]="['/reports', r.id]">
-                                <span class="dedup-title">{{ r.title }}</span>
-                                <span class="dedup-badge">{{ r.severity }}</span>
-                                <span class="dedup-dist">{{ (r.distance * 100 | number:'1.0-0') }}% match</span>
-                              </a>
-                            }
-                          </div>
-                        }
-                        @if (asDuplicates(tr.data).similarTickets.length > 0) {
-                          <div class="dedup-section">
-                            <div class="dedup-label">Jira tickets</div>
-                            @for (t of asDuplicates(tr.data).similarTickets; track t.jiraIssueKey) {
-                              <div class="dedup-item">
-                                <span class="jira-key">{{ t.jiraIssueKey }}</span>
-                                <span class="dedup-title">{{ t.summary }}</span>
-                                <span class="dedup-badge">{{ t.status }}</span>
-                              </div>
-                            }
-                          </div>
-                        }
-                        @if (asDuplicates(tr.data).similarReports.length === 0 && asDuplicates(tr.data).similarTickets.length === 0) {
-                          <div class="empty-result">No similar issues found.</div>
-                        }
-                      </div>
-                    }
-                    @case ('search_jira') {
-                      <div class="tool-card-header">
-                        Jira search
-                        @if (asJiraSearch(tr.data).mode) {
-                          <span class="mode-pill">{{ asJiraSearch(tr.data).mode }}</span>
-                        }
-                      </div>
-                      <div class="tool-card-body">
-                        @if (asJiraSearch(tr.data).tickets.length === 0) {
-                          <div class="empty-result">No tickets found.</div>
-                        }
-                        @for (t of asJiraSearch(tr.data).tickets; track t.jiraIssueKey) {
-                          <div class="jira-card">
-                            <div class="jira-card-line1">
-                              <span class="jira-key">{{ t.jiraIssueKey }}</span>
-                              @if (t.issueType) { <span class="jira-type">{{ t.issueType }}</span> }
-                              @if (t.status) { <span class="jira-status">{{ t.status }}</span> }
-                              @if (t.priority) { <span class="jira-priority">{{ t.priority }}</span> }
-                              @if (t.distance !== undefined) {
-                                <span class="dedup-dist">{{ ((1 - t.distance) * 100 | number:'1.0-0') }}%</span>
-                              }
-                            </div>
-                            <div class="jira-summary-line">{{ t.summary }}</div>
-                            <div class="jira-meta">
-                              @if (t.assigneeName) { <span>👤 {{ t.assigneeName }}</span> }
-                              @if (t.labels && t.labels.length) {
-                                @for (l of t.labels; track l) {
-                                  <span class="jira-label">{{ l }}</span>
-                                }
-                              }
-                              @if (t.jiraUpdated) {
-                                <span class="jira-updated">{{ t.jiraUpdated | date:'MMM d' }}</span>
-                              }
-                            </div>
-                          </div>
-                        }
-                      </div>
-                    }
-                    @case ('find_affected_code') {
-                      <div class="tool-card-header">Affected code</div>
-                      <div class="tool-card-body">
-                        @if (asCodeLocalization(tr.data).summary) {
-                          <div class="code-summary">{{ asCodeLocalization(tr.data).summary }}</div>
-                        }
-                        @if (asCodeLocalization(tr.data).candidates.length === 0) {
-                          <div class="empty-result">No code locations identified.</div>
-                        }
-                        @for (c of asCodeLocalization(tr.data).candidates; track c.path + c.startLine) {
-                          <div class="code-file">
-                            <div class="code-line1">
-                              <span class="code-path">{{ c.path }}</span>
-                              <span class="code-lines">L{{ c.startLine }}–{{ c.endLine }}</span>
-                              <span class="code-confidence" [class.conf-high]="c.confidence === 'high'" [class.conf-medium]="c.confidence === 'medium'" [class.conf-low]="c.confidence === 'low'">
-                                {{ c.confidence }}
-                              </span>
-                            </div>
-                            @if (c.symbol) {
-                              <span class="code-symbol">{{ c.symbol }}</span>
-                            }
-                            <span class="code-reason">{{ c.rationale }}</span>
-                          </div>
-                        }
-                      </div>
-                    }
-                    @case ('decompose_transcript') {
-                      <div class="tool-card-header">Transcript decomposed</div>
-                      <div class="tool-card-body transcript-tree">
-                        @for (epic of asTranscript(tr.data).epics; track epic.id) {
-                          <div class="tree-epic">
-                            <div class="tree-node-label epic">📦 {{ epic.title }}</div>
-                            @for (story of epic.children; track story.id) {
-                              <div class="tree-story">
-                                <div class="tree-node-label story">📝 {{ story.title }}</div>
-                                @for (sub of story.children; track sub.id) {
-                                  <div class="tree-subtask">
-                                    <div class="tree-node-label subtask">✓ {{ sub.title }}</div>
-                                  </div>
-                                }
-                              </div>
-                            }
-                          </div>
-                        }
-                      </div>
-                    }
-                  }
+        @for (msg of messages(); track msg.id) {
+          @if (msg.role === 'user') {
+            <div class="msg">
+              <div class="msg-avatar user">{{ initials() }}</div>
+              <div class="msg-body">
+                <div class="msg-name">You <span class="time">{{ msg.createdAt | date: 'shortTime' }}</span></div>
+                <div class="msg-text">{{ msg.text }}</div>
+              </div>
+            </div>
+          } @else {
+            <div class="msg">
+              <div class="msg-avatar assistant">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 3l1.8 5.4 5.4 1.8-5.4 1.8L12 17.4l-1.8-5.4L4.8 10.2l5.4-1.8L12 3z"/>
+                </svg>
+              </div>
+              <div class="msg-body">
+                <div class="msg-name">Workdesk <span class="time">{{ msg.createdAt | date: 'shortTime' }}</span></div>
+                @if (msg.text) {
+                  <div class="msg-text">{{ msg.text }}</div>
+                }
+                @for (tr of msg.toolResults; track $index) {
+                  <ng-container *ngTemplateOutlet="toolCard; context: { $implicit: tr }"></ng-container>
+                }
+              </div>
+            </div>
+          }
+        }
+
+        <!-- Streaming preview -->
+        @if (streaming()) {
+          <div class="msg">
+            <div class="msg-avatar assistant">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3l1.8 5.4 5.4 1.8-5.4 1.8L12 17.4l-1.8-5.4L4.8 10.2l5.4-1.8L12 3z"/>
+              </svg>
+            </div>
+            <div class="msg-body">
+              <div class="msg-name">Workdesk <span class="time">thinking…</span></div>
+              @if (streamingText()) {
+                <div class="msg-text">{{ streamingText() }}<span class="msg-cursor"></span></div>
+              }
+              @if (activeToolName(); as tn) {
+                <div class="toolcard">
+                  <div class="toolcard-head">
+                    <span class="dot"></span>
+                    <span class="label">{{ toolLabel(tn) }}</span>
+                  </div>
                 </div>
+              }
+              @for (tr of streamingToolResults(); track $index) {
+                <ng-container *ngTemplateOutlet="toolCard; context: { $implicit: tr }"></ng-container>
               }
             </div>
           </div>
         }
-      }
 
-      <!-- Live streaming bubble -->
-      @if (streaming()) {
-        <div class="message-row assistant-row">
-          <div class="assistant-content">
-            @if (streamingText()) {
-              <div class="bubble assistant-bubble">{{ streamingText() }}<span class="cursor">▌</span></div>
-            }
-            @if (activeToolName()) {
-              <div class="tool-running">
-                <span class="spinner"></span>
-                {{ toolLabel(activeToolName()!) }}
-              </div>
-            }
-            @for (tr of streamingToolResults(); track tr.toolName) {
-              <div class="tool-result-preview">✓ {{ tr.toolName }} completed</div>
-            }
-          </div>
-        </div>
-      }
+        @if (error()) {
+          <div class="error-banner">{{ error() }}</div>
+        }
+        <div #messagesEnd></div>
+      </div>
+    }
+  </div>
 
-      @if (error()) {
-        <div class="error-banner">{{ error() }}</div>
-      }
-
-      <div #messagesEnd></div>
-    </div>
-
-    <!-- Input -->
-    <div class="input-area">
+  <!-- Composer -->
+  <div class="composer-wrap">
+    <div class="composer">
       <textarea
         #composerInput
-        class="chat-input"
+        class="composer-input"
         [(ngModel)]="inputText"
-        placeholder="Message Copilot… (Shift+Enter for newline, paste transcript to decompose)"
+        placeholder="Message Workdesk… (Shift+Enter for newline, paste transcript to decompose)"
         rows="1"
         (keydown)="onKeydown($event)"
         (drop)="onDrop($event)"
         (dragover)="$event.preventDefault()"
         [disabled]="streaming()"
       ></textarea>
-      <button
-        class="send-btn"
-        (click)="send()"
-        [disabled]="streaming() || !inputText.trim()"
-      >
-        @if (streaming()) { ● } @else { ↑ }
-      </button>
+      <div class="composer-bar">
+        <button type="button" class="composer-tool" title="Attach" aria-label="Attach">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m21 11-9 9a5 5 0 0 1-7-7l9.5-9.5a3.5 3.5 0 1 1 5 5L10 18a2 2 0 0 1-3-3l8.5-8.5"/>
+          </svg>
+        </button>
+        <span class="composer-mode">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6 8 8M16 16l2.4 2.4M5.6 18.4 8 16M16 8l2.4-2.4"/>
+          </svg>
+          Auto-triage
+        </span>
+        <div class="composer-spacer"></div>
+        <span class="composer-hint">⏎ to send</span>
+        <button
+          type="button"
+          class="composer-send"
+          [disabled]="streaming() || !inputText.trim()"
+          (click)="send()"
+          aria-label="Send"
+        >
+          @if (streaming()) {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="6" fill="currentColor"/></svg>
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>
+            </svg>
+          }
+        </button>
+      </div>
     </div>
+    <div class="composer-foot">Workdesk can make mistakes — verify severity & sparte before pushing to Jira.</div>
   </div>
 </div>
+
+<!-- ============================================================
+     Tool card templates (one per known tool name)
+     ============================================================ -->
+<ng-template #toolCard let-tr>
+  @switch (tr.toolName) {
+    @case ('submit_bug_report') {
+      <div class="toolcard">
+        <div class="toolcard-head">
+          <span class="dot done"></span>
+          <span class="label">Bug report created</span>
+        </div>
+        <div class="toolcard-body">
+          <div class="report-row">
+            <strong>{{ asBugSubmit(tr.data).title }}</strong>
+            <a class="report-link" [routerLink]="['/reports', asBugSubmit(tr.data).reportId]">View report →</a>
+          </div>
+          @let push = jiraPushFor(asBugSubmit(tr.data).reportId);
+          @switch (push.stage) {
+            @case ('idle') {
+              <div class="action-row">
+                <button type="button" class="btn btn-primary btn-sm" (click)="startJiraPush(asBugSubmit(tr.data).reportId)">
+                  ↗ Create Jira ticket
+                </button>
+                <button type="button" class="btn btn-ghost btn-sm" (click)="keepAsReport(asBugSubmit(tr.data).reportId)">
+                  Keep as internal report
+                </button>
+              </div>
+            }
+            @case ('previewing') {
+              <div class="action-status"><span class="spinner"></span>Building Jira preview…</div>
+            }
+            @case ('preview') {
+              <div class="jira-preview">
+                <div class="kv"><span>Project</span><span>{{ push.preview.projectKey }}</span></div>
+                <div class="kv"><span>Type</span><span>{{ push.preview.issueType }}</span></div>
+                <div class="kv"><span>Summary</span><span>{{ push.preview.summary }}</span></div>
+                @if (push.preview.labels.length) {
+                  <div class="kv">
+                    <span>Labels</span>
+                    <span class="labels">
+                      @for (l of push.preview.labels; track l) {
+                        <span class="badge badge-bu">{{ l }}</span>
+                      }
+                    </span>
+                  </div>
+                }
+                <details class="preview-desc">
+                  <summary>Description preview</summary>
+                  <pre>{{ push.preview.description }}</pre>
+                </details>
+                @if (push.preview.warning) {
+                  <div class="preview-warning">⚠ {{ push.preview.warning }}</div>
+                }
+                <div class="action-row">
+                  <button type="button" class="btn btn-brand btn-sm" (click)="confirmJiraPush(asBugSubmit(tr.data).reportId, push.preview)">
+                    Confirm and push
+                  </button>
+                  <button type="button" class="btn btn-ghost btn-sm" (click)="cancelJiraPush(asBugSubmit(tr.data).reportId)">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            }
+            @case ('confirming') {
+              <div class="action-status"><span class="spinner"></span>Pushing to Jira…</div>
+            }
+            @case ('pushed') {
+              <div class="action-success">
+                ✓ Pushed to Jira:
+                <a [href]="push.result.jiraIssueUrl" target="_blank" rel="noopener">
+                  {{ push.result.jiraIssueKey }} ↗
+                </a>
+              </div>
+            }
+            @case ('kept') {
+              <div class="action-success">✓ Kept as internal report only</div>
+            }
+            @case ('error') {
+              <div class="action-error">
+                ✗ {{ push.message }}
+                <button type="button" class="btn btn-ghost btn-sm" (click)="cancelJiraPush(asBugSubmit(tr.data).reportId)">Retry</button>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    }
+    @case ('check_duplicates') {
+      <div class="toolcard">
+        <div class="toolcard-head">
+          <span class="dot done"></span>
+          <span class="label">Duplicate check</span>
+        </div>
+        <div class="toolcard-body">
+          @if (asDuplicates(tr.data).similarReports.length === 0 && asDuplicates(tr.data).similarTickets.length === 0) {
+            <div class="empty-result">No similar issues found.</div>
+          }
+          @if (asDuplicates(tr.data).similarReports.length > 0) {
+            <div class="row-group">
+              <div class="row-group-h">Similar reports</div>
+              @for (r of asDuplicates(tr.data).similarReports; track r.id) {
+                <a class="tool-row" [routerLink]="['/reports', r.id]">
+                  <div class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/>
+                    </svg>
+                  </div>
+                  <div class="meta">
+                    <div class="title">{{ r.title }}</div>
+                    <div class="sub">{{ r.severity }}</div>
+                  </div>
+                  <div class="score">{{ r.distance * 100 | number: '1.0-0' }}%</div>
+                </a>
+              }
+            </div>
+          }
+          @if (asDuplicates(tr.data).similarTickets.length > 0) {
+            <div class="row-group">
+              <div class="row-group-h">Jira tickets</div>
+              @for (t of asDuplicates(tr.data).similarTickets; track t.jiraIssueKey) {
+                <div class="tool-row">
+                  <div class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M11 3 3 11l5 5"/><path d="M13 21 21 13l-5-5"/>
+                    </svg>
+                  </div>
+                  <div class="meta">
+                    <div class="title">{{ t.jiraIssueKey }} · {{ t.summary }}</div>
+                    <div class="sub">{{ t.status }}</div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+    @case ('search_jira') {
+      <div class="toolcard">
+        <div class="toolcard-head">
+          <span class="dot done"></span>
+          <span class="label">Jira search</span>
+          @if (asJiraSearch(tr.data).mode) {
+            <span class="timing">{{ asJiraSearch(tr.data).mode }}</span>
+          }
+        </div>
+        <div class="toolcard-body">
+          @if (asJiraSearch(tr.data).tickets.length === 0) {
+            <div class="empty-result">No tickets found.</div>
+          }
+          @for (t of asJiraSearch(tr.data).tickets; track t.jiraIssueKey) {
+            <div class="tool-row">
+              <div class="icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 3 3 11l5 5"/><path d="M13 21 21 13l-5-5"/>
+                </svg>
+              </div>
+              <div class="meta">
+                <div class="title">{{ t.jiraIssueKey }} · {{ t.summary }}</div>
+                <div class="sub">
+                  @if (t.issueType) { {{ t.issueType }} · }
+                  @if (t.status) { {{ t.status }} }
+                  @if (t.assigneeName) { · {{ t.assigneeName }} }
+                </div>
+              </div>
+              @if (t.distance !== undefined) {
+                <div class="score">{{ (1 - t.distance) * 100 | number: '1.0-0' }}%</div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+    @case ('find_affected_code') {
+      <div class="toolcard">
+        <div class="toolcard-head">
+          <span class="dot done"></span>
+          <span class="label">Affected code</span>
+        </div>
+        <div class="toolcard-body">
+          @if (asCodeLocalization(tr.data).summary) {
+            <div class="code-summary">{{ asCodeLocalization(tr.data).summary }}</div>
+          }
+          @if (asCodeLocalization(tr.data).candidates.length === 0) {
+            <div class="empty-result">No code locations identified.</div>
+          }
+          @for (c of asCodeLocalization(tr.data).candidates; track c.path + c.startLine) {
+            <div class="tool-row">
+              <div class="icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/>
+                </svg>
+              </div>
+              <div class="meta">
+                <div class="title">{{ c.path }}<span class="lines">L{{ c.startLine }}–{{ c.endLine }}</span></div>
+                <div class="sub">{{ c.symbol ?? c.rationale }}</div>
+              </div>
+              <div class="score" [class.warn]="c.confidence === 'low'">{{ c.confidence }}</div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+    @case ('decompose_transcript') {
+      <div class="toolcard">
+        <div class="toolcard-head">
+          <span class="dot done"></span>
+          <span class="label">Transcript decomposed</span>
+        </div>
+        <div class="toolcard-body transcript-tree">
+          @for (epic of asTranscript(tr.data).epics; track epic.id) {
+            <div class="tree-epic">
+              <div class="tree-label level-epic">📦 {{ epic.title }}</div>
+              @for (story of epic.children; track story.id) {
+                <div class="tree-story">
+                  <div class="tree-label level-story">📝 {{ story.title }}</div>
+                  @for (sub of story.children; track sub.id) {
+                    <div class="tree-label level-subtask">✓ {{ sub.title }}</div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+    @default {
+      <div class="toolcard">
+        <div class="toolcard-head">
+          <span class="dot done"></span>
+          <span class="label">{{ tr.toolName }} completed</span>
+        </div>
+      </div>
+    }
+  }
+</ng-template>
