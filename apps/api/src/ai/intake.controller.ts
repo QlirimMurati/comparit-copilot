@@ -18,6 +18,7 @@ import { ChatSessionService } from './chat-session.service';
 import { EmbedQueueService } from './embed.queue';
 import { IntakeAgentService } from './intake-agent.service';
 import { isIntakeReady, type IntakeState } from './intake-schema';
+import { TriageQueueService } from './triage.queue';
 import type {
   ChatMessageInput,
   ChatMessageResult,
@@ -37,6 +38,7 @@ export class IntakeController {
     private readonly sessions: ChatSessionService,
     private readonly agent: IntakeAgentService,
     private readonly embedQueue: EmbedQueueService,
+    private readonly triageQueue: TriageQueueService,
     private readonly realtime: RealtimeGateway
   ) {}
 
@@ -171,6 +173,7 @@ export class IntakeController {
 
     await this.sessions.markSubmitted(session.id, row.id);
     await this.embedQueue.enqueueReportEmbedding(row.id);
+    await this.triageQueue.enqueueReportTriage(row.id);
     this.realtime.emitBugReportCreated({
       reportId: row.id,
       reporterId,

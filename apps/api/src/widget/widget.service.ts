@@ -1,5 +1,6 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { EmbedQueueService } from '../ai/embed.queue';
+import { TriageQueueService } from '../ai/triage.queue';
 import { DRIZZLE, type Database } from '../db/db.module';
 import { RealtimeGateway } from '../realtime/realtime.gateway';
 import {
@@ -17,6 +18,7 @@ export class WidgetService {
   constructor(
     @Inject(DRIZZLE) private readonly db: Database,
     private readonly embedQueue: EmbedQueueService,
+    private readonly triageQueue: TriageQueueService,
     private readonly realtime: RealtimeGateway
   ) {}
 
@@ -62,6 +64,7 @@ export class WidgetService {
       });
 
     await this.embedQueue.enqueueReportEmbedding(row.id);
+    await this.triageQueue.enqueueReportTriage(row.id);
     this.realtime.emitBugReportCreated({
       reportId: row.id,
       reporterId,

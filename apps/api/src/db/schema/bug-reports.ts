@@ -59,6 +59,7 @@ export const bugReports = pgTable(
     sparte: text('sparte').$type<Sparte>(),
     capturedContext: jsonb('captured_context'),
     aiProposedTicket: jsonb('ai_proposed_ticket'),
+    aiProposedTriage: jsonb('ai_proposed_triage'),
     embedding: vector('embedding', { dimensions: EMBEDDING_DIMENSIONS }),
     jiraIssueKey: text('jira_issue_key'),
     createdAt: timestamp('created_at', { withTimezone: true })

@@ -31,7 +31,7 @@
 ### Phase 3 deepening (extras owned by me)
 | W# | Workstream | Status | Notes |
 |---|---|---|---|
-| W11 | AI auto-triage on submit | TODO | Depends on W4 |
+| W11 | AI auto-triage on submit | Done (2026-04-28) | BullMQ-driven triage agent writes proposed severity/sparte to `aiProposedTriage` |
 | W12 | Test-case generator | Done (2026-04-28) | `POST /api/reports/:id/generate-test-stub` writes Cypress/Playwright stub to `aiProposedTicket.testStub` |
 | W13 | Daily digest worker | TODO | Reports-only fine pre-W7; richer once W7 lands |
 | W14 | Bug pattern alerts (incidents) | TODO | Depends on W4 + W10 |

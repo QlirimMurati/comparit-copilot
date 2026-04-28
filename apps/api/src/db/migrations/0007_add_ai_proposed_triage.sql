@@ -1,0 +1,1 @@
+ALTER TABLE "bug_reports" ADD COLUMN "ai_proposed_triage" jsonb;

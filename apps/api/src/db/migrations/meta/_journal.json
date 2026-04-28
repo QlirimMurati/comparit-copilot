@@ -50,6 +50,13 @@
       "when": 1777372949446,
       "tag": "0006_add_transcript_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1777373539195,
+      "tag": "0007_add_ai_proposed_triage",
+      "breakpoints": true
     }
   ]
 }

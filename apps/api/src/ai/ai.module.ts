@@ -15,6 +15,8 @@ import { PromptRegistryService } from './prompt-registry.service';
 import { TestCaseGeneratorService } from './test-case-generator.service';
 import { TicketPolisherService } from './ticket-polisher.service';
 import { TranscriptDecomposerService } from './transcript-decomposer/transcript-decomposer.service';
+import { TriageAgentService } from './triage-agent.service';
+import { TriageQueueService } from './triage.queue';
 import { TranscriptsController } from './transcript-decomposer/transcripts.controller';
 import { VoyageService } from './voyage.service';
 
@@ -39,6 +41,8 @@ import { VoyageService } from './voyage.service';
     FewShotRegistryService,
     PromptRegistryService,
     TranscriptDecomposerService,
+    TriageAgentService,
+    TriageQueueService,
   ],
   exports: [
     AnthropicService,
@@ -52,6 +56,8 @@ import { VoyageService } from './voyage.service';
     FewShotRegistryService,
     PromptRegistryService,
     TranscriptDecomposerService,
+    TriageAgentService,
+    TriageQueueService,
   ],
 })
 export class AiModule {}
