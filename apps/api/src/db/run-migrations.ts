@@ -21,3 +21,10 @@ export async function runMigrations(): Promise<void> {
     await sql.end({ timeout: 5 });
   }
 }
+
+// Allow running directly: ts-node run-migrations.ts
+if (require.main === module) {
+  runMigrations()
+    .then(() => process.exit(0))
+    .catch((err) => { console.error(err); process.exit(1); });
+}

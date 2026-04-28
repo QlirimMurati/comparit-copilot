@@ -1,0 +1,213 @@
+<div class="copilot-shell">
+  <!-- Sidebar -->
+  <aside class="copilot-sidebar">
+    <button class="new-chat-btn" (click)="newSession()">+ New chat</button>
+    <nav class="session-list">
+      @for (s of sessions(); track s.id) {
+        <button
+          class="session-item"
+          [class.active]="s.id === activeSessionId()"
+          (click)="loadSession(s.id)"
+          [title]="s.title ?? 'New conversation'"
+        >
+          <span class="session-title">{{ s.title ?? 'New conversation' }}</span>
+          <span class="session-date">{{ s.updatedAt | date:'MMM d' }}</span>
+        </button>
+      }
+    </nav>
+  </aside>
+
+  <!-- Main chat -->
+  <div class="copilot-main">
+    <!-- Empty state -->
+    @if (showSuggestions()) {
+      <div class="empty-state">
+        <h1>Comparit Copilot</h1>
+        <p>Report bugs, search Jira, decompose transcripts, find affected code.</p>
+        <div class="suggestions">
+          <button class="suggestion-chip" (click)="sendSuggestion('I want to report a bug')">
+            🐛 Report a bug
+          </button>
+          <button class="suggestion-chip" (click)="sendSuggestion('Search Jira for login issues')">
+            🔍 Search Jira
+          </button>
+          <button class="suggestion-chip" (click)="sendSuggestion('Decompose this transcript:')">
+            📋 Decompose transcript
+          </button>
+          <button class="suggestion-chip" (click)="sendSuggestion('Find duplicates for: ')">
+            🔗 Check duplicates
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Message list -->
+    <div class="messages-area">
+      @if (loadingHistory()) {
+        <div class="loading-indicator">Loading…</div>
+      }
+
+      @for (msg of messages(); track msg.id) {
+        @if (msg.role === 'user') {
+          <div class="message-row user-row">
+            <div class="bubble user-bubble">{{ msg.text }}</div>
+          </div>
+        } @else {
+          <div class="message-row assistant-row">
+            <div class="assistant-content">
+              @if (msg.text) {
+                <div class="bubble assistant-bubble">{{ msg.text }}</div>
+              }
+              @for (tr of msg.toolResults; track tr.toolName) {
+                <div class="tool-card">
+                  @switch (tr.toolName) {
+                    @case ('submit_bug_report') {
+                      <div class="tool-card-header success">✓ Bug report created</div>
+                      <div class="tool-card-body">
+                        <strong>{{ asBugSubmit(tr.data).title }}</strong>
+                        <a class="report-link" [routerLink]="['/reports', asBugSubmit(tr.data).reportId]">
+                          View report →
+                        </a>
+                      </div>
+                    }
+                    @case ('check_duplicates') {
+                      <div class="tool-card-header">Duplicate check</div>
+                      <div class="tool-card-body">
+                        @if (asDuplicates(tr.data).similarReports.length > 0) {
+                          <div class="dedup-section">
+                            <div class="dedup-label">Similar reports</div>
+                            @for (r of asDuplicates(tr.data).similarReports; track r.id) {
+                              <a class="dedup-item" [routerLink]="['/reports', r.id]">
+                                <span class="dedup-title">{{ r.title }}</span>
+                                <span class="dedup-badge">{{ r.severity }}</span>
+                                <span class="dedup-dist">{{ (r.distance * 100 | number:'1.0-0') }}% match</span>
+                              </a>
+                            }
+                          </div>
+                        }
+                        @if (asDuplicates(tr.data).similarTickets.length > 0) {
+                          <div class="dedup-section">
+                            <div class="dedup-label">Jira tickets</div>
+                            @for (t of asDuplicates(tr.data).similarTickets; track t.jiraIssueKey) {
+                              <div class="dedup-item">
+                                <span class="jira-key">{{ t.jiraIssueKey }}</span>
+                                <span class="dedup-title">{{ t.summary }}</span>
+                                <span class="dedup-badge">{{ t.status }}</span>
+                              </div>
+                            }
+                          </div>
+                        }
+                        @if (asDuplicates(tr.data).similarReports.length === 0 && asDuplicates(tr.data).similarTickets.length === 0) {
+                          <div class="empty-result">No similar issues found.</div>
+                        }
+                      </div>
+                    }
+                    @case ('search_jira') {
+                      <div class="tool-card-header">Jira search results</div>
+                      <div class="tool-card-body">
+                        @if (asJiraSearch(tr.data).tickets.length === 0) {
+                          <div class="empty-result">No tickets found.</div>
+                        }
+                        @for (t of asJiraSearch(tr.data).tickets; track t.jiraIssueKey) {
+                          <div class="jira-row">
+                            <span class="jira-key">{{ t.jiraIssueKey }}</span>
+                            <span class="jira-summary">{{ t.summary }}</span>
+                            <span class="jira-status">{{ t.status }}</span>
+                          </div>
+                        }
+                      </div>
+                    }
+                    @case ('find_affected_code') {
+                      <div class="tool-card-header">Affected code</div>
+                      <div class="tool-card-body">
+                        @if (asCodeLocalization(tr.data).summary) {
+                          <div class="code-summary">{{ asCodeLocalization(tr.data).summary }}</div>
+                        }
+                        @for (c of asCodeLocalization(tr.data).candidates; track c.filePath) {
+                          <div class="code-file">
+                            <span class="code-path">{{ c.filePath }}</span>
+                            @if (c.symbol) {
+                              <span class="code-symbol">{{ c.symbol }}</span>
+                            }
+                            <span class="code-reason">{{ c.reason }}</span>
+                          </div>
+                        }
+                      </div>
+                    }
+                    @case ('decompose_transcript') {
+                      <div class="tool-card-header">Transcript decomposed</div>
+                      <div class="tool-card-body transcript-tree">
+                        @for (epic of asTranscript(tr.data).epics; track epic.id) {
+                          <div class="tree-epic">
+                            <div class="tree-node-label epic">📦 {{ epic.title }}</div>
+                            @for (story of epic.children; track story.id) {
+                              <div class="tree-story">
+                                <div class="tree-node-label story">📝 {{ story.title }}</div>
+                                @for (sub of story.children; track sub.id) {
+                                  <div class="tree-subtask">
+                                    <div class="tree-node-label subtask">✓ {{ sub.title }}</div>
+                                  </div>
+                                }
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Live streaming bubble -->
+      @if (streaming()) {
+        <div class="message-row assistant-row">
+          <div class="assistant-content">
+            @if (streamingText()) {
+              <div class="bubble assistant-bubble">{{ streamingText() }}<span class="cursor">▌</span></div>
+            }
+            @if (activeToolName()) {
+              <div class="tool-running">
+                <span class="spinner"></span>
+                {{ toolLabel(activeToolName()!) }}
+              </div>
+            }
+            @for (tr of streamingToolResults(); track tr.toolName) {
+              <div class="tool-result-preview">✓ {{ tr.toolName }} completed</div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (error()) {
+        <div class="error-banner">{{ error() }}</div>
+      }
+
+      <div #messagesEnd></div>
+    </div>
+
+    <!-- Input -->
+    <div class="input-area">
+      <textarea
+        class="chat-input"
+        [(ngModel)]="inputText"
+        placeholder="Message Copilot… (Shift+Enter for newline, paste transcript to decompose)"
+        rows="1"
+        (keydown)="onKeydown($event)"
+        (drop)="onDrop($event)"
+        (dragover)="$event.preventDefault()"
+        [disabled]="streaming()"
+      ></textarea>
+      <button
+        class="send-btn"
+        (click)="send()"
+        [disabled]="streaming() || !inputText.trim()"
+      >
+        @if (streaming()) { ● } @else { ↑ }
+      </button>
+    </div>
+  </div>
+</div>

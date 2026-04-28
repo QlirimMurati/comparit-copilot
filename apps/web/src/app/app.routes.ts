@@ -16,8 +16,15 @@ export const appRoutes: Route[] = [
       {
         path: '',
         pathMatch: 'full',
+        redirectTo: 'copilot',
+      },
+      {
+        path: 'copilot',
+        data: { fullscreen: true },
         loadComponent: () =>
-          import('./pages/home/home.component').then((m) => m.HomeComponent),
+          import('./pages/copilot/copilot.component').then(
+            (m) => m.CopilotComponent
+          ),
       },
       {
         path: 'reports',
@@ -28,30 +35,11 @@ export const appRoutes: Route[] = [
           ),
       },
       {
-        path: 'reports/new',
-        loadComponent: () =>
-          import('./pages/reports/new/new-report.component').then(
-            (m) => m.NewReportComponent
-          ),
-      },
-      {
         path: 'reports/:id',
         loadComponent: () =>
           import('./pages/reports/detail/detail.component').then(
             (m) => m.ReportDetailComponent
           ),
-      },
-      {
-        path: 'transcripts',
-        loadComponent: () =>
-          import('./pages/transcripts/transcripts.component').then(
-            (m) => m.TranscriptsComponent
-          ),
-      },
-      {
-        path: 'qa',
-        loadComponent: () =>
-          import('./pages/qa/qa.component').then((m) => m.QaComponent),
       },
       {
         path: 'dashboards',

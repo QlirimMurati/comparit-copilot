@@ -8,3 +8,5 @@ export * from './transcripts';
 export * from './incidents';
 export * from './code-chunks';
 export * from './tickets-cache';
+export * from './copilot-sessions';
+export * from './copilot-messages';
