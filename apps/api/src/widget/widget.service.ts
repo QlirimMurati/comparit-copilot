@@ -1,4 +1,5 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { EmbedQueueService } from '../ai/embed.queue';
 import { DRIZZLE, type Database } from '../db/db.module';
 import {
   REPORT_SEVERITIES,
@@ -12,7 +13,10 @@ import type { WidgetReportInput, WidgetReportResult } from './widget.types';
 
 @Injectable()
 export class WidgetService {
-  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
+  constructor(
+    @Inject(DRIZZLE) private readonly db: Database,
+    private readonly embedQueue: EmbedQueueService
+  ) {}
 
   async submit(input: WidgetReportInput): Promise<WidgetReportResult> {
     if (!input.reporterEmail) {
@@ -54,6 +58,8 @@ export class WidgetService {
         status: bugReports.status,
         createdAt: bugReports.createdAt,
       });
+
+    await this.embedQueue.enqueueReportEmbedding(row.id);
 
     return {
       id: row.id,

@@ -9,6 +9,11 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import {
+  DedupService,
+  type CheckDuplicateInput,
+  type DuplicateCandidate,
+} from '../ai/dedup.service';
 import { TicketPolisherService } from '../ai/ticket-polisher.service';
 import type { PolishedTicket } from '../ai/ticket-polisher.schema';
 import { CurrentUser } from '../auth/current-user.decorator';
@@ -28,7 +33,8 @@ import type {
 export class BugReportsController {
   constructor(
     private readonly reports: BugReportsService,
-    private readonly polisher: TicketPolisherService
+    private readonly polisher: TicketPolisherService,
+    private readonly dedup: DedupService
   ) {}
 
   @Get()
@@ -73,5 +79,19 @@ export class BugReportsController {
   @Post(':id/polish')
   polish(@Param('id') id: string): Promise<PolishedTicket> {
     return this.polisher.polish(id);
+  }
+
+  @Post('check-duplicate')
+  async checkDuplicate(
+    @Body() body: CheckDuplicateInput
+  ): Promise<{ candidates: DuplicateCandidate[] }> {
+    if (!body.title || body.title.trim().length < 3) {
+      throw new BadRequestException('title required (min 3 chars)');
+    }
+    if (!body.description || body.description.trim().length < 5) {
+      throw new BadRequestException('description required (min 5 chars)');
+    }
+    const candidates = await this.dedup.checkDuplicate(body);
+    return { candidates };
   }
 }

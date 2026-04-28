@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { and, desc, eq, type SQL } from 'drizzle-orm';
+import { EmbedQueueService } from '../ai/embed.queue';
 import { DRIZZLE, type Database } from '../db/db.module';
 import {
   REPORT_SEVERITIES,
@@ -26,7 +27,10 @@ import type {
 
 @Injectable()
 export class BugReportsService {
-  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
+  constructor(
+    @Inject(DRIZZLE) private readonly db: Database,
+    private readonly embedQueue: EmbedQueueService
+  ) {}
 
   async list(filter: ListBugReportsFilter): Promise<BugReportRecord[]> {
     const conds: SQL[] = [];
@@ -90,6 +94,9 @@ export class BugReportsService {
         capturedContext: input.capturedContext ?? null,
       })
       .returning();
+
+    await this.embedQueue.enqueueReportEmbedding(row.id);
+
     return row;
   }
 

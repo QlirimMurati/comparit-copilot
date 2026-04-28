@@ -29,6 +29,13 @@
       "when": 1777371586980,
       "tag": "0003_add_ai_proposed_ticket",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1777372119438,
+      "tag": "0004_add_bug_report_embedding",
+      "breakpoints": true
     }
   ]
 }

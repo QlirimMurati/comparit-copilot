@@ -7,8 +7,11 @@ import {
   text,
   timestamp,
   uuid,
+  vector,
 } from 'drizzle-orm/pg-core';
 import { users } from './users';
+
+export const EMBEDDING_DIMENSIONS = 1024;
 
 export const REPORT_STATUSES = [
   'new',
@@ -56,6 +59,7 @@ export const bugReports = pgTable(
     sparte: text('sparte').$type<Sparte>(),
     capturedContext: jsonb('captured_context'),
     aiProposedTicket: jsonb('ai_proposed_ticket'),
+    embedding: vector('embedding', { dimensions: EMBEDDING_DIMENSIONS }),
     jiraIssueKey: text('jira_issue_key'),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()

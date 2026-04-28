@@ -14,6 +14,7 @@ import { DRIZZLE, type Database } from '../db/db.module';
 import { bugReports } from '../db/schema';
 import { findOrCreateReporter } from '../users/find-or-create-reporter';
 import { ChatSessionService } from './chat-session.service';
+import { EmbedQueueService } from './embed.queue';
 import { IntakeAgentService } from './intake-agent.service';
 import { isIntakeReady, type IntakeState } from './intake-schema';
 import type {
@@ -33,7 +34,8 @@ export class IntakeController {
   constructor(
     @Inject(DRIZZLE) private readonly db: Database,
     private readonly sessions: ChatSessionService,
-    private readonly agent: IntakeAgentService
+    private readonly agent: IntakeAgentService,
+    private readonly embedQueue: EmbedQueueService
   ) {}
 
   @Post('start')
@@ -166,6 +168,7 @@ export class IntakeController {
       });
 
     await this.sessions.markSubmitted(session.id, row.id);
+    await this.embedQueue.enqueueReportEmbedding(row.id);
 
     return {
       bugReportId: row.id,
