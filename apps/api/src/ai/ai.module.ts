@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { RealtimeModule } from '../realtime/realtime.module';
+import { AdminDigestsController } from './admin-digests.controller';
 import { AdminFewShotsController } from './admin-few-shots.controller';
 import { AdminPromptsController } from './admin-prompts.controller';
 import { AnthropicService } from './anthropic.service';
+import { DigestQueueService } from './digest.queue';
+import { DigestService } from './digest.service';
 import { ChatSessionService } from './chat-session.service';
 import { DedupService } from './dedup.service';
 import { EmbedQueueService } from './embed.queue';
@@ -26,6 +29,7 @@ import { VoyageService } from './voyage.service';
     IntakeController,
     AdminFewShotsController,
     AdminPromptsController,
+    AdminDigestsController,
     TranscriptsController,
   ],
   providers: [
@@ -43,6 +47,8 @@ import { VoyageService } from './voyage.service';
     TranscriptDecomposerService,
     TriageAgentService,
     TriageQueueService,
+    DigestService,
+    DigestQueueService,
   ],
   exports: [
     AnthropicService,
@@ -58,6 +64,8 @@ import { VoyageService } from './voyage.service';
     TranscriptDecomposerService,
     TriageAgentService,
     TriageQueueService,
+    DigestService,
+    DigestQueueService,
   ],
 })
 export class AiModule {}
