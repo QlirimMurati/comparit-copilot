@@ -2,6 +2,7 @@ import type Anthropic from '@anthropic-ai/sdk';
 import {
   Inject,
   Injectable,
+  Optional,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { eq, ilike } from 'drizzle-orm';
@@ -10,6 +11,7 @@ import { codeChunks, type ChatMessage } from '../db/schema';
 import { CodeIndexService } from '../index/code-index.service';
 import { AnthropicService } from './anthropic.service';
 import { ChatSessionService } from './chat-session.service';
+import { KnowledgeService } from './knowledge.service';
 
 const MODEL = 'claude-sonnet-4-6';
 const MAX_TOOL_LOOPS = 6;
@@ -79,7 +81,8 @@ export class QaBotService {
     @Inject(DRIZZLE) private readonly db: Database,
     private readonly anthropic: AnthropicService,
     private readonly sessions: ChatSessionService,
-    private readonly indexer: CodeIndexService
+    private readonly indexer: CodeIndexService,
+    @Optional() private readonly knowledge?: KnowledgeService
   ) {}
 
   async ask(input: QaAskInput): Promise<QaAskResult> {
@@ -115,17 +118,27 @@ export class QaBotService {
     const assistantContentForStorage: Anthropic.ContentBlock[] = [];
     let finishedWithAnswer = false;
 
+    const systemBlocks: Anthropic.Messages.TextBlockParam[] = [
+      {
+        type: 'text',
+        text: SYSTEM,
+        cache_control: { type: 'ephemeral' },
+      },
+    ];
+    const knowledgeText = this.knowledge?.get();
+    if (knowledgeText) {
+      systemBlocks.push({
+        type: 'text',
+        text: `## Reference knowledge\n\n${knowledgeText}`,
+        cache_control: { type: 'ephemeral' },
+      });
+    }
+
     for (let loop = 0; loop < MAX_TOOL_LOOPS; loop++) {
       const response = await this.anthropic.client.messages.create({
         model: MODEL,
         max_tokens: 2048,
-        system: [
-          {
-            type: 'text',
-            text: SYSTEM,
-            cache_control: { type: 'ephemeral' },
-          },
-        ],
+        system: systemBlocks,
         tools: TOOLS,
         messages: apiMessages,
       });

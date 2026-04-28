@@ -15,6 +15,7 @@ import { FewShotRegistryService } from './few-shot-registry.service';
 import { IncidentDetectorService } from './incident-detector.service';
 import { IntakeAgentService } from './intake-agent.service';
 import { IntakeController } from './intake.controller';
+import { KnowledgeService } from './knowledge.service';
 import { PromptRegistryService } from './prompt-registry.service';
 import { TestCaseGeneratorService } from './test-case-generator.service';
 import { TicketPolisherService } from './ticket-polisher.service';
@@ -44,6 +45,7 @@ import { VoyageService } from './voyage.service';
     EmbedWorker,
     DedupService,
     FewShotRegistryService,
+    KnowledgeService,
     PromptRegistryService,
     TranscriptDecomposerService,
     TriageAgentService,
@@ -62,6 +64,7 @@ import { VoyageService } from './voyage.service';
     EmbedQueueService,
     DedupService,
     FewShotRegistryService,
+    KnowledgeService,
     PromptRegistryService,
     TranscriptDecomposerService,
     TriageAgentService,

@@ -10,6 +10,7 @@ import {
 } from './intake-schema';
 import { ChatSessionService } from './chat-session.service';
 import { FewShotRegistryService } from './few-shot-registry.service';
+import { KnowledgeService } from './knowledge.service';
 import { PromptRegistryService } from './prompt-registry.service';
 import type { ChatMessage } from '../db/schema';
 import type { IntakeStreamEvent } from './intake.types';
@@ -38,7 +39,8 @@ export class IntakeAgentService {
     private readonly anthropic: AnthropicService,
     private readonly sessions: ChatSessionService,
     @Optional() private readonly promptRegistry?: PromptRegistryService,
-    @Optional() private readonly fewShotRegistry?: FewShotRegistryService
+    @Optional() private readonly fewShotRegistry?: FewShotRegistryService,
+    @Optional() private readonly knowledge?: KnowledgeService
   ) {}
 
   async runTurn(input: AgentTurnInput): Promise<AgentTurnResult> {
@@ -322,19 +324,32 @@ export class IntakeAgentService {
     const promptText = this.promptRegistry
       ? await this.promptRegistry.getActiveContent('intake')
       : INTAKE_SYSTEM_INSTRUCTIONS;
-    return [
+
+    const blocks: Anthropic.Messages.TextBlockParam[] = [
       {
         type: 'text',
         text: promptText,
         cache_control: { type: 'ephemeral' },
       },
-      {
-        type: 'text',
-        text:
-          `## Captured page context\n\`\`\`json\n${JSON.stringify(capturedContext, null, 2)}\n\`\`\`\n\n` +
-          `## Current intake state\n\`\`\`json\n${JSON.stringify(intakeState, null, 2)}\n\`\`\``,
-      },
     ];
+
+    const knowledgeText = this.knowledge?.get();
+    if (knowledgeText) {
+      blocks.push({
+        type: 'text',
+        text: `## Reference knowledge\n\n${knowledgeText}`,
+        cache_control: { type: 'ephemeral' },
+      });
+    }
+
+    blocks.push({
+      type: 'text',
+      text:
+        `## Captured page context\n\`\`\`json\n${JSON.stringify(capturedContext, null, 2)}\n\`\`\`\n\n` +
+        `## Current intake state\n\`\`\`json\n${JSON.stringify(intakeState, null, 2)}\n\`\`\``,
+    });
+
+    return blocks;
   }
 
   private async buildFewShotMessages(): Promise<
