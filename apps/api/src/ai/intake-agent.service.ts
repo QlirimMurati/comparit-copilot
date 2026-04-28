@@ -69,6 +69,18 @@ export class IntakeAgentService {
     const fewShots = await this.buildFewShotMessages();
     const apiMessages = [...fewShots, ...this.toApiMessages(history)];
 
+    if (apiMessages.length === 0) {
+      apiMessages.push({
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: '[system] New session — greet the user and ask the first question.',
+          },
+        ],
+      });
+    }
+
     const systemBlocks = await this.buildSystemBlocks(
       session.capturedContext,
       intakeState
@@ -173,6 +185,18 @@ export class IntakeAgentService {
     const history = await this.sessions.listMessages(input.sessionId);
     const fewShots = await this.buildFewShotMessages();
     const apiMessages = [...fewShots, ...this.toApiMessages(history)];
+
+    if (apiMessages.length === 0) {
+      apiMessages.push({
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: '[system] New session — greet the user and ask the first question.',
+          },
+        ],
+      });
+    }
 
     const systemBlocks = await this.buildSystemBlocks(
       session.capturedContext,
