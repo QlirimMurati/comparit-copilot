@@ -12,15 +12,78 @@
     </a>
   </div>
 
+  <div class="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-3">
+    <label class="block">
+      <span class="block text-xs font-medium text-slate-600">Status</span>
+      <select
+        (change)="onStatusChange($any($event.target).value)"
+        class="mt-1 rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+      >
+        <option value="">all</option>
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s }}</option>
+        }
+      </select>
+    </label>
+    <label class="block">
+      <span class="block text-xs font-medium text-slate-600">Severity</span>
+      <select
+        (change)="onSeverityChange($any($event.target).value)"
+        class="mt-1 rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+      >
+        <option value="">all</option>
+        @for (s of severities; track s) {
+          <option [value]="s">{{ s }}</option>
+        }
+      </select>
+    </label>
+    <label class="block">
+      <span class="block text-xs font-medium text-slate-600">Sparte</span>
+      <select
+        (change)="onSparteChange($any($event.target).value)"
+        class="mt-1 rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+      >
+        <option value="">all</option>
+        @for (s of sparten; track s) {
+          <option [value]="s">{{ s }}</option>
+        }
+      </select>
+    </label>
+    <label class="ml-2 flex items-center gap-2 text-sm text-slate-700">
+      <input
+        type="checkbox"
+        (change)="onMineChange($any($event.target).checked)"
+      />
+      Mine only
+    </label>
+    @if (filterCount > 0) {
+      <button
+        type="button"
+        (click)="clearFilters()"
+        class="ml-auto text-xs text-slate-600 hover:text-slate-900"
+      >
+        Clear filters
+      </button>
+    }
+  </div>
+
   @if (hasError()) {
     <div class="rounded border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
       Failed to load reports. Make sure the API is running.
     </div>
   }
 
-  @if (empty()) {
+  @if (loading()) {
+    <div class="rounded border border-slate-200 bg-white px-6 py-10 text-center text-sm text-slate-500">
+      Loading…
+    </div>
+  } @else if (empty()) {
     <div class="rounded border border-slate-200 bg-white px-6 py-10 text-center text-sm text-slate-600">
-      No reports yet. Create the first one to see it here.
+      @if (filterCount > 0) {
+        No reports match these filters.
+      } @else {
+        No reports yet. Create the first one to see it here.
+      }
     </div>
   } @else if (!hasError()) {
     <div class="overflow-hidden rounded-lg border border-slate-200 bg-white">

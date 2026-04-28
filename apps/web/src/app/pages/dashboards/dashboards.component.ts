@@ -73,6 +73,24 @@ export class DashboardsComponent {
     () => this.reports().filter((r) => RESOLVED_STATUSES.has(r.status)).length
   );
 
+  protected readonly avgTtrHours = computed<number | null>(() => {
+    const resolved = this.reports().filter(
+      (r) => r.status === 'resolved' && r.createdAt && r.updatedAt
+    );
+    if (resolved.length === 0) return null;
+    const sumMs = resolved.reduce((acc, r) => {
+      const created = new Date(r.createdAt).getTime();
+      const updated = new Date(r.updatedAt).getTime();
+      const delta = updated - created;
+      return acc + Math.max(0, delta);
+    }, 0);
+    return sumMs / resolved.length / (1000 * 60 * 60);
+  });
+
+  protected readonly resolvedSampleSize = computed(
+    () => this.reports().filter((r) => r.status === 'resolved').length
+  );
+
   protected readonly statusRows = computed<StatusRow[]>(() => {
     const counts = new Map<ReportStatus, number>();
     for (const r of this.reports()) {
@@ -111,6 +129,12 @@ export class DashboardsComponent {
     const max = this.maxCount();
     if (max === 0) return '0%';
     return `${Math.round((count / max) * 100)}%`;
+  }
+
+  protected formatTtr(hours: number): string {
+    if (hours < 1) return `${Math.round(hours * 60)} min`;
+    if (hours < 48) return `${hours.toFixed(1)} h`;
+    return `${(hours / 24).toFixed(1)} d`;
   }
 
   protected statusTone(s: ReportStatus): string {

@@ -6,8 +6,8 @@ import type {
   CheckDuplicateInput,
   CreateBugReportInput,
   DuplicateCandidate,
-  GeneratedTestStub,
   ListBugReportsFilter,
+  LocalizationResult,
   PolishedTicket,
   UpdateBugReportInput,
 } from './bug-reports.types';
@@ -41,9 +41,9 @@ export class BugReportsService {
     return this.http.post<PolishedTicket>(`/api/reports/${id}/polish`, {});
   }
 
-  generateTestStub(id: string): Observable<GeneratedTestStub> {
-    return this.http.post<GeneratedTestStub>(
-      `/api/reports/${id}/generate-test-stub`,
+  localize(id: string): Observable<LocalizationResult> {
+    return this.http.post<LocalizationResult>(
+      `/api/reports/${id}/localize`,
       {}
     );
   }

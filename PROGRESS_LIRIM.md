@@ -7,7 +7,7 @@
 
 ## Current Focus
 
-- **Active workstream:** W10 bilingual (after i18n decision); rest of W9 (trend tiles) needs aggregation endpoint
+- **Active workstream:** W10 bilingual (after i18n decision); only W6 Jira search (blocked on Q7) and W9 trend line (needs aggregation endpoint) remain in original plan
 - **Last updated:** 2026-04-28
 
 ---
@@ -18,14 +18,23 @@
 |---|---|---|---|
 | W1 | Bug report detail / edit page | Done | Shipped 2026-04-28 |
 | W2 | Captured-context viewer | Done | Shipped 2026-04-28 (`@comparit-copilot/ui-kit`) |
-| W3 | AI proposal panel | Mostly done | Polish + dedup + test-stub wired; Jira-push stubbed (Q7) |
+| W3 | AI proposal panel | Mostly done | Polish + dedup wired; Jira-push stubbed (Q7); test-stub dropped per scope |
 | W4 | Prompt admin UI | Done | Shipped 2026-04-28 with replay panel |
 | W5 | Few-shot management UI | Done | Shipped 2026-04-28 |
 | W6 | NL Jira search UI | Blocked | Clirim W7 (Q7 unresolved) |
 | W7 | Transcript decomposer UI | Mostly done | REST-only; live WebSocket tree-fill TODO |
-| W8 | "Likely affected files" panel | Blocked | Clirim W8 + W9 not shipped |
-| W9 | Dashboards | Partial | First tile shipped; trend tiles need aggregation endpoint |
+| W8 | "Likely affected files" panel | Done | Shipped 2026-04-28 (localize endpoint + UI) |
+| W9 | Dashboards | Partial | KPIs + TTR + bars shipped; trend line needs aggregation endpoint |
 | W10 | Bilingual web UI | TODO | Pending i18n choice with Donart |
+
+### Extensions from Clirim's W11–W15 (not in original W1–W10)
+| Feature | Status |
+|---|---|
+| Auto-triage display on detail (W11) | Done 2026-04-28 |
+| Cluster/incident banner on detail (W14) | Done 2026-04-28 |
+| `/qa` codebase Q&A bot page (W15) | Done 2026-04-28 |
+| `/admin/digests` daily digests viewer (W13) | Done 2026-04-28 |
+| Filter bar on `/reports` | Done 2026-04-28 |
 
 ---
 
@@ -44,6 +53,14 @@ _none_
 - 2026-04-28 — W3 AI proposal panel — detail page renders `aiProposedTicket` (title, type, labels, repro steps, expected/actual). "Run polisher" + "Generate test stub" + "Check duplicates" buttons live. "Push to Jira" stubbed/disabled (Q7).
 - 2026-04-28 — W7 Transcript decomposer UI — `/transcripts` paste-and-tree-render, refine input, status badges. REST-only (live WebSocket layer pending `socket.io-client` dep).
 - 2026-04-28 — W9 Dashboards (first tile) — `/dashboards` with KPI cards, bugs-per-sparte CSS bar chart, status breakdown chips. No chart lib needed yet.
+- 2026-04-28 — W8 Likely-affected-files panel — `POST /api/reports/:id/localize` wired into detail page; renders top-K candidates with confidence label, line range, rationale.
+- 2026-04-28 — W11 Auto-triage display — detail page shows `aiProposedTriage` (severity / sparte / suggested assignee with confidence + rationale).
+- 2026-04-28 — W14 Cluster banner — detail page shows incident banner when `clusterId` is set on a report.
+- 2026-04-28 — W13 Digests admin — `/admin/digests` with date picker, "Load digest" + "Generate now"; renders Markdown body.
+- 2026-04-28 — W15 Codebase Q&A — `/qa` chat-style page over `POST /api/qa/ask`; multi-turn via sessionId.
+- 2026-04-28 — Reports filter bar — `/reports` exposes status/severity/sparte/mine query filters; live re-fetch on change.
+- 2026-04-28 — Dashboard TTR tile — average time-to-resolution computed client-side from resolved reports.
+- 2026-04-28 — Test-stub UI removed from W3 panel per scope decision (endpoint exists but not surfaced).
 
 ---
 

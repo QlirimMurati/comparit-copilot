@@ -1,0 +1,54 @@
+<div class="space-y-4">
+  <form
+    [formGroup]="form"
+    class="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-3"
+  >
+    <label class="block">
+      <span class="block text-xs font-medium text-slate-600">Date</span>
+      <input
+        type="date"
+        formControlName="date"
+        class="mt-1 rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+      />
+    </label>
+    <button
+      type="button"
+      (click)="fetch()"
+      [disabled]="form.invalid || loading()"
+      class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+    >
+      @if (loading()) { Loading… } @else { Load digest }
+    </button>
+    <button
+      type="button"
+      (click)="run()"
+      [disabled]="form.invalid || running()"
+      class="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+    >
+      @if (running()) { Generating… } @else { Generate now }
+    </button>
+  </form>
+
+  @if (error(); as msg) {
+    <div class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{{ msg }}</div>
+  }
+
+  @if (notFound()) {
+    <div class="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+      No digest exists for this date yet — click "Generate now" to create one.
+    </div>
+  }
+
+  @if (digest(); as d) {
+    <article class="space-y-3 rounded-xl border border-slate-200 bg-white p-6">
+      <header class="flex flex-wrap items-center gap-3">
+        <h3 class="text-lg font-semibold text-slate-900">{{ d.date }}</h3>
+        <span class="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">{{ d.reportCount }} reports</span>
+        @if (d.filePath) {
+          <span class="font-mono text-xs text-slate-500">{{ d.filePath }}</span>
+        }
+      </header>
+      <pre class="max-h-[36rem] overflow-auto whitespace-pre-wrap rounded bg-slate-50 p-4 text-sm text-slate-800">{{ d.markdown }}</pre>
+    </article>
+  }
+</div>

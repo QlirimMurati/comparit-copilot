@@ -49,6 +49,11 @@ export const appRoutes: Route[] = [
           ),
       },
       {
+        path: 'qa',
+        loadComponent: () =>
+          import('./pages/qa/qa.component').then((m) => m.QaComponent),
+      },
+      {
         path: 'dashboards',
         loadComponent: () =>
           import('./pages/dashboards/dashboards.component').then(
@@ -74,6 +79,13 @@ export const appRoutes: Route[] = [
             loadComponent: () =>
               import('./pages/admin/few-shots/few-shots.component').then(
                 (m) => m.FewShotsComponent
+              ),
+          },
+          {
+            path: 'digests',
+            loadComponent: () =>
+              import('./pages/admin/digests/digests.component').then(
+                (m) => m.DigestsComponent
               ),
           },
         ],

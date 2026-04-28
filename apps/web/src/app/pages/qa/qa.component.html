@@ -1,0 +1,76 @@
+<section class="space-y-4">
+  <header class="flex items-end justify-between gap-3">
+    <div>
+      <h2 class="text-2xl font-semibold tracking-tight">Codebase Q&A</h2>
+      <p class="text-sm text-slate-600">
+        Ask how something works in the indexed codebase. Multi-turn — context carries between questions.
+      </p>
+    </div>
+    @if (sessionId()) {
+      <button
+        type="button"
+        (click)="reset()"
+        class="text-sm text-slate-600 hover:text-slate-900"
+      >
+        Start new session
+      </button>
+    }
+  </header>
+
+  @if (turns().length > 0) {
+    <div class="space-y-3">
+      @for (turn of turns(); track $index) {
+        <div
+          [class]="turn.role === 'user'
+            ? 'flex justify-end'
+            : 'flex justify-start'"
+        >
+          <div
+            [class]="'max-w-3xl rounded-lg border px-4 py-3 text-sm ' + (turn.role === 'user'
+              ? 'border-slate-900 bg-slate-900 text-slate-50'
+              : 'border-slate-200 bg-white text-slate-800')"
+          >
+            <pre class="whitespace-pre-wrap font-sans">{{ turn.text }}</pre>
+          </div>
+        </div>
+      }
+      @if (running()) {
+        <div class="flex justify-start">
+          <div class="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500 italic">
+            Thinking…
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (error(); as msg) {
+    <div class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{{ msg }}</div>
+  }
+
+  <form
+    [formGroup]="form"
+    (ngSubmit)="ask()"
+    class="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3"
+  >
+    <textarea
+      formControlName="question"
+      rows="2"
+      placeholder="e.g. Wie wird der KFZ-Tarif gespeichert? / How does the KFZ tariff get persisted?"
+      class="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+    ></textarea>
+    <button
+      type="submit"
+      [disabled]="form.invalid || running()"
+      class="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+    >
+      @if (running()) { Asking… } @else { Ask }
+    </button>
+  </form>
+
+  @if (turns().length === 0 && !running()) {
+    <p class="text-xs text-slate-500">
+      Tip: the bot uses semantic search + grep + read-file over the indexed comparer-ui codebase. Start broad, refine in follow-ups.
+    </p>
+  }
+</section>

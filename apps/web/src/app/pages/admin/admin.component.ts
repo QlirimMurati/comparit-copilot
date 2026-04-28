@@ -30,6 +30,13 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
         >
           Few-shots
         </a>
+        <a
+          routerLink="/admin/digests"
+          routerLinkActive="border-slate-900 text-slate-900"
+          class="-mb-px border-b-2 border-transparent px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900"
+        >
+          Digests
+        </a>
       </nav>
 
       <router-outlet />

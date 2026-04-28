@@ -18,7 +18,8 @@ import {
   SPARTE_LABELS,
   type BugReport,
   type DuplicateCandidate,
-  type GeneratedTestStub,
+  type LocalizationCandidate,
+  type LocalizationResult,
   type ReportSeverity,
   type ReportStatus,
   type Sparte,
@@ -68,13 +69,19 @@ export class ReportDetailComponent {
   protected readonly capturedContext = computed(() => this.report()?.capturedContext ?? null);
 
   protected readonly aiProposed = computed(() => this.report()?.aiProposedTicket ?? null);
+  protected readonly triage = computed(() => this.report()?.aiProposedTriage ?? null);
+  protected readonly clusterId = computed(() => this.report()?.clusterId ?? null);
+
+  protected readonly localization = computed<LocalizationResult | null>(() => {
+    const proposed = this.aiProposed();
+    return proposed?.localization ?? this.localizationOverride();
+  });
+  protected readonly localizationOverride = signal<LocalizationResult | null>(null);
+  protected readonly localizing = signal(false);
+  protected readonly localizeError = signal<string | null>(null);
 
   protected readonly polishing = signal(false);
   protected readonly polishError = signal<string | null>(null);
-
-  protected readonly testStub = signal<GeneratedTestStub | null>(null);
-  protected readonly testStubGenerating = signal(false);
-  protected readonly testStubError = signal<string | null>(null);
 
   protected readonly duplicates = signal<DuplicateCandidate[] | null>(null);
   protected readonly duplicateChecking = signal(false);
@@ -153,21 +160,39 @@ export class ReportDetailComponent {
     });
   }
 
-  protected generateTestStub(): void {
+  protected localize(): void {
     const r = this.report();
     if (!r) return;
-    this.testStubGenerating.set(true);
-    this.testStubError.set(null);
-    this.api.generateTestStub(r.id).subscribe({
-      next: (stub) => {
-        this.testStubGenerating.set(false);
-        this.testStub.set(stub);
+    this.localizing.set(true);
+    this.localizeError.set(null);
+    this.api.localize(r.id).subscribe({
+      next: (res) => {
+        this.localizing.set(false);
+        this.localizationOverride.set(res);
+        this.api.getById(r.id).subscribe({
+          next: (updated) => this.state.set({ kind: 'ok', report: updated }),
+        });
       },
       error: (err) => {
-        this.testStubGenerating.set(false);
-        this.testStubError.set(this.errorMessage(err, 'Test stub generation failed.'));
+        this.localizing.set(false);
+        this.localizeError.set(this.errorMessage(err, 'Code localization failed.'));
       },
     });
+  }
+
+  protected confidenceTone(c: LocalizationCandidate['confidence']): string {
+    switch (c) {
+      case 'high':
+        return 'bg-emerald-100 text-emerald-800';
+      case 'medium':
+        return 'bg-amber-100 text-amber-800';
+      case 'low':
+        return 'bg-slate-100 text-slate-700';
+    }
+  }
+
+  protected formatPercent(v: number): string {
+    return `${Math.round(v * 100)}%`;
   }
 
   protected checkDuplicates(): void {

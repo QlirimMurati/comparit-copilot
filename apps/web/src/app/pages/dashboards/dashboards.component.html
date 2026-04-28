@@ -13,7 +13,7 @@
       Failed to load reports.
     </div>
   } @else {
-    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
       <div class="rounded-xl border border-slate-200 bg-white p-4">
         <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Total reports</p>
         <p class="mt-1 text-3xl font-semibold text-slate-900">{{ total() }}</p>
@@ -25,6 +25,16 @@
       <div class="rounded-xl border border-slate-200 bg-white p-4">
         <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Resolved / closed</p>
         <p class="mt-1 text-3xl font-semibold text-emerald-700">{{ resolvedCount() }}</p>
+      </div>
+      <div class="rounded-xl border border-slate-200 bg-white p-4">
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Avg time-to-resolution</p>
+        @if (avgTtrHours(); as h) {
+          <p class="mt-1 text-3xl font-semibold text-indigo-700">{{ formatTtr(h) }}</p>
+          <p class="text-xs text-slate-500">across {{ resolvedSampleSize() }} resolved</p>
+        } @else {
+          <p class="mt-1 text-3xl font-semibold text-slate-400">—</p>
+          <p class="text-xs text-slate-500">no resolved reports yet</p>
+        }
       </div>
     </div>
 

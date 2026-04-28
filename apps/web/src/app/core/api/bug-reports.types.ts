@@ -55,15 +55,6 @@ export interface PolishedTicket {
   actual: string;
 }
 
-export type TestFramework = 'cypress' | 'playwright';
-
-export interface GeneratedTestStub {
-  framework: TestFramework;
-  filename: string;
-  source: string;
-  notes?: string;
-}
-
 export interface DuplicateCandidate {
   id: string;
   title: string;
@@ -73,6 +64,43 @@ export interface DuplicateCandidate {
   jiraIssueKey: string | null;
   createdAt: string;
   distance: number;
+}
+
+export type LocalizationConfidence = 'high' | 'medium' | 'low';
+
+export interface LocalizationCandidate {
+  path: string;
+  symbol: string | null;
+  startLine: number;
+  endLine: number;
+  confidence: LocalizationConfidence;
+  rationale: string;
+}
+
+export interface LocalizationResult {
+  candidates: LocalizationCandidate[];
+  summary: string;
+  generatedAt: string;
+}
+
+export interface TriageProposalField<V> {
+  value: V;
+  confidence: number;
+  rationale: string;
+}
+
+export interface TriageAssignee {
+  userId: string | null;
+  reason: string;
+  confidence: number;
+}
+
+export interface TriageProposal {
+  proposedSeverity: TriageProposalField<ReportSeverity>;
+  proposedSparte: TriageProposalField<Sparte> | null;
+  suggestedAssignee: TriageAssignee | null;
+  similarReportIds: string[];
+  generatedAt: string;
 }
 
 export interface CheckDuplicateInput {
@@ -92,7 +120,11 @@ export interface BugReport {
   severity: ReportSeverity;
   sparte: Sparte | null;
   capturedContext: unknown;
-  aiProposedTicket: PolishedTicket | null;
+  aiProposedTicket:
+    | (PolishedTicket & { localization?: LocalizationResult })
+    | null;
+  aiProposedTriage: TriageProposal | null;
+  clusterId: string | null;
   jiraIssueKey: string | null;
   createdAt: string;
   updatedAt: string;

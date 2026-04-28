@@ -52,10 +52,10 @@ apps/web/src/app/pages/dashboards/   ← stats
 ### W3 — AI proposal panel on report detail — ✅ MOSTLY DONE 2026-04-28
 - Renders `bug_reports.ai_proposed_ticket` (Clirim W2 ticket polisher output) — title, type, labels, repro steps, expected/actual.
 - "Run / Re-run polisher" button (`POST /api/reports/:id/polish`).
-- "Generate test stub" button (`POST /api/reports/:id/generate-test-stub`) — shows Cypress/Playwright source.
 - "Check duplicates" button (`POST /api/reports/check-duplicate`) — lists similar reports with cosine distance.
 - "Push to Jira" button — **stubbed/disabled** with tooltip "pending Q7" until Clirim W7 lands.
-- **Shipped:** detail.component.html `AI proposal` / `Possible duplicates` / `Test stub` sections.
+- **Shipped:** detail.component.html `AI proposal` / `Possible duplicates` sections.
+- **Out of scope:** test-stub display (Clirim W12 endpoint exists but not surfaced in UI per scope decision).
 
 ### W4 — Prompt admin UI (`/admin/prompts`) — ✅ DONE 2026-04-28
 - List of DB overrides per agent (intake / ticket_polisher / transcript_decomposer / triage / qa_bot / code_localizer).
@@ -89,16 +89,18 @@ apps/web/src/app/pages/dashboards/   ← stats
 - **Shipped:** [transcripts.component.ts](apps/web/src/app/pages/transcripts/transcripts.component.ts).
 - **Follow-up:** live tree-fill via Clirim W10 WebSocket channel `transcript:<id>` (currently REST-only — `socket.io-client` dep needs to be added). "Push all to Jira" deferred until Clirim W7 ships.
 
-### W8 — "Likely affected files" panel — 🚫 BLOCKED on Clirim W8 + W9
-- Renders Clirim W9 output on report detail: top-K files with confidence label, recent commit + author, click-through to file at line.
-- "Find similar resolved tickets" companion (uses tickets_cache embeddings).
-- **Coordinate:** depends on Clirim W8 (codebase indexing) + W9 (code-localizer agent). Neither shipped yet.
+### W8 — "Likely affected files" panel — ✅ DONE 2026-04-28
+- Renders Clirim W9 output on report detail: top-K files with confidence label (high/medium/low), symbol, line range, rationale.
+- "Find affected files" / "Re-run localizer" button → `POST /api/reports/:id/localize`.
+- Reads `aiProposedTicket.localization` if cached; else calls localize on demand.
+- **Shipped:** detail.component.html "Likely affected files" section + localize method on bug-reports service.
+- **Follow-up:** "find similar resolved tickets" companion still needs Clirim's tickets_cache (W7) — pinned on Q7.
 
 ### W9 — Dashboards (`/dashboards`) — 🟡 PARTIAL 2026-04-28
-- ✅ Total / Open / Resolved KPI cards.
+- ✅ Total / Open / Resolved / **Avg time-to-resolution** KPI cards (TTR computed client-side from `created_at`/`updated_at` of resolved reports).
 - ✅ Bugs-per-sparte horizontal bar chart (CSS bars off the existing `GET /api/reports` data — no chart lib needed yet).
 - ✅ Status breakdown chips.
-- ❌ Time-to-resolution trend line — needs aggregation endpoint (TODO: small read-only addition to `apps/api/src/bug-reports/`, coordinate with Clirim).
+- ❌ TTR **trend line** (vs current scalar) — needs aggregation endpoint for time-bucketed series.
 - ❌ Deploy correlation overlay — needs git SHA aggregation from `captured_context`.
 - **Shipped:** [dashboards.component.ts](apps/web/src/app/pages/dashboards/dashboards.component.ts). Chart lib decision deferred until trend lines are needed.
 
@@ -114,12 +116,19 @@ apps/web/src/app/pages/dashboards/   ← stats
 
 1. ✅ **W1 detail page + W2 context viewer** — shipped 2026-04-28
 2. ✅ **W4 + W5 admin UIs** — shipped 2026-04-28
-3. ✅ **W3 AI proposal panel** — shipped 2026-04-28 (Jira-push button stubbed)
+3. ✅ **W3 AI proposal panel** — shipped 2026-04-28 (Jira-push button stubbed; test-stub display dropped per scope)
 4. ✅ **W7 transcript decomposer UI** — shipped 2026-04-28 (REST-only; live tree-fill TODO)
-5. ✅ **W9 dashboards** — first tile shipped 2026-04-28; trend tiles need aggregation endpoint
-6. ⏳ **W10 bilingual** — pending i18n choice with Donart
-7. 🚫 **W6 Jira search** — blocked on Clirim W7 (Q7)
-8. 🚫 **W8 affected-files panel** — blocked on Clirim W8 + W9
+5. ✅ **W8 likely-affected-files panel** — shipped 2026-04-28
+6. ✅ **W9 dashboards** — KPIs + bars + TTR shipped; trend line needs aggregation endpoint
+7. ⏳ **W10 bilingual** — pending i18n choice with Donart
+8. 🚫 **W6 Jira search** — blocked on Clirim W7 (Q7)
+
+### Beyond original W1–W10 (extensions surfaced from Clirim's W11–W15)
+- ✅ Auto-triage display on detail page (W11 surface)
+- ✅ Cluster/incident banner on detail page (W14 surface)
+- ✅ `/qa` codebase Q&A page (W15 surface)
+- ✅ `/admin/digests` daily-digest viewer (W13 surface)
+- ✅ Filter bar on `/reports` list
 
 ---
 

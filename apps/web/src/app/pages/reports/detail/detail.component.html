@@ -21,6 +21,14 @@
     }
     @case ('ok') {
       @if (report(); as r) {
+        @if (clusterId()) {
+          <div class="flex items-center gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
+            <span class="inline-flex items-center rounded bg-rose-200 px-2 py-0.5 text-xs font-medium text-rose-900">incident</span>
+            <span>This report is part of a cluster — multiple similar reports were filed close together.</span>
+            <span class="ml-auto font-mono text-xs text-rose-700">cluster {{ clusterId() }}</span>
+          </div>
+        }
+
         <header class="space-y-2">
           <div class="flex flex-wrap items-center gap-2">
             <span [class]="'inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ' + statusTone(r.status)">
@@ -209,6 +217,97 @@
           }
         </article>
 
+        @if (triage(); as t) {
+          <article class="rounded-xl border border-slate-200 bg-white p-6 space-y-3">
+            <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Auto-triage</h3>
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Severity</p>
+                <p class="mt-1 text-sm text-slate-900">
+                  <span [class]="'inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ' + severityTone(t.proposedSeverity.value)">
+                    {{ t.proposedSeverity.value }}
+                  </span>
+                  <span class="ml-2 text-xs text-slate-500">{{ formatPercent(t.proposedSeverity.confidence) }}</span>
+                </p>
+                <p class="mt-1 text-xs text-slate-700">{{ t.proposedSeverity.rationale }}</p>
+              </div>
+              @if (t.proposedSparte) {
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Sparte</p>
+                  <p class="mt-1 text-sm text-slate-900">
+                    <span class="inline-flex items-center rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+                      {{ sparteLabels[t.proposedSparte.value] }}
+                    </span>
+                    <span class="ml-2 text-xs text-slate-500">{{ formatPercent(t.proposedSparte.confidence) }}</span>
+                  </p>
+                  <p class="mt-1 text-xs text-slate-700">{{ t.proposedSparte.rationale }}</p>
+                </div>
+              }
+              @if (t.suggestedAssignee) {
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Suggested assignee</p>
+                  <p class="mt-1 text-sm text-slate-900">
+                    @if (t.suggestedAssignee.userId) {
+                      <span class="font-mono text-xs">{{ t.suggestedAssignee.userId }}</span>
+                    } @else {
+                      <span class="italic text-slate-500">no candidate</span>
+                    }
+                    <span class="ml-2 text-xs text-slate-500">{{ formatPercent(t.suggestedAssignee.confidence) }}</span>
+                  </p>
+                  <p class="mt-1 text-xs text-slate-700">{{ t.suggestedAssignee.reason }}</p>
+                </div>
+              }
+            </div>
+          </article>
+        }
+
+        <article class="rounded-xl border border-slate-200 bg-white p-6 space-y-3">
+          <div class="flex flex-wrap items-center gap-3">
+            <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Likely affected files</h3>
+            <button
+              type="button"
+              (click)="localize()"
+              [disabled]="localizing()"
+              class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            >
+              @if (localizing()) { Localizing… }
+              @else if (localization()) { Re-run localizer }
+              @else { Find affected files }
+            </button>
+          </div>
+          @if (localizeError(); as msg) {
+            <div class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{{ msg }}</div>
+          }
+          @if (localization(); as loc) {
+            @if (loc.summary) {
+              <p class="text-xs text-slate-600 italic">{{ loc.summary }}</p>
+            }
+            @if (loc.candidates.length === 0) {
+              <p class="text-sm text-slate-500 italic">No candidate files identified.</p>
+            } @else {
+              <ul class="divide-y divide-slate-100 rounded border border-slate-200 bg-white">
+                @for (c of loc.candidates; track $index) {
+                  <li class="space-y-1 px-4 py-3 text-sm">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span [class]="'inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ' + confidenceTone(c.confidence)">
+                        {{ c.confidence }}
+                      </span>
+                      <span class="font-mono text-xs text-slate-800">{{ c.path }}</span>
+                      <span class="font-mono text-[10px] text-slate-500">L{{ c.startLine }}–{{ c.endLine }}</span>
+                      @if (c.symbol) {
+                        <span class="font-mono text-xs text-violet-700">{{ c.symbol }}</span>
+                      }
+                    </div>
+                    <p class="text-xs text-slate-700">{{ c.rationale }}</p>
+                  </li>
+                }
+              </ul>
+            }
+          } @else {
+            <p class="text-sm text-slate-500 italic">No localization yet — run the localizer to get top-K candidate file/line ranges.</p>
+          }
+        </article>
+
         <article class="rounded-xl border border-slate-200 bg-white p-6 space-y-3">
           <div class="flex flex-wrap items-center gap-3">
             <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Possible duplicates</h3>
@@ -246,36 +345,6 @@
           }
         </article>
 
-        <article class="rounded-xl border border-slate-200 bg-white p-6 space-y-3">
-          <div class="flex flex-wrap items-center gap-3">
-            <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Test stub</h3>
-            <button
-              type="button"
-              (click)="generateTestStub()"
-              [disabled]="testStubGenerating()"
-              class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-            >
-              @if (testStubGenerating()) { Generating… } @else { Generate test stub }
-            </button>
-          </div>
-          @if (testStubError(); as msg) {
-            <div class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{{ msg }}</div>
-          }
-          @if (testStub(); as stub) {
-            <div class="space-y-2">
-              <p class="text-xs text-slate-500">
-                <span class="rounded bg-slate-100 px-2 py-0.5 font-mono">{{ stub.framework }}</span>
-                <span class="ml-2 font-mono">{{ stub.filename }}</span>
-              </p>
-              @if (stub.notes) {
-                <p class="text-xs text-slate-600 italic">{{ stub.notes }}</p>
-              }
-              <pre class="max-h-96 overflow-auto rounded bg-slate-900 p-3 text-xs text-slate-100">{{ stub.source }}</pre>
-            </div>
-          } @else {
-            <p class="text-sm text-slate-500 italic">No test stub yet — generate a Cypress / Playwright skeleton from this report.</p>
-          }
-        </article>
 
         <article class="rounded-xl border border-slate-200 bg-white p-6">
           <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Captured context</h3>
