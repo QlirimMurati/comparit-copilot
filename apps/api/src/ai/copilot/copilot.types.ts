@@ -9,6 +9,7 @@ export interface CopilotState {
   bugDraft?: CopilotBugDraft;
   lastBugReportId?: string;
   lastTranscriptId?: string;
+  prefillStage?: 'live' | 'qa' | 'dev';
 }
 
 export type CopilotStreamEvent =
