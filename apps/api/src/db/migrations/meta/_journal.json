@@ -71,6 +71,13 @@
       "when": 1777374096545,
       "tag": "0009_add_code_chunks",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1777380522789,
+      "tag": "0010_add_tickets_cache",
+      "breakpoints": true
     }
   ]
 }

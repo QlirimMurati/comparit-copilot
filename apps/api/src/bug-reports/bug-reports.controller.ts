@@ -30,6 +30,11 @@ import {
 } from '../ai/test-case-generator.service';
 import { TicketPolisherService } from '../ai/ticket-polisher.service';
 import type { PolishedTicket } from '../ai/ticket-polisher.schema';
+import {
+  PushToJiraService,
+  type JiraPushPreview,
+  type JiraPushResult,
+} from '../jira/push-to-jira.service';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import type { PublicUser } from '../auth/auth.types';
@@ -52,7 +57,8 @@ export class BugReportsController {
     private readonly polisher: TicketPolisherService,
     private readonly dedup: DedupService,
     private readonly testGenerator: TestCaseGeneratorService,
-    private readonly localizer: CodeLocalizerService
+    private readonly localizer: CodeLocalizerService,
+    private readonly pushToJira: PushToJiraService
   ) {}
 
   @ApiOperation({ summary: 'List bug reports (filterable)' })
@@ -122,6 +128,28 @@ export class BugReportsController {
   @Post(':id/localize')
   localize(@Param('id') id: string): Promise<LocalizationResult> {
     return this.localizer.localize(id);
+  }
+
+  /**
+   * SAFETY: this endpoint does NOT call Jira. It returns the prepared
+   * payload + previewHash so the user can review before confirming.
+   */
+  @Post(':id/push-to-jira/preview')
+  pushToJiraPreview(@Param('id') id: string): Promise<JiraPushPreview> {
+    return this.pushToJira.preview(id);
+  }
+
+  /**
+   * SAFETY: this is the only place where copilot calls Jira's createIssue.
+   * Requires the previewHash that the user just saw — guarantees the
+   * preview-vs-confirm payloads match.
+   */
+  @Post(':id/push-to-jira/confirm')
+  pushToJiraConfirm(
+    @Param('id') id: string,
+    @Body() body: { previewHash: string }
+  ): Promise<JiraPushResult> {
+    return this.pushToJira.confirm(id, body);
   }
 
   @ApiOperation({ summary: 'Check for duplicate bug reports' })
