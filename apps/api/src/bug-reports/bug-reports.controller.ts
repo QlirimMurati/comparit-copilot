@@ -15,6 +15,10 @@ import {
   type DuplicateCandidate,
 } from '../ai/dedup.service';
 import {
+  CodeLocalizerService,
+  type LocalizationResult,
+} from '../ai/code-localizer.service';
+import {
   TestCaseGeneratorService,
   type GeneratedTestStub,
 } from '../ai/test-case-generator.service';
@@ -39,7 +43,8 @@ export class BugReportsController {
     private readonly reports: BugReportsService,
     private readonly polisher: TicketPolisherService,
     private readonly dedup: DedupService,
-    private readonly testGenerator: TestCaseGeneratorService
+    private readonly testGenerator: TestCaseGeneratorService,
+    private readonly localizer: CodeLocalizerService
   ) {}
 
   @Get()
@@ -89,6 +94,11 @@ export class BugReportsController {
   @Post(':id/generate-test-stub')
   generateTestStub(@Param('id') id: string): Promise<GeneratedTestStub> {
     return this.testGenerator.generate(id);
+  }
+
+  @Post(':id/localize')
+  localize(@Param('id') id: string): Promise<LocalizationResult> {
+    return this.localizer.localize(id);
   }
 
   @Post('check-duplicate')

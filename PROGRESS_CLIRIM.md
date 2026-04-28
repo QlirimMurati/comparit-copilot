@@ -25,7 +25,7 @@
 | W6 | Prompt overrides + replay | Done (2026-04-28) | DB overrides + replay endpoint; unblocks Lirim W4 |
 | W7 | Jira MCP integration | BLOCKED | Q7 Jira details — also unblocks W13/W16/W17 |
 | W8 | Codebase indexing | Done (2026-04-28) | code_chunks table, line-window chunker, voyage-code-3 embeddings, POST /api/code/search, `pnpm index:repo --path` CLI; ts-morph symbol chunking deferred |
-| W9 | Code-localizer agent | TODO | Depends on W8 |
+| W9 | Code-localizer agent | Done (2026-04-28) | `POST /api/reports/:id/localize` runs Claude with semantic_search/grep/find_symbol/read_chunk tools; persists to `aiProposedTicket.localization` |
 | W10 | WebSocket gateway | Done (2026-04-28) | Socket.io at `/realtime`; emits bug_report.created / ai.proposal_ready / transcript.node_added / jira.sync — also unblocks W14 |
 
 ### Phase 3 deepening (extras owned by me)
