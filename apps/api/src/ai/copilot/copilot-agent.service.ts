@@ -5,6 +5,7 @@ import { DRIZZLE, type Database } from '../../db/db.module';
 import { bugReports, ticketsCache } from '../../db/schema';
 import { REPORT_SEVERITIES, SPARTEN } from '../../db/schema';
 import { findOrCreateReporter } from '../../users/find-or-create-reporter';
+import { PrefillService } from '../../prefill/prefill.service';
 import { AnthropicService } from '../anthropic.service';
 import { CodeLocalizerService } from '../code-localizer.service';
 import { DedupService } from '../dedup.service';
@@ -165,6 +166,7 @@ export class CopilotAgentService {
     private readonly embedQueue: EmbedQueueService,
     private readonly triageQueue: TriageQueueService,
     private readonly voyage: VoyageService,
+    private readonly prefill: PrefillService,
     @Optional() private readonly codeLocalizer?: CodeLocalizerService,
     @Optional() private readonly transcriptDecomposer?: TranscriptDecomposerService
   ) {}

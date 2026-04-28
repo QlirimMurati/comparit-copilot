@@ -16,7 +16,8 @@ import type { Response, Request } from 'express';
 import { JwtAuthGuard } from '../../auth/jwt.guard';
 import { CopilotAgentService } from './copilot-agent.service';
 import { CopilotSessionService } from './copilot-session.service';
-import type { CopilotStreamEvent, CopilotMessageRecord, CopilotSessionSummary } from './copilot.types';
+import { extractStageDirective } from './stage-directive';
+import type { CopilotState, CopilotStreamEvent, CopilotMessageRecord, CopilotSessionSummary } from './copilot.types';
 
 interface AuthRequest extends Request {
   user: { id: string; email: string; name: string; role: string };
@@ -108,12 +109,41 @@ export class CopilotController {
       res.write(`data: ${JSON.stringify(event)}\n\n`);
     };
 
+    const userText = body.text.trim();
+    const { stage: directiveStage, cleanedText } = extractStageDirective(userText);
+
+    if (directiveStage) {
+      const currentState = (session.state as CopilotState | null) ?? {};
+      await this.sessions.setState(id, {
+        ...currentState,
+        prefillStage: directiveStage,
+      });
+    }
+
+    if (directiveStage && cleanedText.length === 0) {
+      const ackText = `Stage set to ${directiveStage.toUpperCase()}. Paste prefill JSON to validate.`;
+      await this.sessions.appendMessage({
+        sessionId: id,
+        role: 'user',
+        content: userText,
+      });
+      await this.sessions.appendMessage({
+        sessionId: id,
+        role: 'assistant',
+        content: [{ type: 'text', text: ackText }],
+      });
+      write({ type: 'text_delta', text: ackText });
+      write({ type: 'done', stopReason: 'stage_directive' });
+      res.end();
+      return;
+    }
+
     try {
       for await (const event of this.agent.runStream({
         sessionId: id,
         userId: req.user.id,
         userEmail: req.user.email,
-        userText: body.text.trim(),
+        userText: cleanedText.length > 0 ? cleanedText : userText,
       })) {
         write(event);
       }
