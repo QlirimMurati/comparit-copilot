@@ -43,6 +43,13 @@
       "when": 1777372630773,
       "tag": "0005_add_few_shots_and_prompt_overrides",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1777372949446,
+      "tag": "0006_add_transcript_tables",
+      "breakpoints": true
     }
   ]
 }

@@ -12,6 +12,8 @@ import { IntakeAgentService } from './intake-agent.service';
 import { IntakeController } from './intake.controller';
 import { PromptRegistryService } from './prompt-registry.service';
 import { TicketPolisherService } from './ticket-polisher.service';
+import { TranscriptDecomposerService } from './transcript-decomposer/transcript-decomposer.service';
+import { TranscriptsController } from './transcript-decomposer/transcripts.controller';
 import { VoyageService } from './voyage.service';
 
 @Module({
@@ -20,6 +22,7 @@ import { VoyageService } from './voyage.service';
     IntakeController,
     AdminFewShotsController,
     AdminPromptsController,
+    TranscriptsController,
   ],
   providers: [
     AnthropicService,
@@ -32,6 +35,7 @@ import { VoyageService } from './voyage.service';
     DedupService,
     FewShotRegistryService,
     PromptRegistryService,
+    TranscriptDecomposerService,
   ],
   exports: [
     AnthropicService,
@@ -43,6 +47,7 @@ import { VoyageService } from './voyage.service';
     DedupService,
     FewShotRegistryService,
     PromptRegistryService,
+    TranscriptDecomposerService,
   ],
 })
 export class AiModule {}
