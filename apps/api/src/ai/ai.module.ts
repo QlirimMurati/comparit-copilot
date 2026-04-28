@@ -1,16 +1,26 @@
 import { Module } from '@nestjs/common';
+import { AuthModule } from '../auth/auth.module';
+import { AdminFewShotsController } from './admin-few-shots.controller';
+import { AdminPromptsController } from './admin-prompts.controller';
 import { AnthropicService } from './anthropic.service';
 import { ChatSessionService } from './chat-session.service';
 import { DedupService } from './dedup.service';
 import { EmbedQueueService } from './embed.queue';
 import { EmbedWorker } from './embed.worker';
+import { FewShotRegistryService } from './few-shot-registry.service';
 import { IntakeAgentService } from './intake-agent.service';
 import { IntakeController } from './intake.controller';
+import { PromptRegistryService } from './prompt-registry.service';
 import { TicketPolisherService } from './ticket-polisher.service';
 import { VoyageService } from './voyage.service';
 
 @Module({
-  controllers: [IntakeController],
+  imports: [AuthModule],
+  controllers: [
+    IntakeController,
+    AdminFewShotsController,
+    AdminPromptsController,
+  ],
   providers: [
     AnthropicService,
     ChatSessionService,
@@ -20,6 +30,8 @@ import { VoyageService } from './voyage.service';
     EmbedQueueService,
     EmbedWorker,
     DedupService,
+    FewShotRegistryService,
+    PromptRegistryService,
   ],
   exports: [
     AnthropicService,
@@ -29,6 +41,8 @@ import { VoyageService } from './voyage.service';
     VoyageService,
     EmbedQueueService,
     DedupService,
+    FewShotRegistryService,
+    PromptRegistryService,
   ],
 })
 export class AiModule {}

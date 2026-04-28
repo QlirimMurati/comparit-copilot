@@ -1,5 +1,5 @@
 import type Anthropic from '@anthropic-ai/sdk';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { AnthropicService } from './anthropic.service';
 import {
   INTAKE_SYSTEM_INSTRUCTIONS,
@@ -9,6 +9,8 @@ import {
   type IntakeState,
 } from './intake-schema';
 import { ChatSessionService } from './chat-session.service';
+import { FewShotRegistryService } from './few-shot-registry.service';
+import { PromptRegistryService } from './prompt-registry.service';
 import type { ChatMessage } from '../db/schema';
 import type { IntakeStreamEvent } from './intake.types';
 
@@ -34,7 +36,9 @@ export class IntakeAgentService {
 
   constructor(
     private readonly anthropic: AnthropicService,
-    private readonly sessions: ChatSessionService
+    private readonly sessions: ChatSessionService,
+    @Optional() private readonly promptRegistry?: PromptRegistryService,
+    @Optional() private readonly fewShotRegistry?: FewShotRegistryService
   ) {}
 
   async runTurn(input: AgentTurnInput): Promise<AgentTurnResult> {
@@ -62,9 +66,10 @@ export class IntakeAgentService {
     }
 
     const history = await this.sessions.listMessages(input.sessionId);
-    const apiMessages = this.toApiMessages(history);
+    const fewShots = await this.buildFewShotMessages();
+    const apiMessages = [...fewShots, ...this.toApiMessages(history)];
 
-    const systemBlocks = this.buildSystemBlocks(
+    const systemBlocks = await this.buildSystemBlocks(
       session.capturedContext,
       intakeState
     );
@@ -166,9 +171,10 @@ export class IntakeAgentService {
     }
 
     const history = await this.sessions.listMessages(input.sessionId);
-    const apiMessages = this.toApiMessages(history);
+    const fewShots = await this.buildFewShotMessages();
+    const apiMessages = [...fewShots, ...this.toApiMessages(history)];
 
-    const systemBlocks = this.buildSystemBlocks(
+    const systemBlocks = await this.buildSystemBlocks(
       session.capturedContext,
       intakeState
     );
@@ -243,14 +249,17 @@ export class IntakeAgentService {
     yield { type: 'done', stopReason };
   }
 
-  private buildSystemBlocks(
+  private async buildSystemBlocks(
     capturedContext: unknown,
     intakeState: IntakeState
-  ): Anthropic.Messages.TextBlockParam[] {
+  ): Promise<Anthropic.Messages.TextBlockParam[]> {
+    const promptText = this.promptRegistry
+      ? await this.promptRegistry.getActiveContent('intake')
+      : INTAKE_SYSTEM_INSTRUCTIONS;
     return [
       {
         type: 'text',
-        text: INTAKE_SYSTEM_INSTRUCTIONS,
+        text: promptText,
         cache_control: { type: 'ephemeral' },
       },
       {
@@ -260,6 +269,36 @@ export class IntakeAgentService {
           `## Current intake state\n\`\`\`json\n${JSON.stringify(intakeState, null, 2)}\n\`\`\``,
       },
     ];
+  }
+
+  private async buildFewShotMessages(): Promise<
+    Anthropic.Messages.MessageParam[]
+  > {
+    if (!this.fewShotRegistry) return [];
+    const shots = await this.fewShotRegistry.listForAgent('intake');
+    if (shots.length === 0) return [];
+    const messages: Anthropic.Messages.MessageParam[] = [];
+    for (const shot of shots) {
+      for (const msg of shot.conversation) {
+        messages.push({
+          role: msg.role,
+          content: [{ type: 'text', text: msg.text }],
+        });
+      }
+    }
+    if (messages.length > 0) {
+      const last = messages[messages.length - 1];
+      if (Array.isArray(last.content) && last.content.length > 0) {
+        const lastBlock = last.content[last.content.length - 1] as {
+          type?: string;
+          cache_control?: { type: 'ephemeral' };
+        };
+        if (lastBlock.type === 'text') {
+          lastBlock.cache_control = { type: 'ephemeral' };
+        }
+      }
+    }
+    return messages;
   }
 
   private toApiMessages(
