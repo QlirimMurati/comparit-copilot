@@ -8,6 +8,7 @@ import { IndexModule } from '../index/index.module';
 import { JiraModule } from '../jira/jira.module';
 import { PrefillModule } from '../prefill/prefill.module';
 import { RealtimeModule } from '../realtime/realtime.module';
+import { ValidationRulesModule } from '../validation-rules/validation-rules.module';
 import { WidgetModule } from '../widget/widget.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -24,6 +25,7 @@ import { AppService } from './app.service';
     JiraModule,
     CopilotModule,
     PrefillModule,
+    ValidationRulesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
