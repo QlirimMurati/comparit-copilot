@@ -37,6 +37,15 @@ RULES:
 - Do not ask for the user's email or identity.
 - Reply in the user's language (German if the first message is German).`;
 
+function prefillAddendum(stage: 'live' | 'qa' | 'dev'): string {
+  return `\n\nPREFILL VALIDATION:
+- When the user pastes JSON containing a \`sparte\` field or a \`prefillData\` wrapper, IMMEDIATELY call validate_prefill.
+- Pass the pasted JSON verbatim as the \`json\` argument.
+- Pass \`stage: "${stage}"\` (this is the active session stage).
+- On result: write a conversational reply. Lead with missing required fields if any, then type errors. Cap the first reply at 5 issues; if there are more, end with "Want me to list the rest?".
+- If the result has \`schemaSource: "static"\`, mention "(offline schema; required-field check skipped)".`;
+}
+
 const COPILOT_TOOLS: Anthropic.Tool[] = [
   {
     name: 'update_bug_draft',
@@ -152,6 +161,33 @@ const COPILOT_TOOLS: Anthropic.Tool[] = [
       additionalProperties: false,
     },
   },
+  {
+    name: 'validate_prefill',
+    description:
+      'Validate prefill JSON against the comparit Pool API schema. Use when the user pastes prefill data — JSON containing a `sparte` field or a `prefillData` wrapper.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        json: {
+          type: 'string',
+          description: 'The raw prefill JSON exactly as pasted by the user.',
+        },
+        sparte: {
+          type: 'string',
+          description:
+            'Optional. Auto-detected from the JSON when omitted. Override only if the user explicitly says which Sparte.',
+        },
+        stage: {
+          type: 'string',
+          enum: ['live', 'qa', 'dev'],
+          description:
+            'Defaults to the session stage (qa unless overridden by /stage).',
+        },
+      },
+      required: ['json'],
+      additionalProperties: false,
+    },
+  },
 ];
 
 @Injectable()
@@ -215,7 +251,10 @@ export class CopilotAgentService {
       const stream = this.anthropic.client.messages.stream({
         model: MODEL,
         max_tokens: 2048,
-        system: [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
+        system: [
+          { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
+          { type: 'text', text: prefillAddendum(state.prefillStage ?? 'qa') },
+        ],
         tools: COPILOT_TOOLS,
         messages: apiMessages,
       });
@@ -484,6 +523,54 @@ export class CopilotAgentService {
             toolData: data,
             isError: false,
           };
+        }
+
+        case 'validate_prefill': {
+          const json = String(input['json'] ?? '');
+          const sparte =
+            typeof input['sparte'] === 'string' ? (input['sparte'] as string) : undefined;
+          const reqStage =
+            typeof input['stage'] === 'string'
+              ? (input['stage'] as 'live' | 'qa' | 'dev')
+              : undefined;
+          try {
+            const result = await this.prefill.validateForChat({
+              json,
+              sparte,
+              stage: reqStage ?? state.prefillStage ?? 'qa',
+            });
+            const issues = [
+              ...result.missingRequired.map((m) => ({
+                kind: 'missing' as const,
+                path: m.path,
+              })),
+              ...result.typeErrors.map((e) => ({
+                kind: 'type' as const,
+                path: e.path,
+                message: e.message,
+              })),
+            ].slice(0, 20);
+            return {
+              nextState: state,
+              toolData: result,
+              message: JSON.stringify({
+                valid: result.valid,
+                sparte: result.sparte,
+                stage: result.stage,
+                schemaSource: result.schemaSource,
+                missingCount: result.missingRequired.length,
+                typeErrorCount: result.typeErrors.length,
+                issues,
+              }),
+              isError: false,
+            };
+          } catch (err) {
+            return {
+              nextState: state,
+              message: (err as Error).message,
+              isError: true,
+            };
+          }
         }
 
         default:
