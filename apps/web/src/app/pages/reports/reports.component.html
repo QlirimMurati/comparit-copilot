@@ -33,12 +33,17 @@
             <th class="px-4 py-2">Sparte</th>
             <th class="px-4 py-2">Reporter</th>
             <th class="px-4 py-2">Created</th>
+            <th class="px-4 py-2"></th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
           @for (r of rows(); track r.id) {
             <tr class="hover:bg-slate-50">
-              <td class="px-4 py-2 font-medium text-slate-900">{{ r.title }}</td>
+              <td class="px-4 py-2 font-medium text-slate-900">
+                <a [routerLink]="['/reports', r.id]" class="hover:text-slate-700 hover:underline">
+                  {{ r.title }}
+                </a>
+              </td>
               <td class="px-4 py-2">
                 <span [class]="'inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ' + statusTone(r.status)">
                   {{ r.status }}
@@ -52,6 +57,14 @@
               <td class="px-4 py-2 text-slate-700">{{ sparteLabel(r.sparte) }}</td>
               <td class="px-4 py-2 text-slate-700">{{ r.reporter?.name ?? '—' }}</td>
               <td class="px-4 py-2 text-slate-500">{{ formatDate(r.createdAt) }}</td>
+              <td class="px-4 py-2 text-right">
+                <a
+                  [routerLink]="['/reports', r.id]"
+                  class="text-sm font-medium text-slate-700 hover:text-slate-900"
+                >
+                  View →
+                </a>
+              </td>
             </tr>
           }
         </tbody>

@@ -33,6 +33,13 @@ export const appRoutes: Route[] = [
             (m) => m.NewReportComponent
           ),
       },
+      {
+        path: 'reports/:id',
+        loadComponent: () =>
+          import('./pages/reports/detail/detail.component').then(
+            (m) => m.ReportDetailComponent
+          ),
+      },
     ],
   },
 ];
