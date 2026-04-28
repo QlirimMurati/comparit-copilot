@@ -1,0 +1,765 @@
+[
+  {
+    "fieldPath": "gebaeudetyp",
+    "label": "Gebäudetyp",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Gebäudetyp ist ein Pflichtfeld und muss aus den vordefinierten Gebäudetypen ausgewählt werden.",
+    "synonyms": [
+      "Gebäudetyp",
+      "building type",
+      "Haustyp",
+      "Objekttyp"
+    ]
+  },
+  {
+    "fieldPath": "bauartklasse",
+    "label": "Bauartklasse",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Bauartklasse (BAK) ist ein Pflichtfeld.",
+    "synonyms": [
+      "Bauartklasse",
+      "BAK",
+      "construction class",
+      "building class"
+    ]
+  },
+  {
+    "fieldPath": "bauartklassErmittlen",
+    "label": "Bauartklasse ermitteln",
+    "type": "boolean",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Angabe, ob die Bauartklasse ermittelt werden soll, ist erforderlich.",
+    "synonyms": [
+      "Bauartklasse ermitteln",
+      "determine BAK",
+      "BAK-Ermittlung",
+      "Bauartklassenermittlung"
+    ]
+  },
+  {
+    "fieldPath": "bauartklasseFertighausgruppe.dacheindeckung",
+    "label": "Dacheindeckung",
+    "type": "enum",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Dacheindeckung des Fertighauses (kein Validator gesetzt).",
+    "synonyms": [
+      "Dacheindeckung",
+      "roof covering",
+      "Dachmaterial",
+      "roofing"
+    ]
+  },
+  {
+    "fieldPath": "bauartklasseFertighausgruppe.bauweiseAussenwaende",
+    "label": "Bauweise Außenwände",
+    "type": "enum",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Bauweise der Außenwände (kein Validator gesetzt).",
+    "synonyms": [
+      "Bauweise Außenwände",
+      "exterior wall construction",
+      "Außenwandbauweise",
+      "wall type"
+    ]
+  },
+  {
+    "fieldPath": "bauartklasseFertighausgruppe.fertighaus",
+    "label": "Fertighaus",
+    "type": "enum",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Angabe, ob es sich um ein Fertighaus handelt (Ja/Nein).",
+    "synonyms": [
+      "Fertighaus",
+      "prefab house",
+      "prefabricated home",
+      "Fertigbau"
+    ]
+  },
+  {
+    "fieldPath": "hrNutzungflaeche.wohnflaecheOhneKeller",
+    "label": "Wohnfläche ohne Keller (qm)",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 1
+      },
+      {
+        "kind": "max",
+        "value": 999
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Wohnfläche ohne Keller ist erforderlich und muss eine ganze Zahl zwischen 1 und 999 m² sein.",
+    "synonyms": [
+      "Wohnfläche ohne Keller",
+      "living area without basement",
+      "Wohnfläche",
+      "floor area",
+      "qm Wohnfläche"
+    ]
+  },
+  {
+    "fieldPath": "hrNutzungflaeche.staendigBewohnt",
+    "label": "Ständig bewohnt",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Wohnung ist ständig bewohnt (deaktiviertes Feld, fest auf true gesetzt).",
+    "synonyms": [
+      "ständig bewohnt",
+      "permanently occupied",
+      "dauerhaft bewohnt",
+      "permanent residence"
+    ]
+  },
+  {
+    "fieldPath": "hrNutzungflaeche.einKelleristVorhanden",
+    "label": "Keller vorhanden",
+    "type": "boolean",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Angabe, ob ein Keller vorhanden ist, ist erforderlich.",
+    "synonyms": [
+      "Keller vorhanden",
+      "basement exists",
+      "cellar present",
+      "Untergeschoss"
+    ]
+  },
+  {
+    "fieldPath": "hrNutzungflaeche.gesamtflaecheImKeller",
+    "label": "Gesamtfläche im Keller (qm)",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required",
+        "message": "only when Keller vorhanden"
+      },
+      {
+        "kind": "min",
+        "value": 1
+      },
+      {
+        "kind": "max",
+        "value": 0,
+        "message": "dynamic: max = wohnflaecheOhneKeller"
+      },
+      {
+        "kind": "custom",
+        "message": "disabled when einKelleristVorhanden=false"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Gesamtfläche im Keller ist nur erforderlich, wenn ein Keller vorhanden ist; dann mindestens 1 m² und höchstens die Wohnfläche ohne Keller.",
+    "synonyms": [
+      "Gesamtfläche Keller",
+      "total basement area",
+      "Kellerfläche",
+      "cellar area"
+    ]
+  },
+  {
+    "fieldPath": "hrNutzungflaeche.wohnflaecheImKeller",
+    "label": "Wohnfläche im Keller (qm)",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required",
+        "message": "only when Keller vorhanden and Gesamtfläche set"
+      },
+      {
+        "kind": "min",
+        "value": 0
+      },
+      {
+        "kind": "max",
+        "value": 0,
+        "message": "dynamic: max = gesamtflaecheImKeller"
+      },
+      {
+        "kind": "custom",
+        "message": "disabled otherwise"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Wohnfläche im Keller ist nur aktiv, wenn ein Keller mit Gesamtfläche angegeben ist; sie muss zwischen 0 und der Gesamtfläche im Keller liegen.",
+    "synonyms": [
+      "Wohnfläche im Keller",
+      "living area basement",
+      "Kellerwohnfläche",
+      "basement living space"
+    ]
+  },
+  {
+    "fieldPath": "geburtsdatum",
+    "label": "Geburtsdatum",
+    "type": "date",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "dateValidator"
+      },
+      {
+        "kind": "maxDate",
+        "value": "today"
+      },
+      {
+        "kind": "minAge",
+        "value": 18,
+        "message": "minAgeAtContract relative to vertragsbeginn"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Geburtsdatum ist erforderlich, muss ein gültiges Datum sein, darf nicht in der Zukunft liegen, und der Versicherungsnehmer muss zum Vertragsbeginn mindestens 18 Jahre alt sein.",
+    "synonyms": [
+      "Geburtsdatum",
+      "date of birth",
+      "DOB",
+      "Geburtstag",
+      "birthday"
+    ]
+  },
+  {
+    "fieldPath": "geschlecht",
+    "label": "Geschlecht",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Geschlecht ist ein Pflichtfeld.",
+    "synonyms": [
+      "Geschlecht",
+      "gender",
+      "sex",
+      "Anrede"
+    ]
+  },
+  {
+    "fieldPath": "vertragsbeginn",
+    "label": "Vertragsbeginn",
+    "type": "date",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "dateValidator"
+      },
+      {
+        "kind": "minDate",
+        "value": "tomorrow",
+        "message": "getNextDate"
+      },
+      {
+        "kind": "maxDate",
+        "value": "+1 year",
+        "message": "getXYearInTheFutureDate(1)"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Vertragsbeginn ist erforderlich, muss ein gültiges Datum frühestens ab dem nächsten Tag und höchstens ein Jahr in der Zukunft sein.",
+    "synonyms": [
+      "Vertragsbeginn",
+      "contract start",
+      "start date",
+      "Versicherungsbeginn",
+      "policy start"
+    ]
+  },
+  {
+    "fieldPath": "beamterOderOeffentlicherDienst",
+    "label": "Beschäftigungsart",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Beschäftigungsart (Privatwirtschaft oder Öffentlicher Dienst) ist erforderlich.",
+    "synonyms": [
+      "Beschäftigungsart",
+      "employment type",
+      "Beruf",
+      "Beamter",
+      "öffentlicher Dienst",
+      "occupation"
+    ]
+  },
+  {
+    "fieldPath": "anzalJahre",
+    "label": "Laufzeit (Jahre)",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Vertragslaufzeit in Jahren ist erforderlich.",
+    "synonyms": [
+      "Laufzeit",
+      "contract term",
+      "Vertragslaufzeit",
+      "duration",
+      "Anzahl Jahre"
+    ]
+  },
+  {
+    "fieldPath": "zahlungsweise",
+    "label": "Zahlungsweise",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Zahlungsweise (z. B. jährlich) ist erforderlich.",
+    "synonyms": [
+      "Zahlungsweise",
+      "payment frequency",
+      "payment mode",
+      "Zahlrhythmus"
+    ]
+  },
+  {
+    "fieldPath": "zahlungsart",
+    "label": "Zahlungsart",
+    "type": "enum",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Zahlungsart (z. B. Lastschrift) ist optional, Standard ist Lastschrift.",
+    "synonyms": [
+      "Zahlungsart",
+      "payment method",
+      "Zahlweg",
+      "direct debit"
+    ]
+  },
+  {
+    "fieldPath": "anschriftVersicherungsnehmerUebernehmen",
+    "label": "Anschrift des Versicherungsnehmers übernehmen",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Optionale Angabe, ob die Anschrift des Versicherungsnehmers übernommen werden soll.",
+    "synonyms": [
+      "Anschrift übernehmen",
+      "use policyholder address",
+      "copy address",
+      "Adresse übernehmen"
+    ]
+  },
+  {
+    "fieldPath": "postleitzahl",
+    "label": "Postleitzahl",
+    "type": "string",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "postalCodeValidator"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Postleitzahl ist erforderlich und muss aus genau 5 Ziffern bestehen.",
+    "synonyms": [
+      "Postleitzahl",
+      "PLZ",
+      "postal code",
+      "ZIP",
+      "zip code"
+    ]
+  },
+  {
+    "fieldPath": "ort",
+    "label": "Ort",
+    "type": "string",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Ort ist ein Pflichtfeld.",
+    "synonyms": [
+      "Ort",
+      "city",
+      "town",
+      "Stadt",
+      "location"
+    ]
+  },
+  {
+    "fieldPath": "strasse",
+    "label": "Straße",
+    "type": "string",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Straße ist ein Pflichtfeld.",
+    "synonyms": [
+      "Straße",
+      "street",
+      "Strasse",
+      "road"
+    ]
+  },
+  {
+    "fieldPath": "hausnummer",
+    "label": "Hausnummer",
+    "type": "string",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Hausnummer ist ein Pflichtfeld.",
+    "synonyms": [
+      "Hausnummer",
+      "house number",
+      "street number",
+      "Nr."
+    ]
+  },
+  {
+    "fieldPath": "zusatzschutz.mobiliarglas",
+    "label": "Mobiliarglas",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Optionaler Zusatzschutz für Mobiliarglas.",
+    "synonyms": [
+      "Mobiliarglas",
+      "furniture glass",
+      "Glasversicherung",
+      "glass coverage"
+    ]
+  },
+  {
+    "fieldPath": "zusatzschutz.elementar",
+    "label": "Elementarschutz",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Optionaler Elementarschadenschutz.",
+    "synonyms": [
+      "Elementar",
+      "Elementarschäden",
+      "natural hazards",
+      "Naturgefahren",
+      "elemental coverage"
+    ]
+  },
+  {
+    "fieldPath": "zusatzschutz.fahrraddiebstahl",
+    "label": "Fahrraddiebstahl",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Optionaler Schutz gegen Fahrraddiebstahl.",
+    "synonyms": [
+      "Fahrraddiebstahl",
+      "bicycle theft",
+      "bike theft",
+      "Diebstahlschutz Fahrrad"
+    ]
+  },
+  {
+    "fieldPath": "fahrraddiebstahlwert",
+    "label": "Fahrraddiebstahlwert (€)",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required",
+        "message": "only when fahrraddiebstahl=true"
+      },
+      {
+        "kind": "min",
+        "value": 1
+      },
+      {
+        "kind": "max",
+        "value": 50000
+      },
+      {
+        "kind": "custom",
+        "message": "disabled when fahrraddiebstahl=false"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Wert für Fahrraddiebstahl ist nur erforderlich, wenn Fahrraddiebstahlschutz aktiv ist; muss zwischen 1 und 50.000 € liegen.",
+    "synonyms": [
+      "Fahrraddiebstahlwert",
+      "bike value",
+      "Fahrradwert",
+      "bicycle value"
+    ]
+  },
+  {
+    "fieldPath": "versicherungssummeOptions",
+    "label": "Versicherungssumme Ermittlungsart",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Auswahl der Ermittlungsart der Versicherungssumme (z. B. automatisch ermitteln) ist erforderlich.",
+    "synonyms": [
+      "Versicherungssumme Ermittlung",
+      "sum insured method",
+      "insurance sum option",
+      "Ermittlungsart"
+    ]
+  },
+  {
+    "fieldPath": "versicherungssumme",
+    "label": "Versicherungssumme (€)",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required",
+        "message": "only when not auto-determined"
+      },
+      {
+        "kind": "min",
+        "value": 0
+      },
+      {
+        "kind": "max",
+        "value": 900000
+      },
+      {
+        "kind": "custom",
+        "message": "disabled when automatisch ermitteln"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Versicherungssumme ist nur erforderlich, wenn nicht automatisch ermittelt; sie muss zwischen 0 und 900.000 € liegen.",
+    "synonyms": [
+      "Versicherungssumme",
+      "sum insured",
+      "insurance amount",
+      "VS",
+      "coverage amount"
+    ]
+  },
+  {
+    "fieldPath": "hrSelbstbeteiligung",
+    "label": "Selbstbeteiligung",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Selbstbeteiligung ist erforderlich (z. B. 0 €).",
+    "synonyms": [
+      "Selbstbeteiligung",
+      "SB",
+      "deductible",
+      "Selbstbehalt",
+      "excess"
+    ]
+  },
+  {
+    "fieldPath": "mindestsicherungWohnungs",
+    "label": "Mindestsicherung der Wohnung",
+    "type": "boolean",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Bestätigung der Mindestsicherung der Wohnung ist erforderlich.",
+    "synonyms": [
+      "Mindestsicherung",
+      "minimum security",
+      "Wohnungssicherung",
+      "basic security"
+    ]
+  },
+  {
+    "fieldPath": "uberwachungsanlage",
+    "label": "Überwachungsanlage",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Optionale Angabe, ob eine Überwachungsanlage vorhanden ist.",
+    "synonyms": [
+      "Überwachungsanlage",
+      "surveillance system",
+      "alarm system",
+      "Alarmanlage",
+      "monitoring"
+    ]
+  },
+  {
+    "fieldPath": "vorversicherungIstVorhanden",
+    "label": "Vorversicherung vorhanden",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Angabe, ob eine Vorversicherung besteht (optional).",
+    "synonyms": [
+      "Vorversicherung",
+      "previous insurance",
+      "prior coverage",
+      "Voversicherer"
+    ]
+  },
+  {
+    "fieldPath": "versicherungsnehmerReguliert",
+    "label": "Schäden in den letzten Jahren",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Angabe, ob der Versicherungsnehmer Schäden hatte/regulierte; aktiviert die Schadenliste.",
+    "synonyms": [
+      "Schäden reguliert",
+      "prior claims",
+      "Vorschäden",
+      "damage history",
+      "claims history"
+    ]
+  },
+  {
+    "fieldPath": "schadenHinzufugen",
+    "label": "Schäden",
+    "type": "string",
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "damagesValidator (FormArray must not be empty)"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Wenn Vorschäden vorhanden sind, muss mindestens ein Schaden erfasst werden.",
+    "synonyms": [
+      "Schäden",
+      "damages",
+      "Vorschäden",
+      "claims",
+      "damage list"
+    ]
+  },
+  {
+    "fieldPath": "schadenHinzufugen.artDesSchadens",
+    "label": "Art des Schadens",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Art des Schadens ist für jeden erfassten Schaden erforderlich.",
+    "synonyms": [
+      "Art des Schadens",
+      "damage type",
+      "claim type",
+      "Schadenart"
+    ]
+  },
+  {
+    "fieldPath": "schadenHinzufugen.jahrDesSchadens",
+    "label": "Jahr des Schadens",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 1900,
+        "message": "minYearValidator"
+      },
+      {
+        "kind": "max",
+        "value": 0,
+        "message": "maxYearValidator: current year"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Jahr des Schadens ist erforderlich und muss zwischen 1900 und dem aktuellen Jahr liegen.",
+    "synonyms": [
+      "Jahr des Schadens",
+      "year of damage",
+      "claim year",
+      "Schadensjahr"
+    ]
+  },
+  {
+    "fieldPath": "schadenHinzufugen.hoheDesSchadens",
+    "label": "Höhe des Schadens (€)",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 1
+      },
+      {
+        "kind": "max",
+        "value": 999999
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Schadenhöhe ist erforderlich und muss zwischen 1 und 999.999 € liegen.",
+    "synonyms": [
+      "Höhe des Schadens",
+      "damage amount",
+      "claim amount",
+      "Schadenhöhe",
+      "loss amount"
+    ]
+  }
+]

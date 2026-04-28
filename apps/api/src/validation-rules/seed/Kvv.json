@@ -1,0 +1,1123 @@
+[
+  {
+    "fieldPath": "beihilfetraeger",
+    "label": "Beihilfeträger",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Beihilfeträger ist Pflichtfeld (Auswahl aus BeihilfetraegerEnum, z.B. Bund, Hessen).",
+    "synonyms": [
+      "Beihilfeträger",
+      "Dienstherr",
+      "Beihilfestelle",
+      "BeihilfeTraeger"
+    ]
+  },
+  {
+    "fieldPath": "anzahlBeruecksichtigungsfaehigeKinder",
+    "label": "Anzahl berücksichtigungsfähige Kinder",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Anzahl berücksichtigungsfähiger Kinder ist Pflichtfeld.",
+    "synonyms": [
+      "Kinderanzahl",
+      "Anzahl Kinder",
+      "berücksichtigungsfähige Kinder",
+      "number of eligible children"
+    ]
+  },
+  {
+    "fieldPath": "familienstand",
+    "label": "Familienstand",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Familienstand ist Pflichtfeld (verheiratet/nicht verheiratet).",
+    "synonyms": [
+      "Familienstand",
+      "marital status",
+      "Ehestand",
+      "Verheiratet"
+    ]
+  },
+  {
+    "fieldPath": "ehepartnerBeruecksichtigungsfaehig",
+    "label": "Ehepartner berücksichtigungsfähig",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Gibt an, ob der Ehepartner beihilfeberücksichtigungsfähig ist; nur aktiv bei Familienstand 'Verheiratet'.",
+    "synonyms": [
+      "Ehepartner berücksichtigungsfähig",
+      "spouse eligible",
+      "Partner Beihilfe",
+      "EhepartnerBeruecksichtigung"
+    ]
+  },
+  {
+    "fieldPath": "ambulant",
+    "label": "Beihilfesatz ambulant",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Ambulanter Beihilfeprozentsatz ist Pflichtfeld (z.B. 50%, 70%).",
+    "synonyms": [
+      "Beihilfesatz ambulant",
+      "Ambulant",
+      "ambulanter Prozentsatz",
+      "outpatient rate"
+    ]
+  },
+  {
+    "fieldPath": "stationaer",
+    "label": "Beihilfesatz stationär",
+    "type": "enum",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Stationärer Beihilfesatz, wird automatisch aus dem ambulanten Wert abgeleitet (Feld disabled).",
+    "synonyms": [
+      "Beihilfesatz stationär",
+      "Stationär",
+      "inpatient rate",
+      "stationaer"
+    ]
+  },
+  {
+    "fieldPath": "zahn",
+    "label": "Beihilfesatz Zahn",
+    "type": "enum",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Zahn-Beihilfesatz, wird automatisch aus dem ambulanten Wert synchronisiert (Feld disabled).",
+    "synonyms": [
+      "Beihilfesatz Zahn",
+      "Zahnsatz",
+      "dental rate",
+      "Zahn"
+    ]
+  },
+  {
+    "fieldPath": "beihilfesatzAngaben",
+    "label": "Beihilfesatz automatisch ermitteln",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Schalter, ob die Beihilfesatz-Angaben automatisch ermittelt werden sollen.",
+    "synonyms": [
+      "Beihilfesatz Angaben",
+      "automatisch ermitteln",
+      "auto-detect Beihilfesatz",
+      "beihilfesatzAngabenAutomatisch"
+    ]
+  },
+  {
+    "fieldPath": "esBestehtBeihilfeanspruchStationaer",
+    "label": "Beihilfeanspruch stationär besteht",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Gibt an, ob ein stationärer Beihilfeanspruch besteht.",
+    "synonyms": [
+      "Beihilfeanspruch stationär",
+      "stationärer Anspruch",
+      "inpatient claim",
+      "Beihilfeanspruch"
+    ]
+  },
+  {
+    "fieldPath": "ambulanteLeistungen.primaerarztprinzip",
+    "label": "Primärarztprinzip",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Primärarztprinzip-Auswahl ist Pflichtfeld.",
+    "synonyms": [
+      "Primärarztprinzip",
+      "Hausarztprinzip",
+      "primary doctor principle",
+      "Primaerarzt"
+    ]
+  },
+  {
+    "fieldPath": "ambulanteLeistungen.sehhilfen",
+    "label": "Sehhilfen",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Sehhilfen-Leistungsumfang ist Pflichtfeld.",
+    "synonyms": [
+      "Sehhilfen",
+      "Brille",
+      "visual aids",
+      "Sehhilfe"
+    ]
+  },
+  {
+    "fieldPath": "ambulanteLeistungen.gebuhrenordnungAmbulant",
+    "label": "Gebührenordnung ambulant",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Gebührenordnung ambulant ist Pflichtfeld (z.B. mind. bis Höchstsatz).",
+    "synonyms": [
+      "Gebührenordnung ambulant",
+      "GOÄ ambulant",
+      "fee schedule outpatient",
+      "Gebuehrenordnung"
+    ]
+  },
+  {
+    "fieldPath": "ambulanteLeistungen.naturheilverfahren",
+    "label": "Naturheilverfahren",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Naturheilverfahren-Auswahl ist Pflichtfeld.",
+    "synonyms": [
+      "Naturheilverfahren",
+      "Heilpraktiker",
+      "alternative medicine",
+      "Naturheil"
+    ]
+  },
+  {
+    "fieldPath": "stationaerLeistungen.stationarUnterkunft",
+    "label": "Stationäre Unterkunft",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Stationäre Unterkunft ist Pflichtfeld (z.B. Mehr-Bettzimmer, Ein-Bettzimmer).",
+    "synonyms": [
+      "Stationäre Unterkunft",
+      "Zimmerwahl",
+      "hospital room",
+      "Unterkunft stationär"
+    ]
+  },
+  {
+    "fieldPath": "stationaerLeistungen.stationarWahlarzt",
+    "label": "Wahlarzt stationär",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Stationärer Wahlarzt-Wunsch ist Pflichtfeld.",
+    "synonyms": [
+      "Wahlarzt",
+      "Chefarztbehandlung",
+      "stationärer Wahlarzt",
+      "attending physician"
+    ]
+  },
+  {
+    "fieldPath": "stationaerLeistungen.gebuhrenordnungStationar",
+    "label": "Gebührenordnung stationär",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Gebührenordnung stationär ist Pflichtfeld.",
+    "synonyms": [
+      "Gebührenordnung stationär",
+      "GOÄ stationär",
+      "fee schedule inpatient",
+      "Gebuehrenordnung Stationaer"
+    ]
+  },
+  {
+    "fieldPath": "dentaleLeistungen.zahnbehandlung",
+    "label": "Zahnbehandlung",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Erstattungssatz für Zahnbehandlung ist Pflichtfeld (z.B. 100%).",
+    "synonyms": [
+      "Zahnbehandlung",
+      "ZB",
+      "dental treatment",
+      "Zahn-Behandlung"
+    ]
+  },
+  {
+    "fieldPath": "dentaleLeistungen.zahnersatz",
+    "label": "Zahnersatz",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Erstattungssatz für Zahnersatz ist Pflichtfeld (z.B. 60%).",
+    "synonyms": [
+      "Zahnersatz",
+      "ZE",
+      "dental prosthetics",
+      "Prothetik"
+    ]
+  },
+  {
+    "fieldPath": "dentaleLeistungen.kieferorthopadie",
+    "label": "Kieferorthopädie",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Erstattungssatz für Kieferorthopädie ist Pflichtfeld (z.B. 0%).",
+    "synonyms": [
+      "Kieferorthopädie",
+      "KFO",
+      "orthodontics",
+      "Kieferorthopaedie"
+    ]
+  },
+  {
+    "fieldPath": "dentaleLeistungen.gebuhrenordnungDental",
+    "label": "Gebührenordnung Dental",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Gebührenordnung Dental ist Pflichtfeld.",
+    "synonyms": [
+      "Gebührenordnung Dental",
+      "GOZ",
+      "dental fee schedule",
+      "Gebuehrenordnung Zahn"
+    ]
+  },
+  {
+    "fieldPath": "selbstbehalt.selbstbehaltMin",
+    "label": "Selbstbehalt Min",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 0
+      },
+      {
+        "kind": "max",
+        "value": 5000,
+        "message": "dynamic max = selbstbehaltMax"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Minimaler Selbstbehalt ist Pflichtfeld; Ganzzahl, durch 10 teilbar, zwischen 0 und dem aktuellen Maximum (max 5000).",
+    "synonyms": [
+      "Selbstbehalt Min",
+      "SB Min",
+      "minimum deductible",
+      "Mindestselbstbehalt"
+    ]
+  },
+  {
+    "fieldPath": "selbstbehalt.selbstbehaltMax",
+    "label": "Selbstbehalt Max",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "max",
+        "value": 5000
+      },
+      {
+        "kind": "min",
+        "value": 0,
+        "message": "dynamic min = selbstbehaltMin"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Maximaler Selbstbehalt ist Pflichtfeld; Ganzzahl, durch 10 teilbar, höchstens 5000 und nicht kleiner als selbstbehaltMin.",
+    "synonyms": [
+      "Selbstbehalt Max",
+      "SB Max",
+      "maximum deductible",
+      "Höchstselbstbehalt"
+    ]
+  },
+  {
+    "fieldPath": "pflegepflicht",
+    "label": "Pflegepflicht",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegepflichtversicherung-Auswahl ist Pflichtfeld (Ja/Nein).",
+    "synonyms": [
+      "Pflegepflicht",
+      "Pflegepflichtversicherung",
+      "mandatory care",
+      "PPV"
+    ]
+  },
+  {
+    "fieldPath": "beihilfeergaenzung",
+    "label": "Beihilfeergänzung",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Beihilfeergänzung-Auswahl ist Pflichtfeld.",
+    "synonyms": [
+      "Beihilfeergänzung",
+      "Beihilfeerganung",
+      "supplementary aid",
+      "Beihilfe-Ergaenzung"
+    ]
+  },
+  {
+    "fieldPath": "krankentagegeldBoolean",
+    "label": "Krankentagegeld aktiv",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Schalter, ob Krankentagegeld eingeschlossen werden soll.",
+    "synonyms": [
+      "Krankentagegeld",
+      "KTG",
+      "sickness daily allowance",
+      "Tagegeld krank"
+    ]
+  },
+  {
+    "fieldPath": "krankentagegeld.tagessatz",
+    "label": "Krankentagegeld Tagessatz",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 5
+      },
+      {
+        "kind": "max",
+        "value": 1000
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(5)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Tagessatz für Krankentagegeld: Pflichtfeld, Ganzzahl zwischen 5 und 1000, durch 5 teilbar.",
+    "synonyms": [
+      "Tagessatz",
+      "Krankentagegeld Satz",
+      "daily rate",
+      "KTG Tagessatz"
+    ]
+  },
+  {
+    "fieldPath": "krankentagegeld.karenzzeit",
+    "label": "Karenzzeit",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Karenzzeit für das Krankentagegeld ist Pflichtfeld (z.B. ab 29., 43. Tag).",
+    "synonyms": [
+      "Karenzzeit",
+      "KZH",
+      "Wartezeit",
+      "waiting period"
+    ]
+  },
+  {
+    "fieldPath": "beitragsentlastungBoolean",
+    "label": "Beitragsentlastung aktiv",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Schalter zum Aktivieren der Beitragsentlastungstarif-Eingaben.",
+    "synonyms": [
+      "Beitragsentlastung",
+      "BET",
+      "premium relief",
+      "Entlastungstarif"
+    ]
+  },
+  {
+    "fieldPath": "beitragsentlastung.beitragsentlastungArt",
+    "label": "Art der Beitragsentlastung",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Art der Beitragsentlastung ist Pflichtfeld (z.B. monatliche Entlastung im Alter festlegen).",
+    "synonyms": [
+      "Beitragsentlastungsart",
+      "BET Art",
+      "relief type",
+      "Entlastungsart"
+    ]
+  },
+  {
+    "fieldPath": "beitragsentlastung.entlastungKVBeitrag",
+    "label": "Entlastung KV-Beitrag",
+    "type": "number",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 100
+      },
+      {
+        "kind": "max",
+        "value": 1000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Monatlicher KV-Entlastungsbetrag: Pflichtfeld zwischen 100 und 1000.",
+    "synonyms": [
+      "Entlastung KV-Beitrag",
+      "Entlastungsbetrag",
+      "KV relief amount",
+      "monatliche Entlastung"
+    ]
+  },
+  {
+    "fieldPath": "beitragsentlastung.beitrag",
+    "label": "Beitrag (Beitragsentlastung)",
+    "type": "number",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 10
+      },
+      {
+        "kind": "max",
+        "value": 1000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Monatlicher Beitrag für die Beitragsentlastung: Pflichtfeld zwischen 10 und 1000.",
+    "synonyms": [
+      "Beitrag",
+      "BET Beitrag",
+      "monatlicher Beitrag",
+      "premium amount"
+    ]
+  },
+  {
+    "fieldPath": "beitragsentlastung.beitagsentlastungAbAlter",
+    "label": "Beitragsentlastung ab Alter",
+    "type": "number",
+    "validators": [
+      {
+        "kind": "min",
+        "value": 18
+      },
+      {
+        "kind": "max",
+        "value": 100
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Alter, ab dem die Beitragsentlastung greift, zwischen 18 und 100 Jahren.",
+    "synonyms": [
+      "Beitragsentlastung ab Alter",
+      "Entlastungsalter",
+      "relief start age",
+      "ab Alter"
+    ]
+  },
+  {
+    "fieldPath": "beitragsentlastung.eigenanteil",
+    "label": "Eigenanteil",
+    "type": "number",
+    "validators": [
+      {
+        "kind": "required",
+        "message": "only when beitragsentlastungArt = 'Monatlichen Beitrag festlegen'"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Eigenanteil bei Beitragsentlastung; Pflichtfeld nur wenn Art = 'Monatlichen Beitrag festlegen'.",
+    "synonyms": [
+      "Eigenanteil",
+      "Selbstanteil",
+      "own contribution",
+      "Eigenbeitrag"
+    ]
+  },
+  {
+    "fieldPath": "krankenhaustagegeldBoolean",
+    "label": "Krankenhaustagegeld aktiv",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Schalter, ob Krankenhaustagegeld eingeschlossen werden soll.",
+    "synonyms": [
+      "Krankenhaustagegeld",
+      "KHT",
+      "hospital daily allowance",
+      "KH-Tagegeld"
+    ]
+  },
+  {
+    "fieldPath": "krankenhaustagegeld.tagessatz",
+    "label": "Krankenhaustagegeld Tagessatz",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 10
+      },
+      {
+        "kind": "max",
+        "value": 500
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(5)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Tagessatz Krankenhaustagegeld: Pflichtfeld, Ganzzahl zwischen 10 und 500, durch 5 teilbar.",
+    "synonyms": [
+      "KHT Tagessatz",
+      "Krankenhaustagegeld Satz",
+      "hospital daily rate",
+      "Tagessatz KHT"
+    ]
+  },
+  {
+    "fieldPath": "kurtagegeldBoolean",
+    "label": "Kurtagegeld aktiv",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Schalter, ob Kurtagegeld eingeschlossen werden soll.",
+    "synonyms": [
+      "Kurtagegeld",
+      "Kur",
+      "spa allowance",
+      "KurT"
+    ]
+  },
+  {
+    "fieldPath": "kurtagegeld.tagessatz",
+    "label": "Kurtagegeld Tagessatz",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 10
+      },
+      {
+        "kind": "max",
+        "value": 500
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(5)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Tagessatz Kurtagegeld: Pflichtfeld, Ganzzahl zwischen 10 und 500, durch 5 teilbar.",
+    "synonyms": [
+      "Kurtagegeld Satz",
+      "Tagessatz Kur",
+      "spa daily rate",
+      "Kur-Tagessatz"
+    ]
+  },
+  {
+    "fieldPath": "kurtagegeld.alternativKurleistung",
+    "label": "Alternative Kurleistung",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Gibt an, ob alternative Kurleistung gewählt wird.",
+    "synonyms": [
+      "Alternative Kurleistung",
+      "alternativ Kur",
+      "alternative spa benefit",
+      "Kurleistung alternativ"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatzBoolean",
+    "label": "Pflegezusatz aktiv",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Schalter zum Aktivieren der Pflegezusatzversicherungs-Eingaben.",
+    "synonyms": [
+      "Pflegezusatz",
+      "PZV",
+      "supplementary care",
+      "Pflege-Zusatzversicherung"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegetagegeld",
+    "label": "Pflegetagegeld-Modus",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegetagegeld-Modus ist Pflichtfeld.",
+    "synonyms": [
+      "Pflegetagegeld",
+      "care daily allowance",
+      "Pflege Tagegeld",
+      "PTG"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradEinAmbulant",
+    "label": "Pflegegrad 1 ambulant",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "custom",
+        "message": "minHundredOrZero (dynamic) and max <= reference"
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Monatliche Leistung Pflegegrad 1 ambulant: Pflichtfeld, Ganzzahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und ≤ Pflegegrad 1 stationär bzw. Pflegegrad 2 ambulant.",
+    "synonyms": [
+      "PG1 ambulant",
+      "Pflegegrad 1 ambulant",
+      "care level 1 outpatient",
+      "PG1A"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradZweiAmbulant",
+    "label": "Pflegegrad 2 ambulant",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "custom",
+        "message": "minHundredOrZero (dynamic) and max <= reference"
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegegrad 2 ambulant: Ganzzahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und ≤ Pflegegrad 2 stationär bzw. Pflegegrad 3 ambulant.",
+    "synonyms": [
+      "PG2 ambulant",
+      "Pflegegrad 2 ambulant",
+      "care level 2 outpatient",
+      "PG2A"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradDreiAmbulant",
+    "label": "Pflegegrad 3 ambulant",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "custom",
+        "message": "minHundredOrZero (dynamic) and max <= reference"
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegegrad 3 ambulant: Ganzzahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und ≤ Pflegegrad 3 stationär bzw. Pflegegrad 4 ambulant.",
+    "synonyms": [
+      "PG3 ambulant",
+      "Pflegegrad 3 ambulant",
+      "care level 3 outpatient",
+      "PG3A"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradVierAmbulant",
+    "label": "Pflegegrad 4 ambulant",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "custom",
+        "message": "minHundredOrZero (dynamic) and max <= reference"
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegegrad 4 ambulant: Ganzzahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und ≤ Pflegegrad 4 stationär bzw. Pflegegrad 5 ambulant.",
+    "synonyms": [
+      "PG4 ambulant",
+      "Pflegegrad 4 ambulant",
+      "care level 4 outpatient",
+      "PG4A"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradFunfAmbulant",
+    "label": "Pflegegrad 5 ambulant",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "custom",
+        "message": "minHundredOrZero (dynamic) and max <= reference"
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegegrad 5 ambulant: Ganzzahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und ≤ Pflegegrad 5 stationär.",
+    "synonyms": [
+      "PG5 ambulant",
+      "Pflegegrad 5 ambulant",
+      "care level 5 outpatient",
+      "PG5A"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradEinStationar",
+    "label": "Pflegegrad 1 stationär",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "custom",
+        "message": "minHundredOrZero (dynamic) and max <= Pflegegrad 2 stationär"
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegegrad 1 stationär: Ganzzahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und ≤ Pflegegrad 2 stationär.",
+    "synonyms": [
+      "PG1 stationär",
+      "Pflegegrad 1 stationär",
+      "care level 1 inpatient",
+      "PG1S"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradZweiStationar",
+    "label": "Pflegegrad 2 stationär",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "custom",
+        "message": "minHundredOrZero (dynamic) and max <= Pflegegrad 3 stationär"
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegegrad 2 stationär: Ganzzahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und ≤ Pflegegrad 3 stationär.",
+    "synonyms": [
+      "PG2 stationär",
+      "Pflegegrad 2 stationär",
+      "care level 2 inpatient",
+      "PG2S"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradDreiStationar",
+    "label": "Pflegegrad 3 stationär",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "custom",
+        "message": "minHundredOrZero (dynamic) and max <= Pflegegrad 4 stationär"
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegegrad 3 stationär: Ganzzahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und ≤ Pflegegrad 4 stationär.",
+    "synonyms": [
+      "PG3 stationär",
+      "Pflegegrad 3 stationär",
+      "care level 3 inpatient",
+      "PG3S"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradVierStationar",
+    "label": "Pflegegrad 4 stationär",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "custom",
+        "message": "minHundredOrZero (dynamic) and max <= Pflegegrad 5 stationär"
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegegrad 4 stationär: Ganzzahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und ≤ Pflegegrad 5 stationär.",
+    "synonyms": [
+      "PG4 stationär",
+      "Pflegegrad 4 stationär",
+      "care level 4 inpatient",
+      "PG4S"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradFunfStationar",
+    "label": "Pflegegrad 5 stationär",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "min",
+        "value": 600,
+        "message": "only when pflegezusatz aktiv"
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegegrad 5 stationär: Ganzzahl, durch 10 teilbar, ≤ 6000; bei aktiviertem Pflegezusatz mindestens 600.",
+    "synonyms": [
+      "PG5 stationär",
+      "Pflegegrad 5 stationär",
+      "care level 5 inpatient",
+      "PG5S"
+    ]
+  }
+]

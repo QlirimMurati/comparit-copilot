@@ -1,0 +1,487 @@
+[
+  {
+    "fieldPath": "geschlecht",
+    "label": "Geschlecht",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "Männlich",
+      "Weiblich"
+    ],
+    "humanRule": "Geschlecht ist eine Pflichtauswahl.",
+    "synonyms": [
+      "gender",
+      "sex",
+      "Geschlechtsangabe"
+    ]
+  },
+  {
+    "fieldPath": "geburtsdatum",
+    "label": "Geburtsdatum",
+    "type": "date",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "dateValidator"
+      },
+      {
+        "kind": "maxDate",
+        "value": "today"
+      },
+      {
+        "kind": "minDate",
+        "value": "-70 years"
+      },
+      {
+        "kind": "custom",
+        "message": "minAgeAtContractValidator"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Das Geburtsdatum ist Pflicht, muss ein gültiges Datum sein, darf nicht in der Zukunft liegen, darf höchstens 70 Jahre zurückliegen und der Antragsteller muss bei Vertragsbeginn mindestens 18 Jahre alt sein.",
+    "synonyms": [
+      "DOB",
+      "date of birth",
+      "Geburtstag",
+      "birthday"
+    ]
+  },
+  {
+    "fieldPath": "vertragsbeginn",
+    "label": "Vertragsbeginn",
+    "type": "date",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "dateValidator"
+      },
+      {
+        "kind": "minDate",
+        "value": "firstOfNextMonth-3M"
+      },
+      {
+        "kind": "maxDate",
+        "value": "+1 year"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Vertragsbeginn ist Pflicht, muss ein gültiges Datum sein, darf höchstens drei Monate vor dem ersten des nächsten Monats liegen und maximal ein Jahr in der Zukunft.",
+    "synonyms": [
+      "contract start",
+      "Versicherungsbeginn",
+      "Beginn",
+      "start date",
+      "VB"
+    ]
+  },
+  {
+    "fieldPath": "vertragsablaufAlter",
+    "label": "Vertragsablauf-Alter",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 15
+      },
+      {
+        "kind": "max",
+        "value": 67
+      },
+      {
+        "kind": "custom",
+        "message": "decimalRangeValidator"
+      },
+      {
+        "kind": "custom",
+        "message": "dynamicMinAgeFromVertragsbeginnAndGeburtsdatum"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflichtfeld; Vertragsablauf-Alter muss zwischen 15 und 67 liegen und mindestens das errechnete Alter (Vertragsbeginn minus Geburtsdatum + 1) betragen.",
+    "synonyms": [
+      "Endalter",
+      "contract end age",
+      "Ablaufalter",
+      "retirement age"
+    ]
+  },
+  {
+    "fieldPath": "vertragsende",
+    "label": "Vertragsende",
+    "type": "date",
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "computedFromAgeAndBirthdate"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Vertragsende wird automatisch aus Geburtsdatum, Vertragsablauf-Alter und Vertragsbeginn berechnet (Feld ist deaktiviert).",
+    "synonyms": [
+      "contract end",
+      "Ablaufdatum",
+      "end date",
+      "Vertragsablauf"
+    ]
+  },
+  {
+    "fieldPath": "monatsgenau",
+    "label": "Monatsgenau",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Optionale Checkbox, ob die Berechnung monatsgenau erfolgt.",
+    "synonyms": [
+      "month-precise",
+      "exact month",
+      "monthly accurate"
+    ]
+  },
+  {
+    "fieldPath": "verlaengerteLeistungsdauer",
+    "label": "Verlängerte Leistungsdauer",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Optionale Checkbox; aktiviert das Feld 'Ablauf Leistungszahlung Alter'.",
+    "synonyms": [
+      "extended benefit period",
+      "Leistungsverlängerung",
+      "extended payout"
+    ]
+  },
+  {
+    "fieldPath": "ablaufLeistungzahlungAlter",
+    "label": "Ablauf Leistungszahlung Alter",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": "vertragsablaufAlter"
+      },
+      {
+        "kind": "max",
+        "value": 67
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflichtfeld bei aktivierter verlängerter Leistungsdauer; muss mindestens dem Vertragsablauf-Alter entsprechen und maximal 67 sein.",
+    "synonyms": [
+      "benefit end age",
+      "Leistungsendealter",
+      "payout end age"
+    ]
+  },
+  {
+    "fieldPath": "leistungssende",
+    "label": "Leistungsende",
+    "type": "date",
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "computedFromAgeAndBirthdate"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Leistungsende wird automatisch berechnet (deaktiviertes Feld).",
+    "synonyms": [
+      "benefit end",
+      "payout end",
+      "Leistungsablauf"
+    ]
+  },
+  {
+    "fieldPath": "normal",
+    "label": "Normal-Tarif",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Markiert den Normal-Tarif; wird über das Feld 'tarifart' gesteuert.",
+    "synonyms": [
+      "standard tariff",
+      "Normaltarif",
+      "regular"
+    ]
+  },
+  {
+    "fieldPath": "starter",
+    "label": "Starter-Tarif",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Markiert den Starter-Tarif; wird über das Feld 'tarifart' gesteuert.",
+    "synonyms": [
+      "starter tariff",
+      "Einsteigertarif"
+    ]
+  },
+  {
+    "fieldPath": "vorgabewunsch",
+    "label": "Vorgabewunsch",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "Garantierte Rente",
+      "Beitragssumme"
+    ],
+    "humanRule": "Pflichtauswahl, ob die Berechnung anhand garantierter Rente oder Beitragssumme erfolgt.",
+    "synonyms": [
+      "calculation preference",
+      "Berechnungsvorgabe",
+      "input mode"
+    ]
+  },
+  {
+    "fieldPath": "garantierteRente",
+    "label": "Garantierte Rente",
+    "type": "number",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 1
+      },
+      {
+        "kind": "custom",
+        "message": "decimalRangeValidator"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflichtfeld wenn Vorgabewunsch = Garantierte Rente; muss mindestens 1 sein.",
+    "synonyms": [
+      "guaranteed pension",
+      "Garantierente",
+      "guaranteed annuity",
+      "GR"
+    ]
+  },
+  {
+    "fieldPath": "beitragSumme",
+    "label": "Beitragssumme",
+    "type": "number",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 1
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflichtfeld wenn Vorgabewunsch = Beitragssumme; muss mindestens 1 betragen.",
+    "synonyms": [
+      "premium amount",
+      "contribution",
+      "Beitrag",
+      "premium"
+    ]
+  },
+  {
+    "fieldPath": "zahlungsweise",
+    "label": "Zahlungsweise",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "Monatlich",
+      "Vierteljährlich",
+      "Halbjährlich",
+      "Jährlich",
+      "Einmalig"
+    ],
+    "humanRule": "Pflichtauswahl der Zahlungsweise (z. B. monatlich, jährlich).",
+    "synonyms": [
+      "payment frequency",
+      "Zahlweise",
+      "payment mode",
+      "frequency"
+    ]
+  },
+  {
+    "fieldPath": "inflationsschutz",
+    "label": "Inflationsschutz",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "keine",
+      "Dynamik"
+    ],
+    "humanRule": "Pflichtauswahl des Inflationsschutzes.",
+    "synonyms": [
+      "inflation protection",
+      "Dynamik",
+      "indexation"
+    ]
+  },
+  {
+    "fieldPath": "ueberschussverwendung",
+    "label": "Überschussverwendung",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "Beitragsverrechnung",
+      "Bonusrente",
+      "Verzinsliche Ansammlung"
+    ],
+    "humanRule": "Pflichtauswahl der Überschussverwendung (z. B. Beitragsverrechnung).",
+    "synonyms": [
+      "surplus usage",
+      "profit sharing",
+      "Gewinnverwendung"
+    ]
+  },
+  {
+    "fieldPath": "garantierteRentensteigerung",
+    "label": "Garantierte Rentensteigerung",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "keine",
+      "1%",
+      "2%",
+      "3%"
+    ],
+    "humanRule": "Pflichtauswahl der garantierten Rentensteigerung.",
+    "synonyms": [
+      "guaranteed pension increase",
+      "Rentendynamik",
+      "annuity escalation"
+    ]
+  },
+  {
+    "fieldPath": "karenzzeit",
+    "label": "Karenzzeit",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "keine",
+      "3 Monate",
+      "6 Monate",
+      "12 Monate",
+      "24 Monate"
+    ],
+    "humanRule": "Pflichtauswahl der Karenzzeit.",
+    "synonyms": [
+      "KZH",
+      "waiting period",
+      "qualifying period",
+      "deferral period"
+    ]
+  },
+  {
+    "fieldPath": "anzahlKinderImHaushalt",
+    "label": "Anzahl Kinder im Haushalt",
+    "type": "integer",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Optionale Angabe der Anzahl der Kinder im Haushalt.",
+    "synonyms": [
+      "number of children",
+      "Kinderanzahl",
+      "kids in household"
+    ]
+  },
+  {
+    "fieldPath": "familienstand",
+    "label": "Familienstand",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "Ledig",
+      "Verheiratet",
+      "Geschieden",
+      "Verwitwet",
+      "Eingetragene Lebenspartnerschaft"
+    ],
+    "humanRule": "Pflichtauswahl des Familienstands.",
+    "synonyms": [
+      "marital status",
+      "Personenstand",
+      "civil status"
+    ]
+  },
+  {
+    "fieldPath": "tarifart",
+    "label": "Tarifart",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "disabledIfAge>=35"
+      }
+    ],
+    "enumValues": [
+      "Normal",
+      "Starter"
+    ],
+    "humanRule": "Pflichtauswahl der Tarifart; ab einem Alter von 35 Jahren wird automatisch 'Normal' gesetzt und das Feld deaktiviert.",
+    "synonyms": [
+      "tariff type",
+      "Tarif",
+      "Tarifvariante"
+    ]
+  },
+  {
+    "fieldPath": "selbstgenutztesWohneigentum",
+    "label": "Selbstgenutztes Wohneigentum",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Optionale Angabe, ob selbstgenutztes Wohneigentum vorhanden ist.",
+    "synonyms": [
+      "owner-occupied home",
+      "Eigenheim",
+      "own property",
+      "homeowner"
+    ]
+  }
+]

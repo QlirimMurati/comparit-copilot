@@ -1,0 +1,470 @@
+[
+  {
+    "fieldPath": "geschlecht",
+    "label": "Geschlecht",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "Männlich",
+      "Weiblich"
+    ],
+    "humanRule": "Geschlecht (Geschlecht) ist eine Pflichtangabe und muss aus den vorgegebenen Werten gewählt werden.",
+    "synonyms": [
+      "Geschlecht",
+      "Gender",
+      "Sex",
+      "Anrede"
+    ]
+  },
+  {
+    "fieldPath": "geburtsdatum",
+    "label": "Geburtsdatum",
+    "type": "date",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "dateValidator"
+      },
+      {
+        "kind": "maxDate",
+        "value": "today"
+      },
+      {
+        "kind": "minDate",
+        "value": "today-70y"
+      },
+      {
+        "kind": "minAge",
+        "value": 18,
+        "message": "minAgeAtContractValidator(vertragsbeginn)"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Geburtsdatum ist Pflicht, muss ein gültiges Datum sein, darf nicht in der Zukunft liegen, höchstens 70 Jahre zurück und zum Vertragsbeginn muss die Person mindestens 18 Jahre alt sein.",
+    "synonyms": [
+      "Geburtsdatum",
+      "Birthday",
+      "Date of Birth",
+      "DOB",
+      "Geburtstag"
+    ]
+  },
+  {
+    "fieldPath": "vertragsbeginn",
+    "label": "Vertragsbeginn",
+    "type": "date",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "dateValidator"
+      },
+      {
+        "kind": "minDate",
+        "value": "firstOfNextMonth-3m",
+        "message": "minStartOfContractDateValidator"
+      },
+      {
+        "kind": "maxDate",
+        "value": "today+1y"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Vertragsbeginn ist Pflicht, muss ein gültiges Datum sein, frühestens drei Monate vor dem Ersten des Folgemonats und höchstens ein Jahr in der Zukunft liegen.",
+    "synonyms": [
+      "Vertragsbeginn",
+      "Versicherungsbeginn",
+      "Start of Contract",
+      "Contract Start",
+      "Beginndatum"
+    ]
+  },
+  {
+    "fieldPath": "vertragsdauerInJahren",
+    "label": "Vertragsdauer in Jahren",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 1
+      },
+      {
+        "kind": "max",
+        "value": 60
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Die Vertragsdauer in Jahren ist Pflicht und muss zwischen 1 und 60 Jahren liegen.",
+    "synonyms": [
+      "Vertragsdauer",
+      "Laufzeit",
+      "Contract Duration",
+      "Term",
+      "Duration in Years"
+    ]
+  },
+  {
+    "fieldPath": "versicherungssumme",
+    "label": "Versicherungssumme",
+    "type": "number",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 25000,
+        "message": "localizedMinValidatorNumber"
+      },
+      {
+        "kind": "max",
+        "value": 10000000,
+        "message": "localizedMaxValidatorNumber"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Die Versicherungssumme ist Pflicht und muss zwischen 25.000 und 10.000.000 liegen.",
+    "synonyms": [
+      "Versicherungssumme",
+      "Sum Insured",
+      "Coverage Amount",
+      "Insured Sum",
+      "VS"
+    ]
+  },
+  {
+    "fieldPath": "risikolebensversicherungArt",
+    "label": "Art der Risikolebensversicherung",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "Konstant",
+      "Annuitätisch fallend",
+      "Linear fallend"
+    ],
+    "humanRule": "Die Art der Risikolebensversicherung (Summenverlauf) ist Pflicht und muss aus den verfügbaren Optionen gewählt werden.",
+    "synonyms": [
+      "Summenverlauf",
+      "RLV-Art",
+      "Type of Term Life",
+      "Versicherungsart",
+      "Tarifart"
+    ]
+  },
+  {
+    "fieldPath": "zinssatzNominal",
+    "label": "Zinssatz nominal",
+    "type": "number",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 0.01,
+        "message": "localizedMinValidatorDecimal"
+      },
+      {
+        "kind": "max",
+        "value": 20
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Der nominale Zinssatz ist Pflicht (bei annuitätisch fallender RLV) und muss zwischen 0,01 und 20 Prozent liegen.",
+    "synonyms": [
+      "Zinssatz",
+      "Nominalzins",
+      "Interest Rate",
+      "Nominal Interest",
+      "Zins"
+    ]
+  },
+  {
+    "fieldPath": "tilgungssatz",
+    "label": "Tilgungssatz",
+    "type": "number",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 0.01,
+        "message": "localizedMinValidatorDecimal"
+      },
+      {
+        "kind": "max",
+        "value": 20
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Der Tilgungssatz ist Pflicht (bei annuitätisch fallender RLV) und muss zwischen 0,01 und 20 Prozent liegen.",
+    "synonyms": [
+      "Tilgungssatz",
+      "Repayment Rate",
+      "Amortization Rate",
+      "Tilgung"
+    ]
+  },
+  {
+    "fieldPath": "tilgungsfreieJahre",
+    "label": "Tilgungsfreie Jahre",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 0
+      },
+      {
+        "kind": "max",
+        "value": 5
+      },
+      {
+        "kind": "custom",
+        "message": "decimalRangeValidator"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Tilgungsfreie Jahre sind Pflicht und müssen zwischen 0 und 5 Jahren liegen.",
+    "synonyms": [
+      "Tilgungsfreie Jahre",
+      "Grace Period",
+      "Repayment Free Years",
+      "Tilgungsfrei"
+    ]
+  },
+  {
+    "fieldPath": "verbundeneLeben",
+    "label": "Verbundene Leben",
+    "type": "boolean",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Die Angabe zu verbundenen Leben ist Pflicht (Ja/Nein).",
+    "synonyms": [
+      "Verbundene Leben",
+      "Joint Life",
+      "Connected Lives",
+      "Doppelleben"
+    ]
+  },
+  {
+    "fieldPath": "zahlungsweise",
+    "label": "Zahlungsweise",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "Monatlich",
+      "Vierteljährlich",
+      "Halbjährlich",
+      "Jährlich"
+    ],
+    "humanRule": "Die Zahlungsweise ist Pflicht und muss aus den vorgegebenen Werten (z. B. Monatlich, Jährlich) gewählt werden.",
+    "synonyms": [
+      "Zahlungsweise",
+      "Zahlweise",
+      "Payment Frequency",
+      "Payment Mode",
+      "Beitragszahlung"
+    ]
+  },
+  {
+    "fieldPath": "ueberschussverwendung",
+    "label": "Überschussverwendung",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "Beitragsverrechnung",
+      "Bonusrente",
+      "Verzinsliche Ansammlung"
+    ],
+    "humanRule": "Die Überschussverwendung (z. B. Beitragsverrechnung) ist Pflicht und muss aus den verfügbaren Optionen gewählt werden.",
+    "synonyms": [
+      "Überschussverwendung",
+      "Profit Participation",
+      "Surplus Use",
+      "Gewinnverwendung"
+    ]
+  },
+  {
+    "fieldPath": "beitragsbefreiungBeiBerufsunfaehigkeit",
+    "label": "Beitragsbefreiung bei Berufsunfähigkeit",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Optionale Angabe, ob eine Beitragsbefreiung bei Berufsunfähigkeit (BUZ) eingeschlossen werden soll.",
+    "synonyms": [
+      "BUZ",
+      "Beitragsbefreiung",
+      "Disability Waiver",
+      "Berufsunfähigkeit",
+      "Premium Waiver"
+    ]
+  },
+  {
+    "fieldPath": "automatischeBeitragserhoehungDynamik",
+    "label": "Automatische Beitragserhöhung (Dynamik)",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Optionale Angabe, ob eine automatische Beitragserhöhung (Dynamik) gewünscht ist.",
+    "synonyms": [
+      "Dynamik",
+      "Beitragsdynamik",
+      "Automatic Premium Increase",
+      "Premium Adjustment",
+      "Beitragserhöhung"
+    ]
+  },
+  {
+    "fieldPath": "darlehnenabsicherung",
+    "label": "Darlehensabsicherung",
+    "type": "boolean",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflichtangabe, ob die Police zur Absicherung eines Darlehens dient (Ja/Nein).",
+    "synonyms": [
+      "Darlehensabsicherung",
+      "Loan Coverage",
+      "Kreditabsicherung",
+      "Loan Protection",
+      "Finanzierungsabsicherung"
+    ]
+  },
+  {
+    "fieldPath": "darlehnshoehe",
+    "label": "Darlehenshöhe",
+    "type": "number",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 1
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Die Darlehenshöhe ist Pflicht (sofern Darlehensabsicherung aktiv) und muss mindestens 1 betragen.",
+    "synonyms": [
+      "Darlehenshöhe",
+      "Loan Amount",
+      "Kredithöhe",
+      "Loan Sum",
+      "Darlehensbetrag"
+    ]
+  },
+  {
+    "fieldPath": "weiterereVersicherungenVorhanden",
+    "label": "Weitere Versicherungen vorhanden",
+    "type": "boolean",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflichtangabe, ob weitere Versicherungen vorhanden sind (Ja/Nein).",
+    "synonyms": [
+      "Weitere Versicherungen",
+      "Other Insurances",
+      "Additional Insurance",
+      "Zusatzversicherungen"
+    ]
+  },
+  {
+    "fieldPath": "summeWeitererVersicherungen",
+    "label": "Summe weiterer Versicherungen",
+    "type": "number",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 1
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Die Summe weiterer Versicherungen ist Pflicht (wenn weitere Versicherungen vorhanden) und muss mindestens 1 betragen.",
+    "synonyms": [
+      "Summe weiterer Versicherungen",
+      "Other Insurance Sum",
+      "Additional Coverage Sum",
+      "Weitere VS"
+    ]
+  },
+  {
+    "fieldPath": "anzahlKinderImHaushalt",
+    "label": "Anzahl Kinder im Haushalt",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "min",
+        "value": 0
+      },
+      {
+        "kind": "max",
+        "value": 10
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Die Anzahl der Kinder im Haushalt muss zwischen 0 und 10 liegen.",
+    "synonyms": [
+      "Anzahl Kinder",
+      "Kinder im Haushalt",
+      "Number of Children",
+      "Children",
+      "Kinderzahl"
+    ]
+  },
+  {
+    "fieldPath": "immobilienbesitz",
+    "label": "Immobilienbesitz",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Optionale Angabe, ob Immobilienbesitz vorhanden ist (Ja/Nein).",
+    "synonyms": [
+      "Immobilienbesitz",
+      "Property Ownership",
+      "Real Estate",
+      "Hausbesitz",
+      "Eigentum"
+    ]
+  }
+]

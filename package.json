@@ -11,7 +11,8 @@
     "lint": "nx run-many -t lint",
     "index:repo": "ts-node --transpile-only -P apps/api/tsconfig.app.json -r dotenv/config apps/api/src/index/cli.ts",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "ts-node --transpile-only -P apps/api/tsconfig.app.json -r dotenv/config apps/api/src/db/run-migrations.ts"
+    "db:migrate": "ts-node --transpile-only -P apps/api/tsconfig.app.json -r dotenv/config apps/api/src/db/run-migrations.ts",
+    "extract:validation-rules": "tsx tools/extract-validation-rules.ts"
   },
   "private": true,
   "pnpm": {
@@ -59,6 +60,7 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^9.0.0",
+    "glob": "^13.0.6",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jest-environment-node": "^29.7.0",

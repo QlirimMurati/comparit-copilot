@@ -1,0 +1,716 @@
+[
+  {
+    "fieldPath": "ambulanteLeistungen.sehhilfen",
+    "label": "Sehhilfen",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Sehhilfen ist eine Pflichtangabe aus der Auswahlliste SehhilfenPAEnum (Standard: Egal).",
+    "synonyms": [
+      "Sehhilfen",
+      "Brillen",
+      "Vision aids",
+      "Glasses",
+      "Sehhilfe"
+    ]
+  },
+  {
+    "fieldPath": "ambulanteLeistungen.naturheilverfahren",
+    "label": "Naturheilverfahren",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 0
+      },
+      {
+        "kind": "max",
+        "value": 5000
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(5)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Naturheilverfahren muss eine ganze Zahl zwischen 0 und 5000, teilbar durch 5, sein (Pflichtfeld).",
+    "synonyms": [
+      "Naturheilverfahren",
+      "Naturopathy",
+      "Alternative Heilmethoden",
+      "NHV"
+    ]
+  },
+  {
+    "fieldPath": "ambulanteLeistungen.vorsorge",
+    "label": "Vorsorge",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Vorsorge ist eine Pflichtangabe aus der Auswahlliste VorsorgeEnum (Standard: Egal).",
+    "synonyms": [
+      "Vorsorge",
+      "Preventive care",
+      "Prevention",
+      "Vorsorgeuntersuchung"
+    ]
+  },
+  {
+    "fieldPath": "ambulanteLeistungen.privataerztlicheBehandlung",
+    "label": "Privatärztliche Behandlung",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Privatärztliche Behandlung ist Pflicht und wählt aus PrivataerztlicheBehandlungEnum (Standard: Nein).",
+    "synonyms": [
+      "Privatärztliche Behandlung",
+      "Private treatment",
+      "Privatbehandlung",
+      "PÄB"
+    ]
+  },
+  {
+    "fieldPath": "stationaerLeistungen.stationarUnterkunft",
+    "label": "Stationäre Unterkunft",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Stationäre Unterkunft ist Pflicht (KvzStationarUnterkunftEnum, Standard: mind. 2-Bettzimmer).",
+    "synonyms": [
+      "Stationäre Unterkunft",
+      "Unterkunft",
+      "Hospital accommodation",
+      "Zimmer",
+      "Bettzimmer"
+    ]
+  },
+  {
+    "fieldPath": "stationaerLeistungen.stationarWahlarzt",
+    "label": "Stationärer Wahlarzt",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Stationärer Wahlarzt ist Pflicht (KvzStationarWahlarztEnum, Standard: Ja).",
+    "synonyms": [
+      "Wahlarzt",
+      "Chefarztbehandlung",
+      "Chief physician",
+      "Stationärer Wahlarzt"
+    ]
+  },
+  {
+    "fieldPath": "stationaerLeistungen.gebuhrenordnungStationar",
+    "label": "Gebührenordnung stationär",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Gebührenordnung stationär ist Pflicht (GebuhrenordnungEnum, Standard: Egal).",
+    "synonyms": [
+      "Gebührenordnung",
+      "GOÄ",
+      "Fee schedule",
+      "Gebührenordnung stationär"
+    ]
+  },
+  {
+    "fieldPath": "dentaleLeistungen.zahnbehandlung",
+    "label": "Zahnbehandlung",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Zahnbehandlung ist Pflicht (DentaleLeistungenEnum, Standard: 0%).",
+    "synonyms": [
+      "Zahnbehandlung",
+      "Dental treatment",
+      "Zahnarzt",
+      "ZB"
+    ]
+  },
+  {
+    "fieldPath": "dentaleLeistungen.zahnersatz",
+    "label": "Zahnersatz",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Zahnersatz ist Pflicht (DentaleLeistungenEnum, Standard: 70%).",
+    "synonyms": [
+      "Zahnersatz",
+      "Dental prosthetics",
+      "ZE",
+      "Dentures"
+    ]
+  },
+  {
+    "fieldPath": "dentaleLeistungen.kieferorthopadie",
+    "label": "Kieferorthopädie",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Kieferorthopädie ist Pflicht (DentaleLeistungenEnum, Standard: 0%).",
+    "synonyms": [
+      "Kieferorthopädie",
+      "Orthodontics",
+      "KFO",
+      "Zahnspange"
+    ]
+  },
+  {
+    "fieldPath": "dentaleLeistungen.profZahnreinigungPA",
+    "label": "Professionelle Zahnreinigung / PA",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Professionelle Zahnreinigung/PA ist Pflicht (ProfZahnreinigungPAEnum, Standard: Egal).",
+    "synonyms": [
+      "PZR",
+      "Zahnreinigung",
+      "Professional cleaning",
+      "Prof. Zahnreinigung",
+      "Parodontosebehandlung"
+    ]
+  },
+  {
+    "fieldPath": "optionstarife.optionAuchKvv",
+    "label": "Option auch KVV",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Option auch KVV ist Pflicht (OptionAuchKvvEnum, Standard: Ja).",
+    "synonyms": [
+      "Option auch KVV",
+      "KVV-Option",
+      "Optionstarif",
+      "Option KVV"
+    ]
+  },
+  {
+    "fieldPath": "krankenhaustagegeld.tagessatz",
+    "label": "Krankenhaustagegeld Tagessatz",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 10
+      },
+      {
+        "kind": "max",
+        "value": 5000
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(5)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Krankenhaustagegeld-Tagessatz muss eine ganze Zahl zwischen 10 und 5000, teilbar durch 5, sein.",
+    "synonyms": [
+      "Krankenhaustagegeld",
+      "KHT",
+      "Hospital daily allowance",
+      "Tagessatz Krankenhaus"
+    ]
+  },
+  {
+    "fieldPath": "kurtagegeld.tagessatz",
+    "label": "Kurtagegeld Tagessatz",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 10
+      },
+      {
+        "kind": "max",
+        "value": 500
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(5)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Kurtagegeld-Tagessatz muss eine ganze Zahl zwischen 10 und 500, teilbar durch 5, sein.",
+    "synonyms": [
+      "Kurtagegeld",
+      "Cure daily allowance",
+      "Tagessatz Kur",
+      "KTG"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegetagegeld",
+    "label": "Pflegetagegeld",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegetagegeld-Auswahl ist Pflicht (PflegetagegeldEnum, Standard: Pflegetagegeld).",
+    "synonyms": [
+      "Pflegetagegeld",
+      "PTG",
+      "Care daily allowance",
+      "Pflegegeld"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradEinAmbulant",
+    "label": "Pflegegrad 1 ambulant",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "custom",
+        "message": "minHundredOrZero"
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegegrad 1 ambulant: ganze Zahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und nicht über folgender Stufe.",
+    "synonyms": [
+      "Pflegegrad 1 ambulant",
+      "PG1 ambulant",
+      "Pflegestufe 1 ambulant",
+      "Care level 1 outpatient"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradZweiAmbulant",
+    "label": "Pflegegrad 2 ambulant",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "custom",
+        "message": "minHundredOrZero"
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegegrad 2 ambulant: ganze Zahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und nicht über folgender Stufe.",
+    "synonyms": [
+      "Pflegegrad 2 ambulant",
+      "PG2 ambulant",
+      "Pflegestufe 2 ambulant",
+      "Care level 2 outpatient"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradDreiAmbulant",
+    "label": "Pflegegrad 3 ambulant",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "custom",
+        "message": "minHundredOrZero"
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegegrad 3 ambulant: ganze Zahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und nicht über folgender Stufe.",
+    "synonyms": [
+      "Pflegegrad 3 ambulant",
+      "PG3 ambulant",
+      "Pflegestufe 3 ambulant",
+      "Care level 3 outpatient"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradVierAmbulant",
+    "label": "Pflegegrad 4 ambulant",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "custom",
+        "message": "minHundredOrZero"
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegegrad 4 ambulant: ganze Zahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und nicht über folgender Stufe.",
+    "synonyms": [
+      "Pflegegrad 4 ambulant",
+      "PG4 ambulant",
+      "Pflegestufe 4 ambulant",
+      "Care level 4 outpatient"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradFunfAmbulant",
+    "label": "Pflegegrad 5 ambulant",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "custom",
+        "message": "minHundredOrZero"
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegegrad 5 ambulant: ganze Zahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000.",
+    "synonyms": [
+      "Pflegegrad 5 ambulant",
+      "PG5 ambulant",
+      "Pflegestufe 5 ambulant",
+      "Care level 5 outpatient"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradEinStationar",
+    "label": "Pflegegrad 1 stationär",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "custom",
+        "message": "minHundredOrZero"
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegegrad 1 stationär: ganze Zahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und nicht über folgender Stufe.",
+    "synonyms": [
+      "Pflegegrad 1 stationär",
+      "PG1 stationär",
+      "Care level 1 inpatient",
+      "Pflegestufe 1 stationär"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradZweiStationar",
+    "label": "Pflegegrad 2 stationär",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "custom",
+        "message": "minHundredOrZero"
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegegrad 2 stationär: ganze Zahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und nicht über folgender Stufe.",
+    "synonyms": [
+      "Pflegegrad 2 stationär",
+      "PG2 stationär",
+      "Care level 2 inpatient",
+      "Pflegestufe 2 stationär"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradDreiStationar",
+    "label": "Pflegegrad 3 stationär",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "custom",
+        "message": "minHundredOrZero"
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegegrad 3 stationär: ganze Zahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und nicht über folgender Stufe.",
+    "synonyms": [
+      "Pflegegrad 3 stationär",
+      "PG3 stationär",
+      "Care level 3 inpatient",
+      "Pflegestufe 3 stationär"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradVierStationar",
+    "label": "Pflegegrad 4 stationär",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "custom",
+        "message": "minHundredOrZero"
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegegrad 4 stationär: ganze Zahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und nicht über folgender Stufe.",
+    "synonyms": [
+      "Pflegegrad 4 stationär",
+      "PG4 stationär",
+      "Care level 4 inpatient",
+      "Pflegestufe 4 stationär"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatz.pflegegradFunfStationar",
+    "label": "Pflegegrad 5 stationär",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(10)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      },
+      {
+        "kind": "min",
+        "value": 600
+      },
+      {
+        "kind": "max",
+        "value": 6000
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflegegrad 5 stationär: ganze Zahl, durch 10 teilbar, mindestens 600 und höchstens 6000.",
+    "synonyms": [
+      "Pflegegrad 5 stationär",
+      "PG5 stationär",
+      "Care level 5 inpatient",
+      "Pflegestufe 5 stationär"
+    ]
+  },
+  {
+    "fieldPath": "krankentagegeld.tagessatz",
+    "label": "Krankentagegeld Tagessatz",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 5
+      },
+      {
+        "kind": "max",
+        "value": 1000
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(5)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Krankentagegeld-Tagessatz muss eine ganze Zahl zwischen 5 und 1000, teilbar durch 5, sein.",
+    "synonyms": [
+      "Krankentagegeld",
+      "KTG",
+      "Sick daily allowance",
+      "Tagessatz Krankentagegeld"
+    ]
+  },
+  {
+    "fieldPath": "krankentagegeld.karenzzeit",
+    "label": "Karenzzeit",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Karenzzeit ist Pflicht (KarenzzeitEnum); für die erste Zeile Standard 'ab 43. Tag'.",
+    "synonyms": [
+      "Karenzzeit",
+      "KZH",
+      "Waiting period",
+      "Wartezeit",
+      "Karenz"
+    ]
+  }
+]

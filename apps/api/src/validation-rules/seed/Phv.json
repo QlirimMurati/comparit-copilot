@@ -1,0 +1,573 @@
+[
+  {
+    "fieldPath": "geburtsdatum",
+    "label": "Geburtsdatum",
+    "type": "date",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "dateValidator"
+      },
+      {
+        "kind": "maxDate",
+        "value": "today"
+      },
+      {
+        "kind": "custom",
+        "message": "minAgeAtContractValidator (18 Jahre bei Vertragsbeginn)"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Geburtsdatum ist Pflicht, muss ein gültiges Datum sein, darf nicht in der Zukunft liegen und der Versicherungsnehmer muss bei Vertragsbeginn mindestens 18 Jahre alt sein.",
+    "synonyms": [
+      "Geburtsdatum",
+      "DOB",
+      "Date of Birth",
+      "Birthday",
+      "GebDat"
+    ]
+  },
+  {
+    "fieldPath": "geschlecht",
+    "label": "Geschlecht",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "GeschlechtEnum"
+    ],
+    "humanRule": "Das Geschlecht muss aus den vorgegebenen Werten ausgewählt werden.",
+    "synonyms": [
+      "Geschlecht",
+      "Gender",
+      "Sex",
+      "Anrede"
+    ]
+  },
+  {
+    "fieldPath": "vertragsbeginn",
+    "label": "Vertragsbeginn",
+    "type": "date",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "dateValidator"
+      },
+      {
+        "kind": "minDate",
+        "value": "nextDay"
+      },
+      {
+        "kind": "maxDate",
+        "value": "+1 year"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Der Vertragsbeginn ist Pflicht, muss frühestens am nächsten Tag und spätestens in einem Jahr liegen.",
+    "synonyms": [
+      "Vertragsbeginn",
+      "Contract Start",
+      "Start of Contract",
+      "Versicherungsbeginn",
+      "Beginn"
+    ]
+  },
+  {
+    "fieldPath": "beamterOderOeffentlicherDienst",
+    "label": "Beschäftigungsart (Versicherungsnehmer)",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "BeschaftigungsartEnum"
+    ],
+    "humanRule": "Die Beschäftigungsart des Versicherungsnehmers (z. B. Privatwirtschaft oder öffentlicher Dienst) ist Pflicht.",
+    "synonyms": [
+      "Beschäftigungsart",
+      "Employment Type",
+      "Beruf",
+      "Tätigkeit",
+      "Beamter"
+    ]
+  },
+  {
+    "fieldPath": "anzalJahre",
+    "label": "Laufzeit (Anzahl Jahre)",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "LaufzeitEnum"
+    ],
+    "humanRule": "Die Vertragslaufzeit (z. B. 1 Jahr) ist Pflicht.",
+    "synonyms": [
+      "Laufzeit",
+      "Anzahl Jahre",
+      "Duration",
+      "Term",
+      "Vertragslaufzeit"
+    ]
+  },
+  {
+    "fieldPath": "zahlungsweise",
+    "label": "Zahlungsweise",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "ZahlungsweiseEnum"
+    ],
+    "humanRule": "Die Zahlungsweise (z. B. jährlich) ist Pflicht.",
+    "synonyms": [
+      "Zahlungsweise",
+      "Payment Frequency",
+      "Zahlungsintervall",
+      "Zahlrhythmus"
+    ]
+  },
+  {
+    "fieldPath": "zahlungsart",
+    "label": "Zahlungsart",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "ZahlungsartEnum"
+    ],
+    "humanRule": "Die Zahlungsart (z. B. Lastschrift) ist Pflicht.",
+    "synonyms": [
+      "Zahlungsart",
+      "Payment Method",
+      "Zahlweise",
+      "Bezahlmethode"
+    ]
+  },
+  {
+    "fieldPath": "postleitzahl",
+    "label": "Postleitzahl",
+    "type": "string",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "postalCodeValidator (5 Ziffern)"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Die Postleitzahl ist Pflicht und muss aus genau 5 Ziffern bestehen.",
+    "synonyms": [
+      "Postleitzahl",
+      "PLZ",
+      "Postal Code",
+      "ZIP",
+      "ZIP Code"
+    ]
+  },
+  {
+    "fieldPath": "ort",
+    "label": "Ort",
+    "type": "string",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Der Ort ist Pflicht.",
+    "synonyms": [
+      "Ort",
+      "City",
+      "Stadt",
+      "Wohnort",
+      "Place"
+    ]
+  },
+  {
+    "fieldPath": "versichertWerdenEnum",
+    "label": "Versichert werden als",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "VersichertWerdenEnum"
+    ],
+    "humanRule": "Die Auswahl, wer/wie versichert werden soll (Absicherungsart), ist Pflicht.",
+    "synonyms": [
+      "Versichert werden",
+      "Absicherungsart",
+      "Coverage Type",
+      "Versicherungsform",
+      "Personenkreis"
+    ]
+  },
+  {
+    "fieldPath": "anzahlKinder",
+    "label": "Anzahl Kinder",
+    "type": "integer",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Die Anzahl der Kinder ist optional (Standardwert 2).",
+    "synonyms": [
+      "Anzahl Kinder",
+      "Number of Children",
+      "Kinder",
+      "Children Count",
+      "Kids"
+    ]
+  },
+  {
+    "fieldPath": "beschaeftigungsartMitversichertePerson",
+    "label": "Beschäftigungsart mitversicherte Person",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "BeschaftigungsartEnum"
+    ],
+    "humanRule": "Die Beschäftigungsart der mitversicherten Person ist Pflicht.",
+    "synonyms": [
+      "Beschäftigungsart Partner",
+      "Employment Type Co-Insured",
+      "Mitversicherte Beschäftigung",
+      "Partner Beruf"
+    ]
+  },
+  {
+    "fieldPath": "anzahlVermietetenImmobilien",
+    "label": "Anzahl vermieteter Immobilien",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Die Anzahl der vermieteten Immobilien ist Pflicht.",
+    "synonyms": [
+      "Anzahl vermieteter Immobilien",
+      "Rented Properties",
+      "Vermietete Wohnungen",
+      "Mietobjekte"
+    ]
+  },
+  {
+    "fieldPath": "anzahlVermieteteGaragenCarports",
+    "label": "Anzahl vermieteter Garagen/Carports",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 0
+      },
+      {
+        "kind": "max",
+        "value": 99
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Die Anzahl der vermieteten Garagen/Carports ist Pflicht und muss zwischen 0 und 99 liegen.",
+    "synonyms": [
+      "Anzahl Garagen",
+      "Vermietete Garagen",
+      "Carports",
+      "Rented Garages",
+      "Garagenanzahl"
+    ]
+  },
+  {
+    "fieldPath": "zusatzschutz.neuwertentschaedigung",
+    "label": "Neuwertentschädigung (Zusatzschutz)",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Optionaler Zusatzschutz: Neuwertentschädigung kann aktiviert werden.",
+    "synonyms": [
+      "Neuwertentschädigung",
+      "Replacement Value Coverage",
+      "Neuwert",
+      "Neuwertschutz"
+    ]
+  },
+  {
+    "fieldPath": "zusatzschutz.diensthaftpflicht",
+    "label": "Diensthaftpflicht (Zusatzschutz)",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Optionaler Zusatzschutz: Diensthaftpflicht kann aktiviert werden.",
+    "synonyms": [
+      "Diensthaftpflicht",
+      "Professional Liability",
+      "Berufshaftpflicht",
+      "Dienstliche Haftpflicht"
+    ]
+  },
+  {
+    "fieldPath": "deckungssummenDetail.deckungssummePersonenSachUndVermoegensschaeden",
+    "label": "Deckungssumme Personen-, Sach- und Vermögensschäden",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "PhvDeckungssummeEnum"
+    ],
+    "humanRule": "Die Deckungssumme für Personen-, Sach- und Vermögensschäden ist Pflicht.",
+    "synonyms": [
+      "Deckungssumme",
+      "Coverage Amount",
+      "Versicherungssumme",
+      "Deckung Personenschäden",
+      "Sum Insured"
+    ]
+  },
+  {
+    "fieldPath": "deckungssummenDetail.deckungssummeMietsachschaeden",
+    "label": "Deckungssumme Mietsachschäden",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "PhvDeckungssummeEnum"
+    ],
+    "humanRule": "Die Deckungssumme für Mietsachschäden ist Pflicht.",
+    "synonyms": [
+      "Deckungssumme Mietsachschäden",
+      "Mietsachschäden",
+      "Rental Property Damage Coverage",
+      "Mietschäden"
+    ]
+  },
+  {
+    "fieldPath": "deckungssummenPauschal",
+    "label": "Deckungssumme pauschal",
+    "type": "enum",
+    "validators": [],
+    "enumValues": [
+      "PhvDeckungssummenPauschalEnum"
+    ],
+    "humanRule": "Die pauschale Deckungssumme (z. B. 50 Mio €) ist optional und steuert die Detailwerte.",
+    "synonyms": [
+      "Deckungssumme pauschal",
+      "Lump Sum Coverage",
+      "Pauschalsumme",
+      "Standarddeckung"
+    ]
+  },
+  {
+    "fieldPath": "deckungssummenIndividuell",
+    "label": "Deckungssummen individuell",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Schalter, ob die Deckungssummen individuell festgelegt werden sollen.",
+    "synonyms": [
+      "Deckungssumme individuell",
+      "Custom Coverage",
+      "Individuelle Deckung",
+      "Custom Sum"
+    ]
+  },
+  {
+    "fieldPath": "phvSelbstbehalt",
+    "label": "Selbstbehalt",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "PhvSelbstbehaltEnum"
+    ],
+    "humanRule": "Der Selbstbehalt (z. B. 150 €) ist Pflicht.",
+    "synonyms": [
+      "Selbstbehalt",
+      "Deductible",
+      "SB",
+      "Eigenanteil",
+      "Excess"
+    ]
+  },
+  {
+    "fieldPath": "phvNeuwertentschaedigung",
+    "label": "Neuwertentschädigung Höhe",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "PhvNeuwertentschaedigungEnum"
+    ],
+    "humanRule": "Die Höhe der Neuwertentschädigung (z. B. 5.000 €) ist Pflicht.",
+    "synonyms": [
+      "Neuwertentschädigung Höhe",
+      "Replacement Value Amount",
+      "Neuwert Summe",
+      "Neuwertbetrag"
+    ]
+  },
+  {
+    "fieldPath": "vorversicherungIstVorhanden",
+    "label": "Vorversicherung vorhanden",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Angabe, ob eine Vorversicherung vorhanden ist (Standard: ja).",
+    "synonyms": [
+      "Vorversicherung",
+      "Previous Insurance",
+      "Vorvertrag",
+      "Prior Coverage"
+    ]
+  },
+  {
+    "fieldPath": "versicherungsnehmerReguliert",
+    "label": "Versicherungsnehmer reguliert (hatte Schäden)",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Schalter, ob der Versicherungsnehmer regulierte Schäden hatte; aktiviert die Schadenliste.",
+    "synonyms": [
+      "Schäden reguliert",
+      "Claims Settled",
+      "Regulierte Schäden",
+      "Vorschäden",
+      "Schadenfälle"
+    ]
+  },
+  {
+    "fieldPath": "schadenHinzufugen",
+    "label": "Schäden",
+    "type": "custom",
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "damagesValidator (mind. 1 Schaden, wenn aktiviert)"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Wenn reguliert aktiv ist, muss mindestens ein Schaden hinzugefügt werden.",
+    "synonyms": [
+      "Schäden",
+      "Damages",
+      "Schadenliste",
+      "Claims",
+      "Vorschäden"
+    ]
+  },
+  {
+    "fieldPath": "schadenHinzufugen.artDesSchadens",
+    "label": "Art des Schadens",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "PhvArtDesSchadensEnum"
+    ],
+    "humanRule": "Die Art des Schadens ist Pflicht.",
+    "synonyms": [
+      "Art des Schadens",
+      "Damage Type",
+      "Schadenart",
+      "Type of Damage",
+      "Schadensart"
+    ]
+  },
+  {
+    "fieldPath": "schadenHinzufugen.jahrDesSchadens",
+    "label": "Jahr des Schadens",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 1900
+      },
+      {
+        "kind": "max",
+        "value": "currentYear"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Das Jahr des Schadens ist Pflicht und muss zwischen 1900 und dem aktuellen Jahr liegen.",
+    "synonyms": [
+      "Jahr des Schadens",
+      "Damage Year",
+      "Schadenjahr",
+      "Year of Damage",
+      "Schadensjahr"
+    ]
+  },
+  {
+    "fieldPath": "schadenHinzufugen.hoheDesSchadens",
+    "label": "Höhe des Schadens",
+    "type": "number",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 1
+      },
+      {
+        "kind": "max",
+        "value": 999999
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Die Höhe des Schadens ist Pflicht und muss zwischen 1 und 999.999 € liegen.",
+    "synonyms": [
+      "Höhe des Schadens",
+      "Damage Amount",
+      "Schadenhöhe",
+      "Schadensumme",
+      "Claim Amount"
+    ]
+  }
+]

@@ -1,0 +1,587 @@
+[
+  {
+    "fieldPath": "tarifArt",
+    "label": "Tarifart",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "Aufgeschobene Rente",
+      "Sofortbeginnend"
+    ],
+    "humanRule": "Die Tarifart ist eine Pflichtangabe (Aufgeschobene Rente oder Sofortbeginnend).",
+    "synonyms": [
+      "Tarifart",
+      "tariff type",
+      "TarifArt",
+      "Vertragsart",
+      "Rentenart"
+    ]
+  },
+  {
+    "fieldPath": "geburtsdatum",
+    "label": "Geburtsdatum",
+    "type": "date",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "dateValidator"
+      },
+      {
+        "kind": "minDate",
+        "value": "today-70y",
+        "message": "Frühestens 70 Jahre in der Vergangenheit (bzw. 85 Jahre bei Sofortbeginn)"
+      },
+      {
+        "kind": "maxDate",
+        "value": "today"
+      },
+      {
+        "kind": "minAge",
+        "value": 18,
+        "message": "minAgeAtContractValidator (62 bei Sofortbeginnend, sonst 18 zum Vertragsbeginn)"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Das Geburtsdatum ist Pflicht, muss ein gültiges Datum in der Vergangenheit (max. 70 Jahre, bei Sofortbeginn 85 Jahre) sein, und der Versicherte muss bei Vertragsbeginn mindestens 18 Jahre (bzw. 62 Jahre bei Sofortbeginnend) alt sein.",
+    "synonyms": [
+      "Geburtsdatum",
+      "date of birth",
+      "DOB",
+      "Geb.-Datum",
+      "birthday"
+    ]
+  },
+  {
+    "fieldPath": "geschlecht",
+    "label": "Geschlecht",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "Männlich",
+      "Weiblich",
+      "Divers"
+    ],
+    "humanRule": "Das Geschlecht ist eine Pflichtangabe.",
+    "synonyms": [
+      "Geschlecht",
+      "gender",
+      "sex",
+      "Anrede"
+    ]
+  },
+  {
+    "fieldPath": "vertragsbeginn",
+    "label": "Vertragsbeginn",
+    "type": "date",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "dateValidator"
+      },
+      {
+        "kind": "minDate",
+        "value": "firstOfNextMonth-3m",
+        "message": "minStartOfContractDateValidator"
+      },
+      {
+        "kind": "maxDate",
+        "value": "today+1y"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Der Vertragsbeginn ist Pflicht und muss zwischen drei Monaten vor dem nächsten Monatsersten und einem Jahr in der Zukunft liegen.",
+    "synonyms": [
+      "Vertragsbeginn",
+      "Versicherungsbeginn",
+      "start of contract",
+      "contract start",
+      "Beginn"
+    ]
+  },
+  {
+    "fieldPath": "rentenbeginnZumAlter",
+    "label": "Rentenbeginn zum Alter",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 62
+      },
+      {
+        "kind": "max",
+        "value": 99
+      },
+      {
+        "kind": "custom",
+        "message": "dynamic min based on age at Vertragsbeginn"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Der Rentenbeginn (zum Alter) ist Pflicht und muss zwischen 62 und 99 Jahren liegen, mindestens jedoch über dem aktuellen Alter bei Vertragsbeginn.",
+    "synonyms": [
+      "Rentenbeginn",
+      "retirement age",
+      "Renteneintrittsalter",
+      "Rentenalter",
+      "RB-Alter"
+    ]
+  },
+  {
+    "fieldPath": "rentenbeginn",
+    "label": "Rentenbeginn",
+    "type": "date",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Der Rentenbeginn wird automatisch berechnet (deaktiviertes Feld) auf Basis von Geburtsdatum und Rentenbeginn-Alter.",
+    "synonyms": [
+      "Rentenbeginn Datum",
+      "retirement date",
+      "Renteneintritt",
+      "Rentenstart"
+    ]
+  },
+  {
+    "fieldPath": "monatsgenau",
+    "label": "Monatsgenau",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Optionales Kennzeichen, ob der Rentenbeginn monatsgenau berechnet wird.",
+    "synonyms": [
+      "monatsgenau",
+      "monthly precision",
+      "exakt monatlich",
+      "monatsweise"
+    ]
+  },
+  {
+    "fieldPath": "familienstand",
+    "label": "Familienstand",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "Ledig",
+      "Verheiratet",
+      "Geschieden",
+      "Verwitwet",
+      "Eingetragene Lebenspartnerschaft"
+    ],
+    "humanRule": "Der Familienstand ist eine Pflichtangabe.",
+    "synonyms": [
+      "Familienstand",
+      "marital status",
+      "Familienverhältnis",
+      "Zivilstand"
+    ]
+  },
+  {
+    "fieldPath": "abgekuerzteBeitragszahlungsdauer",
+    "label": "Abgekürzte Beitragszahlungsdauer",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Optionales Kennzeichen für eine abgekürzte Beitragszahlungsdauer.",
+    "synonyms": [
+      "abgekürzte Beitragszahlung",
+      "shortened premium period",
+      "ABZ",
+      "verkürzte Zahldauer"
+    ]
+  },
+  {
+    "fieldPath": "beitragszahlungBisAlter",
+    "label": "Beitragszahlung bis Alter",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 15
+      },
+      {
+        "kind": "max",
+        "value": 75
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Das Endalter der Beitragszahlung ist Pflicht und muss zwischen 15 und 75 Jahren liegen.",
+    "synonyms": [
+      "Beitragszahlung bis Alter",
+      "premium payment until age",
+      "Endalter Beitrag",
+      "BZ-Alter",
+      "Zahldauer"
+    ]
+  },
+  {
+    "fieldPath": "beitragszahlungBis",
+    "label": "Beitragszahlung bis",
+    "type": "date",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Das Datum für das Ende der Beitragszahlung wird automatisch berechnet (deaktiviertes Feld).",
+    "synonyms": [
+      "Beitragszahlung bis",
+      "premium payment end",
+      "Zahlungsende",
+      "Zahldauer-Datum"
+    ]
+  },
+  {
+    "fieldPath": "vorgabewunsch",
+    "label": "Vorgabewunsch",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "Beitrag",
+      "Einmalbeitrag",
+      "Rente"
+    ],
+    "humanRule": "Der Vorgabewunsch (Beitrag, Einmalbeitrag oder Rente) ist eine Pflichtangabe.",
+    "synonyms": [
+      "Vorgabewunsch",
+      "preference",
+      "Berechnungsvorgabe",
+      "Eingabewunsch",
+      "Rechenvorgabe"
+    ]
+  },
+  {
+    "fieldPath": "zahlungsweise",
+    "label": "Zahlungsweise",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "Monatlich",
+      "Vierteljährlich",
+      "Halbjährlich",
+      "Jährlich",
+      "Einmalig"
+    ],
+    "humanRule": "Die Zahlungsweise ist eine Pflichtangabe.",
+    "synonyms": [
+      "Zahlungsweise",
+      "payment frequency",
+      "Zahlrhythmus",
+      "Zahlungsintervall",
+      "ZW"
+    ]
+  },
+  {
+    "fieldPath": "vorgabewunschPrice",
+    "label": "Vorgabewunsch Betrag",
+    "type": "number",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 1
+      },
+      {
+        "kind": "custom",
+        "message": "maxPriceValidator (abhängig von Familienstand, Zahlungsweise, Einmalzahlung)"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Der Betrag zum Vorgabewunsch ist Pflicht, muss mindestens 1 sein und darf den dynamisch berechneten Maximalbetrag (abhängig von Familienstand und Zahlungsweise) nicht überschreiten.",
+    "synonyms": [
+      "Vorgabewunsch Betrag",
+      "Beitrag",
+      "contribution amount",
+      "Wunschbeitrag",
+      "Zielbeitrag"
+    ]
+  },
+  {
+    "fieldPath": "inflationsschutz",
+    "label": "Inflationsschutz",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "keine",
+      "1%",
+      "2%",
+      "3%",
+      "4%",
+      "5%"
+    ],
+    "humanRule": "Der Inflationsschutz ist eine Pflichtangabe.",
+    "synonyms": [
+      "Inflationsschutz",
+      "inflation protection",
+      "Dynamik",
+      "Beitragsdynamik"
+    ]
+  },
+  {
+    "fieldPath": "garantierteRentensteigerung",
+    "label": "Garantierte Rentensteigerung",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "keine",
+      "1%",
+      "2%",
+      "3%"
+    ],
+    "humanRule": "Die garantierte Rentensteigerung ist eine Pflichtangabe.",
+    "synonyms": [
+      "garantierte Rentensteigerung",
+      "guaranteed pension increase",
+      "Rentendynamik",
+      "Steigerung Rente"
+    ]
+  },
+  {
+    "fieldPath": "zusaetzlicheEinmalzahlungBeginn",
+    "label": "Zusätzliche Einmalzahlung zu Beginn",
+    "type": "number",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Optionale zusätzliche Einmalzahlung zu Vertragsbeginn; darf zusammen mit dem Beitrag den Maximalbetrag nicht überschreiten.",
+    "synonyms": [
+      "zusätzliche Einmalzahlung",
+      "initial lump sum",
+      "Zuzahlung",
+      "Einmalzahlung Beginn",
+      "Anfangs-Einmalzahlung"
+    ]
+  },
+  {
+    "fieldPath": "absicherungTodesfall",
+    "label": "Absicherung Todesfall",
+    "type": "enum",
+    "validators": [],
+    "enumValues": [
+      "Mindestens Auszahlung des Vertragsguthabens",
+      "Beitragsrückgewähr",
+      "Keine"
+    ],
+    "humanRule": "Optionale Auswahl zur Absicherung im Todesfall.",
+    "synonyms": [
+      "Absicherung Todesfall",
+      "death benefit coverage",
+      "Todesfallabsicherung",
+      "Hinterbliebenenschutz"
+    ]
+  },
+  {
+    "fieldPath": "todesfallleistung",
+    "label": "Todesfallleistung",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "keine",
+      "Beitragsrückgewähr",
+      "Rentengarantiezeit"
+    ],
+    "humanRule": "Die Todesfallleistung ist eine Pflichtangabe.",
+    "synonyms": [
+      "Todesfallleistung",
+      "death benefit",
+      "Hinterbliebenenleistung",
+      "TFL"
+    ]
+  },
+  {
+    "fieldPath": "rentengarantiezeit",
+    "label": "Rentengarantiezeit",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "keine",
+      "5 Jahre",
+      "10 Jahre",
+      "15 Jahre",
+      "20 Jahre"
+    ],
+    "humanRule": "Die Rentengarantiezeit ist eine Pflichtangabe.",
+    "synonyms": [
+      "Rentengarantiezeit",
+      "pension guarantee period",
+      "RGZ",
+      "Garantiezeit"
+    ]
+  },
+  {
+    "fieldPath": "beitragsbefreiungBerufsunfaehigkeit",
+    "label": "Beitragsbefreiung bei Berufsunfähigkeit",
+    "type": "boolean",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Pflichtkennzeichen für die Beitragsbefreiung bei Berufsunfähigkeit (BUZ).",
+    "synonyms": [
+      "Beitragsbefreiung BU",
+      "BBU",
+      "premium waiver disability",
+      "BU-Beitragsbefreiung"
+    ]
+  },
+  {
+    "fieldPath": "vertragsablaufAlter",
+    "label": "Vertragsablauf Alter",
+    "type": "number",
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "decimalRangeValidator"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Optionales Endalter des Vertrags, muss im gültigen Dezimalbereich liegen.",
+    "synonyms": [
+      "Vertragsablauf",
+      "contract end age",
+      "Ablaufalter",
+      "Endalter Vertrag"
+    ]
+  },
+  {
+    "fieldPath": "renteBerufsunfaehigkeit",
+    "label": "Rente bei Berufsunfähigkeit",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Optionales Kennzeichen für eine BU-Rente.",
+    "synonyms": [
+      "BU-Rente",
+      "disability pension",
+      "Berufsunfähigkeitsrente",
+      "BUR"
+    ]
+  },
+  {
+    "fieldPath": "garantierteBuRente",
+    "label": "Garantierte BU-Rente",
+    "type": "number",
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "decimalRangeValidator"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Optionale Höhe der garantierten BU-Rente, muss im gültigen Dezimalbereich liegen.",
+    "synonyms": [
+      "garantierte BU-Rente",
+      "guaranteed disability pension",
+      "BU-Renten-Höhe",
+      "BUR garantiert"
+    ]
+  },
+  {
+    "fieldPath": "minimaleAltersrente",
+    "label": "Minimale Altersrente",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Optionales Kennzeichen für die Vorgabe einer minimalen Altersrente.",
+    "synonyms": [
+      "minimale Altersrente",
+      "minimum old-age pension",
+      "Mindestrente",
+      "Mindestaltersrente"
+    ]
+  },
+  {
+    "fieldPath": "inflationsschutzBerufsunfaehigkeit",
+    "label": "Inflationsschutz BU",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "keine",
+      "1%",
+      "2%",
+      "3%",
+      "4%",
+      "5%"
+    ],
+    "humanRule": "Der Inflationsschutz für die BU-Rente ist eine Pflichtangabe.",
+    "synonyms": [
+      "Inflationsschutz BU",
+      "BU inflation protection",
+      "BU-Dynamik",
+      "Dynamik BU"
+    ]
+  },
+  {
+    "fieldPath": "garantierteRentensteigerungBerufsunfaehigkeit",
+    "label": "Garantierte Rentensteigerung BU",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "keine",
+      "1%",
+      "2%",
+      "3%"
+    ],
+    "humanRule": "Die garantierte Rentensteigerung der BU-Rente ist eine Pflichtangabe.",
+    "synonyms": [
+      "garantierte Rentensteigerung BU",
+      "guaranteed BU pension increase",
+      "BU-Rentendynamik",
+      "Steigerung BU-Rente"
+    ]
+  }
+]
