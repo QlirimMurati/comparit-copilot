@@ -33,6 +33,7 @@ import type {
 })
 export class CopilotComponent implements OnInit {
   @ViewChild('messagesEnd') private messagesEnd!: ElementRef<HTMLDivElement>;
+  @ViewChild('composerInput') private composerInput?: ElementRef<HTMLTextAreaElement>;
 
   private readonly api = inject(CopilotService);
   private readonly zone = inject(NgZone);
@@ -112,6 +113,17 @@ export class CopilotComponent implements OnInit {
   protected sendSuggestion(text: string): void {
     this.inputText = text;
     this.send();
+  }
+
+  protected prefillSuggestion(text: string): void {
+    this.inputText = text;
+    setTimeout(() => {
+      const el = this.composerInput?.nativeElement;
+      if (el) {
+        el.focus();
+        el.setSelectionRange(text.length, text.length);
+      }
+    }, 0);
   }
 
   protected async send(): Promise<void> {

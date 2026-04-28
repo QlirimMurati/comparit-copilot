@@ -37,7 +37,7 @@
           <button class="suggestion-chip" (click)="sendSuggestion('Find duplicates for: ')">
             🔗 Check duplicates
           </button>
-          <button class="suggestion-chip" (click)="sendSuggestion('Was ist Karenzzeit in BU?')">
+          <button class="suggestion-chip" (click)="prefillSuggestion('Was ist Karenzzeit in BU?')">
             📐 Check in application
           </button>
         </div>
@@ -218,6 +218,7 @@
     <!-- Input -->
     <div class="input-area">
       <textarea
+        #composerInput
         class="chat-input"
         [(ngModel)]="inputText"
         placeholder="Message Copilot… (Shift+Enter for newline, paste transcript to decompose)"
