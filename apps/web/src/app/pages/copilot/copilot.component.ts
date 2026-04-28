@@ -126,6 +126,11 @@ export class CopilotComponent implements OnInit {
     }, 0);
   }
 
+  protected focusComposer(): void {
+    this.inputText = '';
+    setTimeout(() => this.composerInput?.nativeElement.focus(), 0);
+  }
+
   protected async send(): Promise<void> {
     const text = this.inputText.trim();
     if (!text || this.streaming()) return;
