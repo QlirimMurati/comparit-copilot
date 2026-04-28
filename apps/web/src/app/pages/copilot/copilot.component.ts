@@ -215,6 +215,7 @@ export class CopilotComponent implements OnInit {
       search_jira: 'Searching Jira…',
       find_affected_code: 'Locating affected code…',
       decompose_transcript: 'Decomposing transcript…',
+      validate_prefill: 'Validating prefill…',
     };
     return labels[name] ?? `Running ${name}…`;
   }
