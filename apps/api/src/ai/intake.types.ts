@@ -32,3 +32,9 @@ export interface ChatSubmitResult {
   status: string;
   createdAt: string;
 }
+
+export type IntakeStreamEvent =
+  | { type: 'text_delta'; text: string }
+  | { type: 'state'; intakeState: IntakeState; isComplete: boolean }
+  | { type: 'done'; stopReason: string | null }
+  | { type: 'error'; message: string };

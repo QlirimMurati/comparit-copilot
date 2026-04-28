@@ -7,7 +7,7 @@
 
 ## Current Focus
 
-- **Active workstream:** _none yet — start with W1 (streaming) per plan_
+- **Active workstream:** W2 next (ticket polisher) — W1 streaming shipped
 - **Last updated:** 2026-04-28
 
 ---
@@ -17,7 +17,7 @@
 ### Main batch
 | W# | Workstream | Status | Notes |
 |---|---|---|---|
-| W1 | Streaming responses | TODO | Unblocks Donart W7 |
+| W1 | Streaming responses | Done (2026-04-28) | SSE endpoint live; unblocks Donart W7 |
 | W2 | Ticket polisher agent | TODO | Unblocks Lirim W3, W12 |
 | W3 | Transcript decomposer | TODO | New tables + tools |
 | W4 | Dedup via embeddings | TODO | Unblocks Donart W9 + Lirim W3 + W11/W14/W17 |
@@ -49,7 +49,7 @@ _none_
 
 ## Done
 
-_(append entries here as workstreams complete; format: `YYYY-MM-DD — Wn name — verification line`)_
+- 2026-04-28 — W1 streaming responses — `POST /api/widget/chat/message/stream` returns SSE (text_delta / state / done / error events); `IntakeAgentService.runTurnStream` wraps the tool loop around `messages.stream()`; final assistant turn persisted to `chat_messages` after stream end; existing blocking `/message` endpoint kept as fallback. Verified: `nx run api:build` green; `nx run api:test` 10/10 passing including 3 new tests for `runTurnStream`.
 
 ---
 

@@ -10,6 +10,7 @@ import {
 } from './intake-schema';
 import { ChatSessionService } from './chat-session.service';
 import type { ChatMessage } from '../db/schema';
+import type { IntakeStreamEvent } from './intake.types';
 
 const MODEL = 'claude-opus-4-7';
 const MAX_TOOL_LOOPS = 4;
@@ -131,6 +132,115 @@ export class IntakeAgentService {
       isComplete: Boolean(intakeState.isComplete),
       stopReason,
     };
+  }
+
+  async *runTurnStream(
+    input: AgentTurnInput
+  ): AsyncGenerator<IntakeStreamEvent, void> {
+    if (!this.anthropic.isConfigured) {
+      yield {
+        type: 'text_delta',
+        text:
+          'AI is not configured on this server. Set ANTHROPIC_API_KEY in the API .env to enable the chat assistant. You can still file reports via the form.',
+      };
+      yield {
+        type: 'state',
+        intakeState: { isComplete: false },
+        isComplete: false,
+      };
+      yield { type: 'done', stopReason: 'unconfigured' };
+      return;
+    }
+
+    const session = await this.sessions.getById(input.sessionId);
+    let intakeState = (session.intakeState as IntakeState | null) ?? {
+      isComplete: false,
+    };
+
+    if (input.userText !== undefined) {
+      await this.sessions.appendMessage({
+        sessionId: input.sessionId,
+        role: 'user',
+        content: input.userText,
+      });
+    }
+
+    const history = await this.sessions.listMessages(input.sessionId);
+    const apiMessages = this.toApiMessages(history);
+
+    const systemBlocks = this.buildSystemBlocks(
+      session.capturedContext,
+      intakeState
+    );
+
+    let stopReason: string | null = null;
+    let lastInputTokens = 0;
+    let lastOutputTokens = 0;
+    const assistantContentForStorage: Anthropic.ContentBlock[] = [];
+
+    for (let loop = 0; loop < MAX_TOOL_LOOPS; loop++) {
+      const stream = this.anthropic.client.messages.stream({
+        model: MODEL,
+        max_tokens: 1024,
+        system: systemBlocks,
+        tools: INTAKE_TOOLS,
+        messages: apiMessages,
+      });
+
+      for await (const event of stream) {
+        if (
+          event.type === 'content_block_delta' &&
+          event.delta.type === 'text_delta'
+        ) {
+          yield { type: 'text_delta', text: event.delta.text };
+        }
+      }
+
+      const finalMessage = await stream.finalMessage();
+      stopReason = finalMessage.stop_reason ?? null;
+      lastInputTokens += finalMessage.usage?.input_tokens ?? 0;
+      lastOutputTokens += finalMessage.usage?.output_tokens ?? 0;
+
+      for (const block of finalMessage.content) {
+        assistantContentForStorage.push(block);
+      }
+
+      if (finalMessage.stop_reason !== 'tool_use') break;
+
+      apiMessages.push({ role: 'assistant', content: finalMessage.content });
+
+      const toolResults: Anthropic.Messages.ToolResultBlockParam[] = [];
+      for (const block of finalMessage.content) {
+        if (block.type !== 'tool_use') continue;
+        const toolResult = this.handleTool(block, intakeState);
+        intakeState = toolResult.nextState;
+        toolResults.push({
+          type: 'tool_result',
+          tool_use_id: block.id,
+          content: toolResult.message,
+          is_error: toolResult.isError,
+        });
+      }
+      apiMessages.push({ role: 'user', content: toolResults });
+    }
+
+    await this.sessions.appendMessage({
+      sessionId: input.sessionId,
+      role: 'assistant',
+      content: assistantContentForStorage,
+      stopReason,
+      inputTokens: lastInputTokens,
+      outputTokens: lastOutputTokens,
+    });
+
+    await this.sessions.setIntakeState(input.sessionId, intakeState);
+
+    yield {
+      type: 'state',
+      intakeState,
+      isComplete: Boolean(intakeState.isComplete),
+    };
+    yield { type: 'done', stopReason };
   }
 
   private buildSystemBlocks(

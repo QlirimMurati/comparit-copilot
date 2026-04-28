@@ -7,7 +7,9 @@ import {
   Inject,
   Logger,
   Post,
+  Res,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { DRIZZLE, type Database } from '../db/db.module';
 import { bugReports } from '../db/schema';
 import { findOrCreateReporter } from '../users/find-or-create-reporter';
@@ -21,6 +23,7 @@ import type {
   ChatStartResult,
   ChatSubmitInput,
   ChatSubmitResult,
+  IntakeStreamEvent,
 } from './intake.types';
 
 @Controller('widget/chat')
@@ -65,6 +68,45 @@ export class IntakeController {
       intakeState: result.intakeState,
       isComplete: result.isComplete,
     };
+  }
+
+  @Post('message/stream')
+  async messageStream(
+    @Body() body: ChatMessageInput,
+    @Res() res: Response
+  ): Promise<void> {
+    if (!body.sessionId) throw new BadRequestException('sessionId required');
+    const text = body.text?.trim();
+    if (!text) throw new BadRequestException('text required');
+
+    res.status(HttpStatus.OK);
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.flushHeaders();
+
+    const writeEvent = (event: IntakeStreamEvent): void => {
+      res.write(`event: ${event.type}\n`);
+      res.write(`data: ${JSON.stringify(event)}\n\n`);
+    };
+
+    try {
+      for await (const event of this.agent.runTurnStream({
+        sessionId: body.sessionId,
+        userText: text,
+      })) {
+        writeEvent(event);
+      }
+    } catch (err) {
+      this.logger.error(
+        `agent.runTurnStream failed: ${(err as Error).message}`,
+        (err as Error).stack
+      );
+      writeEvent({ type: 'error', message: (err as Error).message });
+    } finally {
+      res.end();
+    }
   }
 
   @Post('submit')
