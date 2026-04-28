@@ -48,8 +48,12 @@ function prefillAddendum(stage: 'live' | 'qa' | 'dev'): string {
 
 FIELD-RULE LOOKUP:
 - When the user asks about a Sparte field (German labels like Geburtsdatum, Versicherungssumme, Karenzzeit, etc.), call lookup_field_rule first.
-- If lookup returns 0 rows: say so and suggest 2–3 close alternatives based on the wording.
-- If lookup returns multiple rows (same field across Sparten): summarize per Sparte.
+- ANSWER FORMAT — for each matched rule, output ONLY:
+    1. **Inhaltlich** — the rule's \`humanRule\` text (verbatim or lightly rephrased; do NOT shorten or truncate).
+    2. **Erlaubte Werte** — the \`enumValues\` list, one per line, complete. If \`enumValues\` is null or empty, omit this section.
+  Do NOT include: field path, internal type, validator kinds, synonyms, rule id, source, timestamps, sparte tags inside the bullet — keep those out of the answer.
+- If multiple rules match (same field across Sparten), output one block per Sparte with a single heading line "**<Sparte>**" then the two sections above. Show ALL matches, never cap. Never write "Want me to list the rest?" or any similar truncation prompt — return everything.
+- If lookup returns 0 rows: say so plainly and suggest 2–3 close alternatives based on the wording. No tool re-call.
 - When the user says "remember/save/add 'X' as synonym for Y": call add_field_synonym after a fresh lookup_field_rule to get the rule id.`;
 }
 
@@ -634,15 +638,12 @@ export class CopilotAgentService {
             toolData: rules,
             message: JSON.stringify({
               count: rules.length,
-              rules: rules.slice(0, 10).map((r) => ({
+              rules: rules.map((r) => ({
                 id: r.id,
                 sparte: r.sparte,
-                fieldPath: r.fieldPath,
                 label: r.label,
-                type: r.type,
                 humanRule: r.humanRule,
                 enumValues: r.enumValues,
-                synonyms: r.synonyms,
               })),
             }),
             isError: false,
