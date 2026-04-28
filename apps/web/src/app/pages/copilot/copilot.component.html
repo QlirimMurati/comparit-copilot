@@ -23,7 +23,7 @@
     @if (showSuggestions()) {
       <div class="empty-state">
         <h1>Comparit Copilot</h1>
-        <p>Report bugs, search Jira, decompose transcripts, find affected code.</p>
+        <p>Report bugs, search Jira, decompose transcripts, find affected code, check application rules.</p>
         <div class="suggestions">
           <button class="suggestion-chip" (click)="sendSuggestion('I want to report a bug')">
             🐛 Report a bug
@@ -36,6 +36,9 @@
           </button>
           <button class="suggestion-chip" (click)="sendSuggestion('Find duplicates for: ')">
             🔗 Check duplicates
+          </button>
+          <button class="suggestion-chip" (click)="sendSuggestion('Was ist Karenzzeit in BU?')">
+            📐 Check in application
           </button>
         </div>
       </div>
