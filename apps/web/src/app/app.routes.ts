@@ -49,6 +49,13 @@ export const appRoutes: Route[] = [
           ),
       },
       {
+        path: 'prefill',
+        loadComponent: () =>
+          import('./pages/prefill/prefill.component').then(
+            (m) => m.PrefillComponent
+          ),
+      },
+      {
         path: 'admin',
         canActivate: [roleGuard(['admin', 'qa_lead'])],
         loadComponent: () =>
