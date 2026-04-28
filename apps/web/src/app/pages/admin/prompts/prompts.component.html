@@ -1,0 +1,205 @@
+<div class="space-y-4">
+  <div class="flex flex-wrap items-end gap-3">
+    <label class="block">
+      <span class="block text-sm font-medium text-slate-700">Agent</span>
+      <select
+        [value]="selectedAgent()"
+        (change)="onAgentChange($any($event.target).value)"
+        class="mt-1 block w-64 rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+      >
+        @for (a of agents; track a) {
+          <option [value]="a">{{ agentLabels[a] }}</option>
+        }
+      </select>
+    </label>
+
+    <button
+      type="button"
+      (click)="startCreate()"
+      class="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
+    >
+      New override
+    </button>
+    <button
+      type="button"
+      (click)="openReplay()"
+      class="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+    >
+      Replay against past sessions
+    </button>
+  </div>
+
+  @if (active(); as a) {
+    <details class="rounded border border-slate-200 bg-slate-50 p-3 text-sm">
+      <summary class="cursor-pointer text-slate-600">
+        Currently active prompt ({{ a.active === a.default ? 'default from repo' : 'DB override' }})
+      </summary>
+      <pre class="mt-2 max-h-64 overflow-auto whitespace-pre-wrap text-xs text-slate-800">{{ a.active }}</pre>
+    </details>
+  }
+
+  @if (listError(); as msg) {
+    <div class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{{ msg }}</div>
+  }
+
+  @if (creating() || editingId()) {
+    <form
+      [formGroup]="form"
+      (ngSubmit)="save()"
+      class="space-y-3 rounded-xl border border-slate-200 bg-white p-4"
+    >
+      <h3 class="text-sm font-semibold text-slate-700">
+        {{ editingId() ? 'Edit override' : 'New override' }}
+      </h3>
+      <label class="block">
+        <span class="block text-sm font-medium text-slate-700">Content</span>
+        <textarea
+          formControlName="content"
+          rows="10"
+          class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-xs focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+        ></textarea>
+      </label>
+      <label class="block">
+        <span class="block text-sm font-medium text-slate-700">Note (optional)</span>
+        <input
+          type="text"
+          formControlName="note"
+          class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+        />
+      </label>
+      <label class="flex items-center gap-2 text-sm text-slate-700">
+        <input type="checkbox" formControlName="isActive" />
+        Activate (deactivates other overrides for this agent on save)
+      </label>
+
+      @if (saveError(); as msg) {
+        <div class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{{ msg }}</div>
+      }
+
+      <div class="flex items-center gap-3">
+        <button
+          type="submit"
+          [disabled]="form.invalid || saving()"
+          class="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+        >
+          @if (saving()) { Saving… } @else { Save }
+        </button>
+        <button
+          type="button"
+          (click)="cancelEdit()"
+          class="text-sm text-slate-600 hover:text-slate-900"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  }
+
+  @if (loading()) {
+    <div class="rounded border border-slate-200 bg-white px-6 py-6 text-center text-sm text-slate-500">
+      Loading…
+    </div>
+  } @else if (empty()) {
+    <div class="rounded border border-slate-200 bg-white px-6 py-6 text-center text-sm text-slate-600">
+      No DB overrides for this agent yet — the default from the repo is active.
+    </div>
+  } @else {
+    <div class="overflow-hidden rounded-lg border border-slate-200 bg-white">
+      <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <tr>
+            <th class="px-4 py-2">Active</th>
+            <th class="px-4 py-2">Note</th>
+            <th class="px-4 py-2">Updated</th>
+            <th class="px-4 py-2"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          @for (row of rows(); track row.id) {
+            <tr>
+              <td class="px-4 py-2">
+                <button
+                  type="button"
+                  (click)="toggleActive(row)"
+                  [class]="row.isActive
+                    ? 'inline-flex items-center rounded bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800'
+                    : 'inline-flex items-center rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600'"
+                >
+                  {{ row.isActive ? 'active' : 'inactive' }}
+                </button>
+              </td>
+              <td class="px-4 py-2 text-slate-700">{{ row.note ?? '—' }}</td>
+              <td class="px-4 py-2 text-slate-500">{{ formatDate(row.updatedAt) }}</td>
+              <td class="px-4 py-2 text-right">
+                <button
+                  type="button"
+                  (click)="startEdit(row)"
+                  class="text-sm font-medium text-slate-700 hover:text-slate-900"
+                >
+                  Edit
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (replayOpen()) {
+    <section class="space-y-3 rounded-xl border border-violet-200 bg-violet-50 p-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-violet-900">Replay candidate prompt</h3>
+        <button
+          type="button"
+          (click)="closeReplay()"
+          class="text-sm text-violet-700 hover:text-violet-900"
+        >
+          Close
+        </button>
+      </div>
+      <p class="text-xs text-violet-800">
+        Runs the candidate against the last 5 intake sessions and shows a side-by-side diff of the assistant's last response.
+      </p>
+      <textarea
+        rows="6"
+        [value]="replayCandidate()"
+        (input)="onReplayCandidateChange($any($event.target).value)"
+        class="block w-full rounded-md border border-violet-300 bg-white px-3 py-2 font-mono text-xs focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+        placeholder="Paste candidate prompt content"
+      ></textarea>
+      @if (replayError(); as msg) {
+        <div class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{{ msg }}</div>
+      }
+      <button
+        type="button"
+        (click)="runReplay()"
+        [disabled]="replayRunning()"
+        class="rounded-md bg-violet-700 px-3 py-2 text-sm font-medium text-white hover:bg-violet-800 disabled:opacity-50"
+      >
+        @if (replayRunning()) { Running… } @else { Run replay }
+      </button>
+
+      @if (replayResult(); as r) {
+        <div class="space-y-3">
+          <p class="text-xs text-violet-800">Compared {{ r.compared }} sessions.</p>
+          @for (item of r.results; track item.sessionId) {
+            <div class="rounded border border-violet-200 bg-white p-3">
+              <p class="mb-2 font-mono text-[10px] text-violet-700">session {{ item.sessionId }}</p>
+              <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Original</p>
+                  <pre class="mt-1 max-h-64 overflow-auto whitespace-pre-wrap rounded bg-slate-50 p-2 text-xs text-slate-800">{{ item.originalAssistantText }}</pre>
+                </div>
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-wide text-violet-700">Candidate</p>
+                  <pre class="mt-1 max-h-64 overflow-auto whitespace-pre-wrap rounded bg-violet-50 p-2 text-xs text-violet-900">{{ item.candidateAssistantText }}</pre>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>

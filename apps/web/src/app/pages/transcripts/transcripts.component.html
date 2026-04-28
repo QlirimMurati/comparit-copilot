@@ -1,0 +1,143 @@
+<section class="space-y-4">
+  <header>
+    <h2 class="text-2xl font-semibold tracking-tight">Transcript decomposer</h2>
+    <p class="text-sm text-slate-600">
+      Paste a meeting transcript — the AI breaks it into Epic / Story / Subtask. Refine with follow-up instructions.
+    </p>
+  </header>
+
+  @if (!tree()) {
+    <form
+      [formGroup]="startForm"
+      (ngSubmit)="start()"
+      class="space-y-3 rounded-xl border border-slate-200 bg-white p-6"
+    >
+      <label class="block">
+        <span class="block text-sm font-medium text-slate-700">Title (optional)</span>
+        <input
+          type="text"
+          formControlName="title"
+          placeholder="e.g. KFZ checkout planning · 2026-04-28"
+          class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+        />
+      </label>
+      <label class="block">
+        <span class="block text-sm font-medium text-slate-700">Raw transcript</span>
+        <textarea
+          formControlName="rawTranscript"
+          rows="14"
+          placeholder="Paste the meeting transcript here. Min 50 chars."
+          class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-xs focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+        ></textarea>
+      </label>
+      @if (error(); as msg) {
+        <div class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{{ msg }}</div>
+      }
+      <button
+        type="submit"
+        [disabled]="startForm.invalid || running()"
+        class="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+      >
+        @if (running()) { Decomposing… } @else { Decompose transcript }
+      </button>
+    </form>
+  } @else {
+    @if (tree(); as t) {
+      <div class="flex flex-wrap items-center gap-3">
+        <h3 class="text-lg font-semibold text-slate-900">
+          {{ t.session.title ?? 'Untitled session' }}
+        </h3>
+        <span class="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+          {{ t.epics.length }} epic{{ t.epics.length === 1 ? '' : 's' }} · {{ totalNodeCount(t.epics) }} nodes
+        </span>
+        @if (t.isComplete) {
+          <span class="rounded bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">complete</span>
+        } @else {
+          <span class="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">in progress</span>
+        }
+        <button
+          type="button"
+          (click)="reset()"
+          class="ml-auto text-sm text-slate-600 hover:text-slate-900"
+        >
+          Start over
+        </button>
+      </div>
+
+      @if (t.assistantText) {
+        <div class="rounded border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+          {{ t.assistantText }}
+        </div>
+      }
+
+      @if (t.epics.length === 0) {
+        <div class="rounded border border-slate-200 bg-white px-6 py-6 text-center text-sm text-slate-600">
+          No nodes yet — try refining with a more specific instruction.
+        </div>
+      } @else {
+        <div class="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
+          @for (epic of t.epics; track epic.id) {
+            <ng-container *ngTemplateOutlet="nodeTpl; context: { $implicit: epic, depth: 0 }" />
+          }
+        </div>
+      }
+
+      <form
+        [formGroup]="refineForm"
+        (ngSubmit)="refine()"
+        class="space-y-3 rounded-xl border border-slate-200 bg-white p-4"
+      >
+        <label class="block">
+          <span class="block text-sm font-medium text-slate-700">Refine</span>
+          <input
+            type="text"
+            formControlName="instruction"
+            placeholder='e.g. "Split the checkout epic into 3 stories: form, payment, confirmation"'
+            class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+          />
+        </label>
+        @if (error(); as msg) {
+          <div class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{{ msg }}</div>
+        }
+        <button
+          type="submit"
+          [disabled]="refineForm.invalid || running()"
+          class="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+        >
+          @if (running()) { Refining… } @else { Apply instruction }
+        </button>
+      </form>
+    }
+  }
+
+  <ng-template #nodeTpl let-node let-depth="depth">
+    <div [class]="'rounded border border-slate-200 ' + (depth === 0 ? 'bg-violet-50/50' : depth === 1 ? 'bg-sky-50/40' : 'bg-slate-50')">
+      <div class="flex items-start gap-3 p-3">
+        <span [class]="'mt-0.5 inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ' + nodeBadgeClass(node)">
+          {{ node.nodeType }}
+        </span>
+        <div class="flex-1 space-y-1">
+          <p class="text-sm font-medium text-slate-900">{{ node.title }}</p>
+          @if (node.description) {
+            <p class="text-xs text-slate-700">{{ node.description }}</p>
+          }
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            @for (label of node.labels; track label) {
+              <span class="rounded bg-slate-100 px-1.5 py-0.5 text-slate-700">{{ label }}</span>
+            }
+            @if (node.estimateHours !== null) {
+              <span class="rounded bg-amber-100 px-1.5 py-0.5 text-amber-800">{{ node.estimateHours }}h</span>
+            }
+          </div>
+        </div>
+      </div>
+      @if (node.children.length > 0) {
+        <div class="space-y-2 border-t border-slate-200 px-3 py-2 pl-9">
+          @for (child of node.children; track child.id) {
+            <ng-container *ngTemplateOutlet="nodeTpl; context: { $implicit: child, depth: depth + 1 }" />
+          }
+        </div>
+      }
+    </div>
+  </ng-template>
+</section>
