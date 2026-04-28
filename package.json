@@ -9,9 +9,9 @@
     "build": "nx run-many -t build",
     "test": "nx run-many -t test",
     "lint": "nx run-many -t lint",
-    "index:repo": "ts-node --transpile-only -P apps/api/tsconfig.app.json apps/api/src/index/cli.ts",
+    "index:repo": "ts-node --transpile-only -P apps/api/tsconfig.app.json -r dotenv/config apps/api/src/index/cli.ts",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "ts-node --transpile-only -P apps/api/tsconfig.app.json apps/api/src/db/run-migrations.ts"
+    "db:migrate": "ts-node --transpile-only -P apps/api/tsconfig.app.json -r dotenv/config apps/api/src/db/run-migrations.ts"
   },
   "private": true,
   "pnpm": {
@@ -98,6 +98,7 @@
     "axios": "^1.6.0",
     "bcryptjs": "^2.4.3",
     "bullmq": "^5.76.2",
+    "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "ioredis": "^5.10.1",
     "postgres": "^3.4.9",
