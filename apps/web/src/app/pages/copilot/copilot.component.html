@@ -103,16 +103,39 @@
                       </div>
                     }
                     @case ('search_jira') {
-                      <div class="tool-card-header">Jira search results</div>
+                      <div class="tool-card-header">
+                        Jira search
+                        @if (asJiraSearch(tr.data).mode) {
+                          <span class="mode-pill">{{ asJiraSearch(tr.data).mode }}</span>
+                        }
+                      </div>
                       <div class="tool-card-body">
                         @if (asJiraSearch(tr.data).tickets.length === 0) {
                           <div class="empty-result">No tickets found.</div>
                         }
                         @for (t of asJiraSearch(tr.data).tickets; track t.jiraIssueKey) {
-                          <div class="jira-row">
-                            <span class="jira-key">{{ t.jiraIssueKey }}</span>
-                            <span class="jira-summary">{{ t.summary }}</span>
-                            <span class="jira-status">{{ t.status }}</span>
+                          <div class="jira-card">
+                            <div class="jira-card-line1">
+                              <span class="jira-key">{{ t.jiraIssueKey }}</span>
+                              @if (t.issueType) { <span class="jira-type">{{ t.issueType }}</span> }
+                              @if (t.status) { <span class="jira-status">{{ t.status }}</span> }
+                              @if (t.priority) { <span class="jira-priority">{{ t.priority }}</span> }
+                              @if (t.distance !== undefined) {
+                                <span class="dedup-dist">{{ ((1 - t.distance) * 100 | number:'1.0-0') }}%</span>
+                              }
+                            </div>
+                            <div class="jira-summary-line">{{ t.summary }}</div>
+                            <div class="jira-meta">
+                              @if (t.assigneeName) { <span>👤 {{ t.assigneeName }}</span> }
+                              @if (t.labels && t.labels.length) {
+                                @for (l of t.labels; track l) {
+                                  <span class="jira-label">{{ l }}</span>
+                                }
+                              }
+                              @if (t.jiraUpdated) {
+                                <span class="jira-updated">{{ t.jiraUpdated | date:'MMM d' }}</span>
+                              }
+                            </div>
                           </div>
                         }
                       </div>

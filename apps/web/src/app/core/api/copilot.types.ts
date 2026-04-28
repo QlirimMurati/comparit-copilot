@@ -35,8 +35,14 @@ export interface DuplicateCheckData {
 export interface JiraSearchData {
   tickets: Array<{
     jiraIssueKey: string; projectKey: string; summary: string;
-    status: string | null; issueType: string | null; assigneeName: string | null;
+    status: string | null; priority: string | null;
+    issueType: string | null; assigneeName: string | null;
+    assigneeEmail: string | null;
+    labels: string[] | null;
+    jiraUpdated: string | null;
+    distance?: number;
   }>;
+  mode?: 'semantic' | 'keyword' | 'filter';
 }
 
 export interface BugSubmitData {

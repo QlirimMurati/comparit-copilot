@@ -1,6 +1,6 @@
 import type Anthropic from '@anthropic-ai/sdk';
 import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
-import { ilike, or } from 'drizzle-orm';
+import { and, cosineDistance, eq, ilike, isNotNull, or, sql, type SQL } from 'drizzle-orm';
 import { DRIZZLE, type Database } from '../../db/db.module';
 import { bugReports, ticketsCache } from '../../db/schema';
 import { REPORT_SEVERITIES, SPARTEN } from '../../db/schema';
@@ -11,6 +11,7 @@ import { DedupService } from '../dedup.service';
 import { EmbedQueueService } from '../embed.queue';
 import { TranscriptDecomposerService } from '../transcript-decomposer/transcript-decomposer.service';
 import { TriageQueueService } from '../triage.queue';
+import { VoyageService } from '../voyage.service';
 import { CopilotSessionService } from './copilot-session.service';
 import type { CopilotBugDraft, CopilotState, CopilotStreamEvent } from './copilot.types';
 
@@ -87,13 +88,40 @@ const COPILOT_TOOLS: Anthropic.Tool[] = [
   },
   {
     name: 'search_jira',
-    description: 'Full-text search in the Jira ticket cache by keyword or topic.',
+    description:
+      'Search the Jira ticket cache. Combines semantic similarity (when `query` is given) with optional filters (assignee, status, issueType, label, project). Returns up to `limit` results sorted by relevance. All filters are AND-ed.',
     input_schema: {
       type: 'object' as const,
       properties: {
-        query: { type: 'string', description: 'Keyword or phrase to search for.' },
+        query: {
+          type: 'string',
+          description: 'Topic, issue description, or keywords. Used for semantic similarity search and substring matching.',
+        },
+        status: {
+          type: 'string',
+          description: 'Exact Jira status (e.g. "To Do", "In Progress", "Done", "Open", "Closed"). Case-sensitive.',
+        },
+        assignee: {
+          type: 'string',
+          description: 'Assignee name or email — substring match against both fields.',
+        },
+        issueType: {
+          type: 'string',
+          description: 'Jira issue type (e.g. "Bug", "Story", "Task", "Epic", "Sub-task").',
+        },
+        project: {
+          type: 'string',
+          description: 'Project key (e.g. "LV"). Restricts to one project.',
+        },
+        label: {
+          type: 'string',
+          description: 'Label that must be attached to the ticket.',
+        },
+        limit: {
+          type: 'number',
+          description: 'Max results to return (1–25, default 10).',
+        },
       },
-      required: ['query'],
       additionalProperties: false,
     },
   },
@@ -136,6 +164,7 @@ export class CopilotAgentService {
     private readonly dedup: DedupService,
     private readonly embedQueue: EmbedQueueService,
     private readonly triageQueue: TriageQueueService,
+    private readonly voyage: VoyageService,
     @Optional() private readonly codeLocalizer?: CodeLocalizerService,
     @Optional() private readonly transcriptDecomposer?: TranscriptDecomposerService
   ) {}
@@ -330,28 +359,96 @@ export class CopilotAgentService {
 
         case 'search_jira': {
           const query = String(input['query'] ?? '').trim();
-          if (!query) return { nextState: state, message: 'query is required', isError: true };
+          const status = typeof input['status'] === 'string' ? input['status'].trim() : '';
+          const assignee = typeof input['assignee'] === 'string' ? input['assignee'].trim() : '';
+          const issueType = typeof input['issueType'] === 'string' ? input['issueType'].trim() : '';
+          const project = typeof input['project'] === 'string' ? input['project'].trim().toUpperCase() : '';
+          const label = typeof input['label'] === 'string' ? input['label'].trim() : '';
+          const rawLimit = typeof input['limit'] === 'number' ? input['limit'] : 10;
+          const limit = Math.min(25, Math.max(1, Math.floor(rawLimit)));
+
+          if (!query && !status && !assignee && !issueType && !project && !label) {
+            return {
+              nextState: state,
+              message: 'Provide at least one of: query, status, assignee, issueType, project, label.',
+              isError: true,
+            };
+          }
+
+          const conditions: SQL[] = [];
+          if (status) conditions.push(eq(ticketsCache.status, status));
+          if (issueType) conditions.push(eq(ticketsCache.issueType, issueType));
+          if (project) conditions.push(eq(ticketsCache.projectKey, project));
+          if (assignee) {
+            const a = `%${assignee}%`;
+            const cond = or(
+              ilike(ticketsCache.assigneeName, a),
+              ilike(ticketsCache.assigneeEmail, a)
+            );
+            if (cond) conditions.push(cond);
+          }
+          if (label) {
+            // labels is a jsonb array; ? operator checks "contains key/element"
+            conditions.push(sql`${ticketsCache.labels} ?? ${label}`);
+          }
+
+          const baseSelect = {
+            jiraIssueKey: ticketsCache.jiraIssueKey,
+            projectKey: ticketsCache.projectKey,
+            summary: ticketsCache.summary,
+            status: ticketsCache.status,
+            priority: ticketsCache.priority,
+            issueType: ticketsCache.issueType,
+            assigneeName: ticketsCache.assigneeName,
+            assigneeEmail: ticketsCache.assigneeEmail,
+            labels: ticketsCache.labels,
+            jiraUpdated: ticketsCache.jiraUpdated,
+          };
+
+          // Semantic search path: requires Voyage + a textual query + at least
+          // one ticket with an embedding. Falls back to ILIKE if Voyage isn't
+          // configured or there's no query.
+          if (query && this.voyage.isConfigured) {
+            try {
+              const queryVec = await this.voyage.embedText(query, 'query');
+              const distance = cosineDistance(ticketsCache.embedding, queryVec);
+              const where = and(isNotNull(ticketsCache.embedding), ...conditions);
+              const rows = await this.db
+                .select({ ...baseSelect, distance: sql<number>`${distance}`.as('distance') })
+                .from(ticketsCache)
+                .where(where)
+                .orderBy(distance)
+                .limit(limit);
+              return {
+                nextState: state,
+                message: JSON.stringify(rows),
+                toolData: { tickets: rows, mode: 'semantic' },
+                isError: false,
+              };
+            } catch (e) {
+              this.logger.warn(`Voyage embed failed, falling back to ILIKE: ${(e as Error).message}`);
+            }
+          }
+
+          // Keyword / filter-only path
+          if (query) {
+            const q = `%${query}%`;
+            const cond = or(
+              ilike(ticketsCache.summary, q),
+              ilike(ticketsCache.description, q)
+            );
+            if (cond) conditions.push(cond);
+          }
+          const where = conditions.length > 0 ? and(...conditions) : undefined;
           const rows = await this.db
-            .select({
-              jiraIssueKey: ticketsCache.jiraIssueKey,
-              projectKey: ticketsCache.projectKey,
-              summary: ticketsCache.summary,
-              status: ticketsCache.status,
-              issueType: ticketsCache.issueType,
-              assigneeName: ticketsCache.assigneeName,
-            })
+            .select(baseSelect)
             .from(ticketsCache)
-            .where(
-              or(
-                ilike(ticketsCache.summary, `%${query}%`),
-                ilike(ticketsCache.description, `%${query}%`)
-              )
-            )
-            .limit(10);
+            .where(where)
+            .limit(limit);
           return {
             nextState: state,
             message: JSON.stringify(rows),
-            toolData: { tickets: rows },
+            toolData: { tickets: rows, mode: query ? 'keyword' : 'filter' },
             isError: false,
           };
         }
