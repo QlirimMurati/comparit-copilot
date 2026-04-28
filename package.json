@@ -8,7 +8,10 @@
     "start:web": "nx serve web",
     "build": "nx run-many -t build",
     "test": "nx run-many -t test",
-    "lint": "nx run-many -t lint"
+    "lint": "nx run-many -t lint",
+    "index:repo": "ts-node --transpile-only -P apps/api/tsconfig.app.json apps/api/src/index/cli.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "ts-node --transpile-only -P apps/api/tsconfig.app.json apps/api/src/db/run-migrations.ts"
   },
   "private": true,
   "pnpm": {

@@ -6,3 +6,4 @@ export * from './few-shot-examples';
 export * from './prompt-overrides';
 export * from './transcripts';
 export * from './incidents';
+export * from './code-chunks';
