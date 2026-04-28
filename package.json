@@ -93,6 +93,7 @@
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/platform-express": "^10.0.2",
     "@nestjs/platform-socket.io": "^10.4.22",
+    "@nestjs/swagger": "^8.1.1",
     "@nestjs/websockets": "^10.4.22",
     "axios": "^1.6.0",
     "bcryptjs": "^2.4.3",

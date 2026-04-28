@@ -10,6 +10,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
+import {
   DedupService,
   type CheckDuplicateInput,
   type DuplicateCandidate,
@@ -36,6 +42,8 @@ import type {
   UpdateBugReportInput,
 } from './bug-reports.types';
 
+@ApiTags('reports')
+@ApiBearerAuth('jwt')
 @UseGuards(JwtAuthGuard)
 @Controller('reports')
 export class BugReportsController {
@@ -47,6 +55,15 @@ export class BugReportsController {
     private readonly localizer: CodeLocalizerService
   ) {}
 
+  @ApiOperation({ summary: 'List bug reports (filterable)' })
+  @ApiQuery({ name: 'status', required: false })
+  @ApiQuery({ name: 'severity', required: false })
+  @ApiQuery({ name: 'sparte', required: false })
+  @ApiQuery({
+    name: 'mine',
+    required: false,
+    description: 'When `true`, only reports owned by the current user',
+  })
   @Get()
   list(
     @Query('status') status?: string,
@@ -64,11 +81,13 @@ export class BugReportsController {
     return this.reports.list(filter);
   }
 
+  @ApiOperation({ summary: 'Get a single bug report by id' })
   @Get(':id')
   get(@Param('id') id: string): Promise<BugReportRecord> {
     return this.reports.getById(id);
   }
 
+  @ApiOperation({ summary: 'Create a bug report' })
   @Post()
   create(
     @CurrentUser() user: PublicUser,
@@ -78,6 +97,7 @@ export class BugReportsController {
     return this.reports.create(user.id, body);
   }
 
+  @ApiOperation({ summary: 'Update a bug report' })
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -86,21 +106,25 @@ export class BugReportsController {
     return this.reports.update(id, body);
   }
 
+  @ApiOperation({ summary: 'Polish a bug report ticket' })
   @Post(':id/polish')
   polish(@Param('id') id: string): Promise<PolishedTicket> {
     return this.polisher.polish(id);
   }
 
+  @ApiOperation({ summary: 'Generate a test stub for a bug report' })
   @Post(':id/generate-test-stub')
   generateTestStub(@Param('id') id: string): Promise<GeneratedTestStub> {
     return this.testGenerator.generate(id);
   }
 
+  @ApiOperation({ summary: 'Localize the code area for a bug report' })
   @Post(':id/localize')
   localize(@Param('id') id: string): Promise<LocalizationResult> {
     return this.localizer.localize(id);
   }
 
+  @ApiOperation({ summary: 'Check for duplicate bug reports' })
   @Post('check-duplicate')
   async checkDuplicate(
     @Body() body: CheckDuplicateInput

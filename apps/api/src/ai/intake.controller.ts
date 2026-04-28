@@ -9,6 +9,7 @@ import {
   Post,
   Res,
 } from '@nestjs/common';
+import { ApiBasicAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { DRIZZLE, type Database } from '../db/db.module';
 import { bugReports } from '../db/schema';
@@ -29,6 +30,8 @@ import type {
   IntakeStreamEvent,
 } from './intake.types';
 
+@ApiTags('widget-chat')
+@ApiBasicAuth('widget-basic')
 @Controller('widget/chat')
 export class IntakeController {
   private readonly logger = new Logger('IntakeController');
@@ -42,6 +45,11 @@ export class IntakeController {
     private readonly realtime: RealtimeGateway
   ) {}
 
+  @ApiOperation({
+    summary: 'Start a new AI bug-intake chat session',
+    description:
+      'Creates a session and runs the first agent turn. Returns the assistant greeting + initial intake state.',
+  })
   @Post('start')
   async start(@Body() body: ChatStartInput): Promise<ChatStartResult> {
     if (!body.reporterEmail) {
@@ -60,6 +68,10 @@ export class IntakeController {
     };
   }
 
+  @ApiOperation({
+    summary: 'Send a user message to the intake agent',
+    description: 'Runs one agent turn against the existing session.',
+  })
   @Post('message')
   async message(@Body() body: ChatMessageInput): Promise<ChatMessageResult> {
     if (!body.sessionId) throw new BadRequestException('sessionId required');
@@ -76,6 +88,10 @@ export class IntakeController {
     };
   }
 
+  @ApiOperation({
+    summary: 'Stream an intake agent turn as Server-Sent Events',
+    description: 'Same as /message but streams partial tokens + state events.',
+  })
   @Post('message/stream')
   async messageStream(
     @Body() body: ChatMessageInput,
@@ -115,6 +131,11 @@ export class IntakeController {
     }
   }
 
+  @ApiOperation({
+    summary: 'Finalize the intake and create a bug report',
+    description:
+      'Requires `isComplete` intake state (title, description, severity). Marks session as `submitted`.',
+  })
   @Post('submit')
   async submit(@Body() body: ChatSubmitInput): Promise<ChatSubmitResult> {
     if (!body.sessionId) throw new BadRequestException('sessionId required');
