@@ -38,6 +38,14 @@ export interface JiraSyncEventPayload {
   status?: string;
 }
 
+export interface PatternDetectedEventPayload {
+  incidentId: string;
+  isNew: boolean;
+  reportIds: string[];
+  sparte: string | null;
+  severity: string;
+}
+
 @Injectable()
 @WebSocketGateway({
   cors: { origin: true, credentials: true },
@@ -113,6 +121,11 @@ export class RealtimeGateway
     this.server
       .to(`transcript:${payload.sessionId}`)
       .emit('transcript.node_added', payload);
+  }
+
+  emitPatternDetected(payload: PatternDetectedEventPayload): void {
+    if (!this.server) return;
+    this.server.emit('pattern.detected', payload);
   }
 
   /**

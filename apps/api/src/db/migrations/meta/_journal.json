@@ -57,6 +57,13 @@
       "when": 1777373539195,
       "tag": "0007_add_ai_proposed_triage",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1777373916767,
+      "tag": "0008_add_incidents_and_cluster_id",
+      "breakpoints": true
     }
   ]
 }

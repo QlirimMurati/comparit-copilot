@@ -12,6 +12,7 @@ import { DedupService } from './dedup.service';
 import { EmbedQueueService } from './embed.queue';
 import { EmbedWorker } from './embed.worker';
 import { FewShotRegistryService } from './few-shot-registry.service';
+import { IncidentDetectorService } from './incident-detector.service';
 import { IntakeAgentService } from './intake-agent.service';
 import { IntakeController } from './intake.controller';
 import { PromptRegistryService } from './prompt-registry.service';
@@ -49,6 +50,7 @@ import { VoyageService } from './voyage.service';
     TriageQueueService,
     DigestService,
     DigestQueueService,
+    IncidentDetectorService,
   ],
   exports: [
     AnthropicService,
@@ -66,6 +68,7 @@ import { VoyageService } from './voyage.service';
     TriageQueueService,
     DigestService,
     DigestQueueService,
+    IncidentDetectorService,
   ],
 })
 export class AiModule {}

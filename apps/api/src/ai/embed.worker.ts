@@ -4,6 +4,7 @@ import {
   Logger,
   OnModuleDestroy,
   OnModuleInit,
+  Optional,
 } from '@nestjs/common';
 import { Worker, type Job } from 'bullmq';
 import { eq } from 'drizzle-orm';
@@ -15,6 +16,7 @@ import {
   getRedisConnection,
   type EmbedReportJobData,
 } from './embed.queue';
+import { IncidentDetectorService } from './incident-detector.service';
 import { VoyageService } from './voyage.service';
 
 @Injectable()
@@ -24,7 +26,8 @@ export class EmbedWorker implements OnModuleInit, OnModuleDestroy {
 
   constructor(
     @Inject(DRIZZLE) private readonly db: Database,
-    private readonly voyage: VoyageService
+    private readonly voyage: VoyageService,
+    @Optional() private readonly incidentDetector?: IncidentDetectorService
   ) {}
 
   onModuleInit(): void {
@@ -81,6 +84,16 @@ export class EmbedWorker implements OnModuleInit, OnModuleDestroy {
       .update(bugReports)
       .set({ embedding, updatedAt: new Date() })
       .where(eq(bugReports.id, reportId));
+
+    if (this.incidentDetector) {
+      try {
+        await this.incidentDetector.checkAndMaybeOpen(reportId);
+      } catch (err) {
+        this.logger.warn(
+          `Incident detector failed for ${reportId}: ${(err as Error).message}`
+        );
+      }
+    }
   }
 
   private composeEmbeddingInput(report: BugReport): string {
