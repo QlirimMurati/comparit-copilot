@@ -38,30 +38,47 @@ export class VoyageService implements OnModuleInit {
     input: string,
     inputType: VoyageInputType = 'document'
   ): Promise<number[]> {
-    return this.embed(input, TEXT_MODEL, inputType);
+    const [vec] = await this.embedBatch([input], TEXT_MODEL, inputType);
+    return vec;
   }
 
   async embedCode(
     input: string,
     inputType: VoyageInputType = 'document'
   ): Promise<number[]> {
-    return this.embed(input, CODE_MODEL, inputType);
+    const [vec] = await this.embedBatch([input], CODE_MODEL, inputType);
+    return vec;
   }
 
-  private async embed(
-    input: string,
+  async embedCodeBatch(
+    inputs: string[],
+    inputType: VoyageInputType = 'document'
+  ): Promise<number[][]> {
+    return this.embedBatch(inputs, CODE_MODEL, inputType);
+  }
+
+  async embedTextBatch(
+    inputs: string[],
+    inputType: VoyageInputType = 'document'
+  ): Promise<number[][]> {
+    return this.embedBatch(inputs, TEXT_MODEL, inputType);
+  }
+
+  private async embedBatch(
+    inputs: string[],
     model: string,
     inputType: VoyageInputType
-  ): Promise<number[]> {
+  ): Promise<number[][]> {
     if (!this.apiKey) {
       throw new Error(
         'Voyage client is not configured (set VOYAGE_API_KEY in .env)'
       );
     }
-    const trimmed = input.trim();
-    if (!trimmed) {
+    const trimmed = inputs.map((i) => i.trim());
+    if (trimmed.some((i) => !i)) {
       throw new Error('Cannot embed empty input');
     }
+    if (trimmed.length === 0) return [];
 
     const response = await fetch(VOYAGE_URL, {
       method: 'POST',
@@ -70,7 +87,7 @@ export class VoyageService implements OnModuleInit {
         Authorization: `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify({
-        input: [trimmed],
+        input: trimmed,
         model,
         input_type: inputType,
         output_dimension: EMBEDDING_DIMENSIONS,
@@ -85,12 +102,19 @@ export class VoyageService implements OnModuleInit {
     }
 
     const json = (await response.json()) as VoyageResponse;
-    const vec = json.data?.[0]?.embedding;
-    if (!Array.isArray(vec) || vec.length !== EMBEDDING_DIMENSIONS) {
+    if (!Array.isArray(json.data) || json.data.length !== trimmed.length) {
       throw new Error(
-        `Voyage returned unexpected embedding shape (length=${vec?.length}, expected=${EMBEDDING_DIMENSIONS})`
+        `Voyage returned unexpected batch shape (got=${json.data?.length}, expected=${trimmed.length})`
       );
     }
-    return vec;
+    const sorted = [...json.data].sort((a, b) => a.index - b.index);
+    return sorted.map((d) => {
+      if (!Array.isArray(d.embedding) || d.embedding.length !== EMBEDDING_DIMENSIONS) {
+        throw new Error(
+          `Voyage returned unexpected embedding shape (length=${d.embedding?.length}, expected=${EMBEDDING_DIMENSIONS})`
+        );
+      }
+      return d.embedding;
+    });
   }
 }

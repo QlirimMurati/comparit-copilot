@@ -64,27 +64,34 @@ export class CodeIndexService {
         .where(eq(codeChunks.sparte, opts.sparte));
     }
 
+    const BATCH_SIZE = 64;
     let inserted = 0;
-    for (const chunk of chunks) {
+    for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
+      const slice = chunks.slice(i, i + BATCH_SIZE);
       try {
-        const embedding = await this.voyage.embedCode(
-          buildEmbeddingText(chunk),
+        const embeddings = await this.voyage.embedCodeBatch(
+          slice.map(buildEmbeddingText),
           'document'
         );
-        await this.db.insert(codeChunks).values({
-          path: chunk.path,
-          sparte: opts.sparte ?? null,
-          symbol: chunk.symbol,
-          kind: chunk.kind,
-          startLine: chunk.startLine,
-          endLine: chunk.endLine,
-          content: chunk.content,
-          embedding,
-        });
-        inserted++;
+        await this.db.insert(codeChunks).values(
+          slice.map((chunk, idx) => ({
+            path: chunk.path,
+            sparte: opts.sparte ?? null,
+            symbol: chunk.symbol,
+            kind: chunk.kind,
+            startLine: chunk.startLine,
+            endLine: chunk.endLine,
+            content: chunk.content,
+            embedding: embeddings[idx],
+          }))
+        );
+        inserted += slice.length;
+        this.logger.log(
+          `Indexed ${inserted}/${chunks.length} chunks (batch +${slice.length})`
+        );
       } catch (err) {
         this.logger.warn(
-          `Failed to embed/persist chunk ${chunk.path}:${chunk.startLine}: ${(err as Error).message}`
+          `Failed batch ${i}-${i + slice.length}: ${(err as Error).message}`
         );
       }
     }
