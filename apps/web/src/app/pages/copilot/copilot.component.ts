@@ -216,6 +216,8 @@ export class CopilotComponent implements OnInit {
       find_affected_code: 'Locating affected code…',
       decompose_transcript: 'Decomposing transcript…',
       validate_prefill: 'Validating prefill…',
+      lookup_field_rule: 'Looking up field rule…',
+      add_field_synonym: 'Saving synonym…',
     };
     return labels[name] ?? `Running ${name}…`;
   }
