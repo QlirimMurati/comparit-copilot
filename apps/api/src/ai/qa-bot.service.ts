@@ -113,6 +113,7 @@ export class QaBotService {
 
     let assistantText = '';
     const assistantContentForStorage: Anthropic.ContentBlock[] = [];
+    let finishedWithAnswer = false;
 
     for (let loop = 0; loop < MAX_TOOL_LOOPS; loop++) {
       const response = await this.anthropic.client.messages.create({
@@ -134,7 +135,10 @@ export class QaBotService {
         if (block.type === 'text') assistantText += block.text;
       }
 
-      if (response.stop_reason !== 'tool_use') break;
+      if (response.stop_reason !== 'tool_use') {
+        finishedWithAnswer = true;
+        break;
+      }
       apiMessages.push({ role: 'assistant', content: response.content });
 
       const toolResults: Anthropic.Messages.ToolResultBlockParam[] = [];
@@ -148,6 +152,29 @@ export class QaBotService {
         });
       }
       apiMessages.push({ role: 'user', content: toolResults });
+    }
+
+    // If the model exhausted the tool loop without producing a final answer,
+    // run one more turn WITHOUT tools so it must respond in plain text.
+    if (!finishedWithAnswer) {
+      const final = await this.anthropic.client.messages.create({
+        model: MODEL,
+        max_tokens: 2048,
+        system: [
+          {
+            type: 'text',
+            text:
+              SYSTEM +
+              '\n\nThe research phase is over — answer the user now in plain text using only what you have already gathered. No more tool calls.',
+            cache_control: { type: 'ephemeral' },
+          },
+        ],
+        messages: apiMessages,
+      });
+      for (const block of final.content) {
+        assistantContentForStorage.push(block);
+        if (block.type === 'text') assistantText += block.text;
+      }
     }
 
     await this.sessions.appendMessage({
