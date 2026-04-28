@@ -6,6 +6,8 @@ import type {
   CopilotMessageRecord,
   CopilotSessionSummary,
   CopilotStreamEvent,
+  JiraPushPreview,
+  JiraPushResult,
 } from './copilot.types';
 
 @Injectable({ providedIn: 'root' })
@@ -27,6 +29,23 @@ export class CopilotService {
   getMessages(sessionId: string): Observable<CopilotMessageRecord[]> {
     return this.http.get<CopilotMessageRecord[]>(
       `/api/copilot/sessions/${sessionId}/messages`
+    );
+  }
+
+  previewJiraPush(reportId: string): Observable<JiraPushPreview> {
+    return this.http.post<JiraPushPreview>(
+      `/api/reports/${reportId}/push-to-jira/preview`,
+      {}
+    );
+  }
+
+  confirmJiraPush(
+    reportId: string,
+    previewHash: string
+  ): Observable<JiraPushResult> {
+    return this.http.post<JiraPushResult>(
+      `/api/reports/${reportId}/push-to-jira/confirm`,
+      { previewHash }
     );
   }
 

@@ -116,8 +116,10 @@ export class CodeIndexService {
     const distance = cosineDistance(codeChunks.embedding, queryVec);
 
     const baseWhere = isNotNull(codeChunks.embedding);
+    // When a sparte filter is provided, also include null-sparte chunks
+    // (shared infra/components) — those frequently contain the affected code.
     const where = input.sparte
-      ? sql`${baseWhere} AND ${eq(codeChunks.sparte, input.sparte)}`
+      ? sql`${baseWhere} AND (${codeChunks.sparte} = ${input.sparte} OR ${codeChunks.sparte} IS NULL)`
       : baseWhere;
 
     const rows = await this.db

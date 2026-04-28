@@ -71,6 +71,107 @@
                         <a class="report-link" [routerLink]="['/reports', asBugSubmit(tr.data).reportId]">
                           View report →
                         </a>
+
+                        @let push = jiraPushFor(asBugSubmit(tr.data).reportId);
+                        @switch (push.stage) {
+                          @case ('idle') {
+                            <div class="action-row">
+                              <button
+                                class="action-btn primary"
+                                (click)="startJiraPush(asBugSubmit(tr.data).reportId)"
+                              >
+                                ↗ Create Jira ticket
+                              </button>
+                              <button
+                                class="action-btn ghost"
+                                (click)="keepAsReport(asBugSubmit(tr.data).reportId)"
+                              >
+                                Keep as internal report
+                              </button>
+                            </div>
+                          }
+                          @case ('previewing') {
+                            <div class="action-status">
+                              <span class="spinner"></span>
+                              Building Jira preview…
+                            </div>
+                          }
+                          @case ('preview') {
+                            <div class="jira-preview">
+                              <div class="preview-row">
+                                <span class="preview-label">Project</span>
+                                <span class="preview-value">{{ push.preview.projectKey }}</span>
+                              </div>
+                              <div class="preview-row">
+                                <span class="preview-label">Type</span>
+                                <span class="preview-value">{{ push.preview.issueType }}</span>
+                              </div>
+                              <div class="preview-row">
+                                <span class="preview-label">Summary</span>
+                                <span class="preview-value">{{ push.preview.summary }}</span>
+                              </div>
+                              @if (push.preview.labels.length) {
+                                <div class="preview-row">
+                                  <span class="preview-label">Labels</span>
+                                  <span class="preview-value">
+                                    @for (l of push.preview.labels; track l) {
+                                      <span class="jira-label">{{ l }}</span>
+                                    }
+                                  </span>
+                                </div>
+                              }
+                              <details class="preview-desc">
+                                <summary>Description preview</summary>
+                                <pre>{{ push.preview.description }}</pre>
+                              </details>
+                              @if (push.preview.warning) {
+                                <div class="preview-warning">⚠ {{ push.preview.warning }}</div>
+                              }
+                              <div class="action-row">
+                                <button
+                                  class="action-btn primary"
+                                  (click)="confirmJiraPush(asBugSubmit(tr.data).reportId, push.preview)"
+                                >
+                                  Confirm and push
+                                </button>
+                                <button
+                                  class="action-btn ghost"
+                                  (click)="cancelJiraPush(asBugSubmit(tr.data).reportId)"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          }
+                          @case ('confirming') {
+                            <div class="action-status">
+                              <span class="spinner"></span>
+                              Pushing to Jira…
+                            </div>
+                          }
+                          @case ('pushed') {
+                            <div class="action-success">
+                              ✓ Pushed to Jira:
+                              <a [href]="push.result.jiraIssueUrl" target="_blank" rel="noopener">
+                                {{ push.result.jiraIssueKey }} ↗
+                              </a>
+                            </div>
+                          }
+                          @case ('kept') {
+                            <div class="action-success">
+                              ✓ Kept as internal report only
+                            </div>
+                          }
+                          @case ('error') {
+                            <div class="action-error">
+                              ✗ {{ push.message }}
+                              <button
+                                class="action-btn ghost small"
+                                (click)="cancelJiraPush(asBugSubmit(tr.data).reportId)"
+                              >Retry</button>
+                            </div>
+                          }
+                        }
                       </div>
                     }
                     @case ('check_duplicates') {
@@ -149,13 +250,22 @@
                         @if (asCodeLocalization(tr.data).summary) {
                           <div class="code-summary">{{ asCodeLocalization(tr.data).summary }}</div>
                         }
-                        @for (c of asCodeLocalization(tr.data).candidates; track c.filePath) {
+                        @if (asCodeLocalization(tr.data).candidates.length === 0) {
+                          <div class="empty-result">No code locations identified.</div>
+                        }
+                        @for (c of asCodeLocalization(tr.data).candidates; track c.path + c.startLine) {
                           <div class="code-file">
-                            <span class="code-path">{{ c.filePath }}</span>
+                            <div class="code-line1">
+                              <span class="code-path">{{ c.path }}</span>
+                              <span class="code-lines">L{{ c.startLine }}–{{ c.endLine }}</span>
+                              <span class="code-confidence" [class.conf-high]="c.confidence === 'high'" [class.conf-medium]="c.confidence === 'medium'" [class.conf-low]="c.confidence === 'low'">
+                                {{ c.confidence }}
+                              </span>
+                            </div>
                             @if (c.symbol) {
                               <span class="code-symbol">{{ c.symbol }}</span>
                             }
-                            <span class="code-reason">{{ c.reason }}</span>
+                            <span class="code-reason">{{ c.rationale }}</span>
                           </div>
                         }
                       </div>

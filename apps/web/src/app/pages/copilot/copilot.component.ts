@@ -19,9 +19,20 @@ import type {
   CodeLocalizationData,
   CopilotSessionSummary,
   DuplicateCheckData,
+  JiraPushPreview,
+  JiraPushResult,
   JiraSearchData,
   TranscriptData,
 } from '../../core/api/copilot.types';
+
+type JiraPushFlowState =
+  | { stage: 'idle' }
+  | { stage: 'previewing' }
+  | { stage: 'preview'; preview: JiraPushPreview }
+  | { stage: 'confirming'; preview: JiraPushPreview }
+  | { stage: 'kept' }
+  | { stage: 'pushed'; result: JiraPushResult }
+  | { stage: 'error'; message: string };
 
 @Component({
   selector: 'app-copilot',
@@ -47,6 +58,7 @@ export class CopilotComponent implements OnInit {
   protected readonly streamingToolResults = signal<{ toolName: string; data: unknown }[]>([]);
   protected readonly error = signal<string | null>(null);
   protected readonly loadingHistory = signal(false);
+  protected readonly jiraPush = signal<Record<string, JiraPushFlowState>>({});
   protected inputText = '';
 
   protected readonly showSuggestions = computed(
@@ -257,5 +269,50 @@ export class CopilotComponent implements OnInit {
 
   protected asCodeLocalization(data: unknown): CodeLocalizationData {
     return data as CodeLocalizationData;
+  }
+
+  protected jiraPushFor(reportId: string): JiraPushFlowState {
+    return this.jiraPush()[reportId] ?? { stage: 'idle' };
+  }
+
+  private setJiraPush(reportId: string, state: JiraPushFlowState): void {
+    this.jiraPush.update((m) => ({ ...m, [reportId]: state }));
+  }
+
+  protected startJiraPush(reportId: string): void {
+    this.setJiraPush(reportId, { stage: 'previewing' });
+    this.api.previewJiraPush(reportId).subscribe({
+      next: (preview) => this.setJiraPush(reportId, { stage: 'preview', preview }),
+      error: (err) =>
+        this.setJiraPush(reportId, {
+          stage: 'error',
+          message: this.errMsg(err, 'Preview failed'),
+        }),
+    });
+  }
+
+  protected confirmJiraPush(reportId: string, preview: JiraPushPreview): void {
+    this.setJiraPush(reportId, { stage: 'confirming', preview });
+    this.api.confirmJiraPush(reportId, preview.previewHash).subscribe({
+      next: (result) => this.setJiraPush(reportId, { stage: 'pushed', result }),
+      error: (err) =>
+        this.setJiraPush(reportId, {
+          stage: 'error',
+          message: this.errMsg(err, 'Confirm failed'),
+        }),
+    });
+  }
+
+  protected cancelJiraPush(reportId: string): void {
+    this.setJiraPush(reportId, { stage: 'idle' });
+  }
+
+  protected keepAsReport(reportId: string): void {
+    this.setJiraPush(reportId, { stage: 'kept' });
+  }
+
+  private errMsg(err: unknown, fallback: string): string {
+    const e = err as { error?: { message?: string }; message?: string };
+    return e?.error?.message ?? e?.message ?? fallback;
   }
 }

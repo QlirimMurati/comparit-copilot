@@ -65,7 +65,31 @@ export interface TranscriptData {
 
 export interface CodeLocalizationData {
   summary: string;
-  candidates: Array<{ filePath: string; symbol?: string; reason: string; confidence: number }>;
+  generatedAt?: string;
+  candidates: Array<{
+    path: string;
+    symbol: string | null;
+    startLine: number;
+    endLine: number;
+    confidence: 'high' | 'medium' | 'low';
+    rationale: string;
+  }>;
+}
+
+export interface JiraPushPreview {
+  reportId: string;
+  projectKey: string;
+  issueType: string;
+  summary: string;
+  description: string;
+  labels: string[];
+  previewHash: string;
+  warning: string;
+}
+
+export interface JiraPushResult {
+  jiraIssueKey: string;
+  jiraIssueUrl: string;
 }
 
 // Rendered message in the chat (combines streamed events into discrete items)
