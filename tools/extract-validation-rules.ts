@@ -12,6 +12,14 @@ const SHARED_HELPER_GLOBS = [
   `${PROTOTYPE_ROOT}/libs/comparer/src/lib/**/validators*.ts`,
   `${PROTOTYPE_ROOT}/libs/altersvorsorge/src/lib/helper-methods/manage-step-forms.ts`,
   `${PROTOTYPE_ROOT}/libs/kv/src/lib/helpers/pflegegrad-validation.ts`,
+  // Cross-sparte enum models so the extractor can resolve enum values
+  `${PROTOTYPE_ROOT}/libs/comparer/src/lib/comparer-interfaces/*-enum.model.ts`,
+  `${PROTOTYPE_ROOT}/libs/comparer/src/lib/csi-interfaces-kfz/kfz-enums.model.ts`,
+  `${PROTOTYPE_ROOT}/libs/comparer/src/lib/enums/*.ts`,
+  `${PROTOTYPE_ROOT}/libs/altersvorsorge/src/lib/**/*-enum.model.ts`,
+  `${PROTOTYPE_ROOT}/libs/kv/src/lib/**/*-enum.model.ts`,
+  `${PROTOTYPE_ROOT}/libs/lv/src/lib/**/*-enum.model.ts`,
+  `${PROTOTYPE_ROOT}/libs/sach/src/lib/**/*-enum.model.ts`,
 ];
 
 const SPARTE_TO_APP: Record<string, string> = {
@@ -37,6 +45,9 @@ const FORM_FILE_GLOBS = (app: string): string[] => [
   `${PROTOTYPE_ROOT}/apps/${app}/src/app/classes/*form-manager*.ts`,
   `${PROTOTYPE_ROOT}/apps/${app}/src/app/classes/*idd-form*.ts`,
   `${PROTOTYPE_ROOT}/apps/${app}/src/app/services/ValidationHelper.ts`,
+  // Per-app enum models so the extractor sees the literal enum values
+  `${PROTOTYPE_ROOT}/apps/${app}/src/app/interfaces/**/*-enum.model.ts`,
+  `${PROTOTYPE_ROOT}/apps/${app}/src/app/constants/**/*.ts`,
 ];
 
 const PROMPT = `You are extracting validation rules from Angular reactive-form code.

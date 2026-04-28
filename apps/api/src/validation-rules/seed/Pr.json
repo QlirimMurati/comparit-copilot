@@ -9,16 +9,17 @@
       }
     ],
     "enumValues": [
-      "Aufgeschobene Rente",
+      "AufgeschobeneRente",
       "Sofortbeginnend",
       "Kindertarif"
     ],
-    "humanRule": "Tarifart ist Pflicht und muss einer der erlaubten Werte (Aufgeschobene Rente, Sofortbeginnend, Kindertarif) sein.",
+    "humanRule": "Tarifart ist erforderlich (Aufgeschobene Rente, Sofortbeginnend oder Kindertarif).",
     "synonyms": [
       "Tarifart",
+      "Tariftyp",
       "tariff type",
       "Vertragsart",
-      "product type"
+      "Rentenart"
     ]
   },
   {
@@ -35,27 +36,25 @@
       },
       {
         "kind": "minDate",
-        "value": "today-70y",
-        "message": "Datum darf nicht weiter als 70 Jahre in der Vergangenheit liegen"
+        "value": "today-70y"
       },
       {
         "kind": "maxDate",
-        "value": "today",
-        "message": "Datum darf nicht in der Zukunft liegen"
+        "value": "today"
       },
       {
         "kind": "custom",
-        "message": "minAgeAtContractValidator/maxAgeAtContractValidator (depending on tarifArt; Kindertarif uses maxAge)"
+        "message": "minAgeAtContractValidator or maxAgeAtContractValidator (Kindertarif)"
       }
     ],
     "enumValues": null,
-    "humanRule": "Geburtsdatum ist Pflicht, muss ein gültiges Datum sein, darf nicht in der Zukunft liegen und nicht mehr als 70 Jahre zurückliegen; abhängig von der Tarifart muss bei Vertragsbeginn ein Mindest- bzw. Höchstalter eingehalten werden.",
+    "humanRule": "Geburtsdatum ist erforderlich, muss ein gültiges Datum sein, darf nicht mehr als 70 Jahre in der Vergangenheit oder in der Zukunft liegen; bei Kindertarif gilt eine Höchstaltersprüfung zum Vertragsbeginn, sonst eine Mindestaltersprüfung.",
     "synonyms": [
       "Geburtsdatum",
-      "date of birth",
       "DOB",
-      "Geburtstag",
-      "birthdate"
+      "date of birth",
+      "Birthday",
+      "Geburtstag"
     ]
   },
   {
@@ -68,11 +67,11 @@
       }
     ],
     "enumValues": [
-      "Männlich",
+      "Maennlich",
       "Weiblich",
       "Divers"
     ],
-    "humanRule": "Geschlecht ist Pflicht und muss einer der GeschlechtEnum-Werte sein.",
+    "humanRule": "Geschlecht ist erforderlich (Männlich, Weiblich oder Divers).",
     "synonyms": [
       "Geschlecht",
       "gender",
@@ -93,9 +92,8 @@
         "message": "dateValidator"
       },
       {
-        "kind": "minDate",
-        "value": "firstOfNextMonth-3m",
-        "message": "minStartOfContractDateValidator"
+        "kind": "custom",
+        "message": "minStartOfContractDateValidator (firstOfNextMonth - 3 months)"
       },
       {
         "kind": "maxDate",
@@ -103,13 +101,13 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Vertragsbeginn ist Pflicht, muss ein gültiges Datum sein, frühestens drei Monate vor dem ersten des nächsten Monats und höchstens ein Jahr in der Zukunft.",
+    "humanRule": "Vertragsbeginn ist erforderlich, muss ein gültiges Datum sein, darf nicht weiter als 3 Monate vor dem Ersten des Folgemonats liegen und höchstens 1 Jahr in der Zukunft.",
     "synonyms": [
       "Vertragsbeginn",
       "contract start",
       "Versicherungsbeginn",
-      "start date",
-      "policy start"
+      "Beginn",
+      "start date"
     ]
   },
   {
@@ -130,16 +128,17 @@
       },
       {
         "kind": "custom",
-        "message": "dynamic min set to current age + 2 based on Geburtsdatum and Vertragsbeginn"
+        "message": "dynamicMinAge (geburtsdatum + vertragsbeginn + 2 Jahre)"
       }
     ],
     "enumValues": null,
-    "humanRule": "Rentenbeginn zum Alter ist Pflicht, standardmäßig zwischen 62 und 99 Jahre und mindestens 2 Jahre über dem aktuellen Alter zum Vertragsbeginn.",
+    "humanRule": "Rentenbeginn-Alter ist erforderlich, mindestens 62 (bzw. dynamisch Alter bei Vertragsbeginn + 2) und höchstens 99 Jahre.",
     "synonyms": [
-      "Rentenbeginn Alter",
+      "Rentenbeginn-Alter",
+      "Renteneintrittsalter",
       "retirement age",
-      "Pensionsalter",
-      "age at retirement"
+      "Rentenalter",
+      "Rentenbeginn"
     ]
   },
   {
@@ -149,30 +148,30 @@
     "validators": [
       {
         "kind": "custom",
-        "message": "disabled control, computed from Geburtsdatum, Alter und Monatsgenau"
+        "message": "disabled, computed from geburtsdatum + rentenbeginnZumAlter"
       }
     ],
     "enumValues": null,
-    "humanRule": "Rentenbeginn ist ein berechnetes, deaktiviertes Datum auf Basis von Geburtsdatum, Rentenbeginn-Alter und der Option Monatsgenau.",
+    "humanRule": "Rentenbeginn-Datum wird automatisch berechnet (deaktiviertes Feld).",
     "synonyms": [
       "Rentenbeginn",
       "retirement start",
-      "pension start date",
-      "Rentenstart"
+      "Renteneintritt",
+      "pension start"
     ]
   },
   {
     "fieldPath": "monatsgenau",
-    "label": "Monatsgenau",
+    "label": "Monatsgenauer Rentenbeginn",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Monatsgenau ist ein optionales Boolean-Flag (Standard true), das die Berechnung des Rentenbeginns monatsgenau vornimmt.",
+    "humanRule": "Optionaler Schalter: Monatsgenauer Rentenbeginn (Vertrag endet genau zum Geburtstag).",
     "synonyms": [
-      "monatsgenau",
-      "monthly accurate",
-      "exact month",
-      "Monatsgenauigkeit"
+      "Monatsgenau",
+      "monatsgenauer Rentenbeginn",
+      "exact month retirement",
+      "monthly precise"
     ]
   },
   {
@@ -181,12 +180,12 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Abgekürzte Beitragszahlungsdauer ist ein optionales Boolean-Flag (Standard false).",
+    "humanRule": "Optionaler Schalter, ob die Beitragszahlungsdauer kürzer als die Vertragsdauer ist.",
     "synonyms": [
-      "abgekürzte Beitragszahlung",
-      "shortened premium payment",
-      "abbreviated premium term",
-      "ABZD"
+      "Abgekürzte Beitragszahlungsdauer",
+      "kurze Beitragszahlung",
+      "shortened payment period",
+      "BZD"
     ]
   },
   {
@@ -207,12 +206,12 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Beitragszahlung bis Alter ist Pflicht und muss zwischen 15 und 75 Jahren liegen.",
+    "humanRule": "Beitragszahlung bis Alter ist erforderlich, zwischen 15 und 75 Jahren.",
     "synonyms": [
       "Beitragszahlung bis Alter",
-      "premium payment until age",
-      "Zahlungsdauer Alter",
-      "BZ-Alter"
+      "Endalter Beitragszahlung",
+      "payment end age",
+      "BZD-Alter"
     ]
   },
   {
@@ -222,16 +221,16 @@
     "validators": [
       {
         "kind": "custom",
-        "message": "disabled, computed date based on Geburtsdatum/Vertragsbeginn/Alter/Monatsgenau"
+        "message": "disabled, computed from geburtsdatum + beitragszahlungBisAlter/rentenbeginnZumAlter"
       }
     ],
     "enumValues": null,
-    "humanRule": "Beitragszahlung bis ist ein berechnetes, deaktiviertes Datum auf Basis von Geburtsdatum, Vertragsbeginn, Beitragszahlungs-Alter und Monatsgenau.",
+    "humanRule": "Datum, bis zu dem Beiträge gezahlt werden (automatisch berechnet, deaktiviert).",
     "synonyms": [
       "Beitragszahlung bis",
-      "premium payment until",
-      "end of premium payment",
-      "Zahlungsende"
+      "Endedatum Beitragszahlung",
+      "payment end date",
+      "BZD-Datum"
     ]
   },
   {
@@ -244,17 +243,16 @@
       }
     ],
     "enumValues": [
+      "GarantierteRente",
       "Beitrag",
-      "Einmalbeitrag",
-      "Rente"
+      "Einmalbeitrag"
     ],
-    "humanRule": "Vorgabewunsch ist Pflicht und muss einem der erlaubten Werte (Beitrag, Einmalbeitrag, Rente) entsprechen.",
+    "humanRule": "Vorgabewunsch ist erforderlich (z. B. Beitrag, Garantierte Rente oder Einmalbeitrag).",
     "synonyms": [
       "Vorgabewunsch",
-      "preference",
-      "input mode",
-      "calculation basis",
-      "Berechnungsbasis"
+      "Berechnungsvorgabe",
+      "calculation preference",
+      "Wunsch"
     ]
   },
   {
@@ -267,18 +265,19 @@
       }
     ],
     "enumValues": [
+      "Jaehrlich",
+      "Halbjaehrlich",
+      "Vierteljaehrlich",
       "Monatlich",
-      "Vierteljährlich",
-      "Halbjährlich",
-      "Jährlich",
       "Einmalig"
     ],
-    "humanRule": "Zahlungsweise ist Pflicht und muss einer der PrZahlungsweiseEnum-Werte sein.",
+    "humanRule": "Zahlungsweise ist erforderlich (jährlich, halbjährlich, vierteljährlich, monatlich oder einmalig).",
     "synonyms": [
       "Zahlungsweise",
-      "payment frequency",
       "Zahlweise",
-      "payment mode"
+      "payment frequency",
+      "payment mode",
+      "Beitragszahlweise"
     ]
   },
   {
@@ -296,17 +295,17 @@
       {
         "kind": "max",
         "value": 10000,
-        "message": "max 10000 für Beitrag/Rente, 1000000 für Einmalbeitrag"
+        "message": "10000 für Beitrag/sonst, 1000000 für Einmalbeitrag"
       }
     ],
     "enumValues": null,
-    "humanRule": "Der Betrag zum Vorgabewunsch ist Pflicht, mindestens 1 und maximal 10.000 (bzw. 1.000.000 bei Einmalbeitrag).",
+    "humanRule": "Betrag zum Vorgabewunsch ist erforderlich, mindestens 1; Höchstwert 10.000 (bzw. 1.000.000 bei Einmalbeitrag).",
     "synonyms": [
       "Vorgabewunsch Betrag",
-      "desired amount",
-      "Beitragswunsch",
+      "Beitrag",
+      "Wunschbetrag",
       "target amount",
-      "Wunschbetrag"
+      "monatlicher Beitrag"
     ]
   },
   {
@@ -319,18 +318,25 @@
       }
     ],
     "enumValues": [
-      "keine",
-      "1%",
-      "2%",
-      "3%",
-      "5%"
+      "Keine",
+      "Percent1",
+      "Percent2",
+      "Percent3",
+      "Percent4",
+      "Percent5",
+      "Percent6",
+      "Percent7",
+      "Percent8",
+      "Percent9",
+      "Percent10"
     ],
-    "humanRule": "Inflationsschutz ist Pflicht (sofern aktiv) und muss einem der AltersvorsorgeInflationsschutzEnum-Werte entsprechen.",
+    "humanRule": "Inflationsschutz (Beitragsdynamik) ist erforderlich, von keine bis 10%.",
     "synonyms": [
       "Inflationsschutz",
-      "inflation protection",
       "Beitragsdynamik",
-      "dynamic increase"
+      "Dynamik",
+      "inflation protection",
+      "Dynamiksatz"
     ]
   },
   {
@@ -343,17 +349,19 @@
       }
     ],
     "enumValues": [
-      "keine",
-      "1%",
-      "2%",
-      "3%"
+      "Keine",
+      "Percent1",
+      "Percent2",
+      "Percent3",
+      "Percent4",
+      "Percent5"
     ],
-    "humanRule": "Garantierte Rentensteigerung ist Pflicht und muss einem der erlaubten Enum-Werte entsprechen.",
+    "humanRule": "Garantierte Rentensteigerung ist erforderlich (keine bis 5%).",
     "synonyms": [
-      "garantierte Rentensteigerung",
+      "Garantierte Rentensteigerung",
+      "Rentendynamik",
       "guaranteed pension increase",
-      "Rentensteigerung",
-      "annuity increase"
+      "Rentenanpassung"
     ]
   },
   {
@@ -367,31 +375,32 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Zusätzliche Einmalzahlung zu Beginn ist optional und darf maximal 1.000.000 betragen.",
+    "humanRule": "Optionale zusätzliche Einmalzahlung zu Vertragsbeginn, höchstens 1.000.000 €.",
     "synonyms": [
       "Einmalzahlung",
-      "lump sum",
       "Zuzahlung",
-      "initial lump sum",
-      "Einmalbeitrag zu Beginn"
+      "one-time payment",
+      "Einmalbeitrag Beginn",
+      "Initialbeitrag"
     ]
   },
   {
     "fieldPath": "absicherungTodesfall",
-    "label": "Absicherung im Todesfall",
+    "label": "Absicherung Todesfall",
     "type": "enum",
     "validators": [],
     "enumValues": [
-      "Mindestens Auszahlung des Vertragsguthabens",
-      "Beitragsrückgewähr",
-      "Keine"
+      "KeineTodesfallleistung",
+      "MindestensAuszahlungVertraguthabens",
+      "MindestensRueckzahlungEingezahltenBeitraege",
+      "MaximumEingezahltenBeitraegenVertragsguthaben"
     ],
-    "humanRule": "Absicherung im Todesfall ist optional und muss einem der AltersvorsorgeAbsicherungTodesfallEnum-Werte entsprechen.",
+    "humanRule": "Wahl der Todesfall-Absicherung (z. B. keine, Vertragsguthaben oder eingezahlte Beiträge).",
     "synonyms": [
       "Absicherung Todesfall",
+      "Todesfallabsicherung",
       "death benefit coverage",
-      "Hinterbliebenenschutz",
-      "death protection"
+      "Hinterbliebenenschutz"
     ]
   },
   {
@@ -404,16 +413,16 @@
       }
     ],
     "enumValues": [
-      "keine",
-      "Beitragsrückgewähr",
-      "Rentengarantiezeit"
+      "Keine",
+      "Rentengarantiezeit",
+      "Kapitalrueckgewaehr"
     ],
-    "humanRule": "Todesfallleistung ist Pflicht und muss einem der AltersvorsorgeTodesfallleistungEnum-Werte entsprechen.",
+    "humanRule": "Todesfallleistung ist erforderlich (keine, Rentengarantiezeit oder Kapitalrückgewähr).",
     "synonyms": [
       "Todesfallleistung",
       "death benefit",
-      "Leistung im Todesfall",
-      "death payout"
+      "Hinterbliebenenleistung",
+      "Todesfall"
     ]
   },
   {
@@ -426,18 +435,19 @@
       }
     ],
     "enumValues": [
-      "5 Jahre",
-      "10 Jahre",
-      "15 Jahre",
-      "20 Jahre"
+      "Value5",
+      "Value10",
+      "Value15",
+      "Value20",
+      "Value25",
+      "Value30"
     ],
-    "humanRule": "Rentengarantiezeit ist Pflicht (Default 10 Jahre) und muss einem der erlaubten Enum-Werte entsprechen.",
+    "humanRule": "Rentengarantiezeit ist erforderlich (5 bis 30 Jahre).",
     "synonyms": [
       "Rentengarantiezeit",
-      "annuity guarantee period",
-      "Garantiezeit",
-      "guarantee period",
-      "RGZ"
+      "RGZ",
+      "pension guarantee period",
+      "Garantiezeit"
     ]
   },
   {
@@ -450,13 +460,13 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Beitragsbefreiung bei Berufsunfähigkeit ist ein Pflicht-Boolean (Standard false).",
+    "humanRule": "Schalter für Beitragsbefreiung bei Berufsunfähigkeit (BUZ) ist erforderlich.",
     "synonyms": [
-      "Beitragsbefreiung BU",
-      "BU waiver",
-      "occupational disability waiver",
+      "Beitragsbefreiung Berufsunfähigkeit",
       "BUZ",
-      "premium waiver"
+      "BU-Zusatz",
+      "waiver of premium",
+      "BBU"
     ]
   },
   {
@@ -470,29 +480,36 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Vertragsablauf-Alter muss eine gültige Dezimalzahl im erlaubten Wertebereich sein.",
+    "humanRule": "Alter bei Vertragsablauf, muss im gültigen Dezimalzahlenbereich liegen.",
     "synonyms": [
-      "Vertragsablauf",
+      "Vertragsablauf Alter",
+      "Endalter",
       "contract end age",
-      "Ablaufalter",
-      "policy end age"
+      "Ablaufalter"
     ]
   },
   {
     "fieldPath": "altersvorsorge.versorgungenAltersvorsorge",
-    "label": "Versorgungen Altersvorsorge",
+    "label": "Vorhandene Altersvorsorge",
     "type": "enum",
-    "validators": [],
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "atLeastOneSelectedValidatorAltersvorsorge"
+      }
+    ],
     "enumValues": [
       "Ja",
-      "Nein"
+      "Nein",
+      "keineAngabe"
     ],
-    "humanRule": "Gibt an, ob bestehende Altersvorsorge-Versorgungen vorliegen (Ja/Nein).",
+    "humanRule": "Angabe, ob Altersvorsorge-Versorgungen vorhanden sind; bei Ja muss mindestens eine Vorsorgeart ausgewählt sein.",
     "synonyms": [
+      "Altersvorsorge vorhanden",
+      "existing pension",
       "Versorgungen",
-      "existing pension provisions",
-      "bestehende Altersvorsorge",
-      "retirement provisions"
+      "Vorsorge",
+      "Rentenvorsorge"
     ]
   },
   {
@@ -501,12 +518,12 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox 'gesetzliche Rentenversicherung'; mindestens eine Altersvorsorge-Option muss gewählt sein, wenn Versorgungen=Ja.",
+    "humanRule": "Checkbox: gesetzliche Rentenversicherung vorhanden.",
     "synonyms": [
+      "Gesetzliche Rentenversicherung",
       "GRV",
-      "gesetzliche Rente",
       "statutory pension",
-      "public pension"
+      "Rentenversicherung"
     ]
   },
   {
@@ -515,11 +532,12 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox 'Beamtenversorgung'; gehört zur Mindestauswahl, wenn Versorgungen=Ja.",
+    "humanRule": "Checkbox: Beamtenversorgung vorhanden.",
     "synonyms": [
       "Beamtenversorgung",
+      "Pension",
       "civil servant pension",
-      "Pension Beamte"
+      "Beamtenpension"
     ]
   },
   {
@@ -528,10 +546,11 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox 'berufsständisches Versorgungswerk'; gehört zur Mindestauswahl, wenn Versorgungen=Ja.",
+    "humanRule": "Checkbox: Mitgliedschaft in einem berufsständischen Versorgungswerk.",
     "synonyms": [
       "Versorgungswerk",
-      "professional pension fund",
+      "Berufsständisches Versorgungswerk",
+      "professional pension scheme",
       "BVW"
     ]
   },
@@ -541,12 +560,12 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox 'Basisrente (Rürup)'; gehört zur Mindestauswahl, wenn Versorgungen=Ja.",
+    "humanRule": "Checkbox: Basisrente (Rürup-Rente) vorhanden.",
     "synonyms": [
       "Basisrente",
+      "Rürup",
       "Rürup-Rente",
-      "basic pension",
-      "Rürup"
+      "basic pension"
     ]
   },
   {
@@ -555,7 +574,7 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox 'Riester-Rente'; gehört zur Mindestauswahl, wenn Versorgungen=Ja.",
+    "humanRule": "Checkbox: Riester-Rente vorhanden.",
     "synonyms": [
       "Riester",
       "Riester-Rente",
@@ -568,12 +587,12 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox 'betriebliche Altersversorgung (bAV)'; gehört zur Mindestauswahl, wenn Versorgungen=Ja.",
+    "humanRule": "Checkbox: Betriebliche Altersversorgung (bAV) vorhanden.",
     "synonyms": [
       "bAV",
-      "betriebliche Altersvorsorge",
+      "Betriebliche Altersversorgung",
       "occupational pension",
-      "company pension"
+      "Betriebsrente"
     ]
   },
   {
@@ -582,11 +601,12 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox 'private Rente'; gehört zur Mindestauswahl, wenn Versorgungen=Ja.",
+    "humanRule": "Checkbox: Private Rentenversicherung vorhanden.",
     "synonyms": [
-      "private Rente",
+      "Private Rente",
       "private pension",
-      "Privatrente"
+      "PR",
+      "private Rentenversicherung"
     ]
   },
   {
@@ -596,32 +616,36 @@
     "validators": [
       {
         "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "atLeastOneSelectedValidatorKenntnisse"
       }
     ],
     "enumValues": [
       "Ja",
       "Nein"
     ],
-    "humanRule": "Pflichtangabe, ob der Kunde Kenntnisse zu Versicherungsprodukten hat (Ja/Nein).",
+    "humanRule": "Angabe, ob Kenntnisse vorhanden sind, ist erforderlich; bei Ja muss mindestens eine Produktart ausgewählt sein.",
     "synonyms": [
       "Kenntnisse vorhanden",
       "has knowledge",
-      "Vorkenntnisse",
-      "experience flag"
+      "Erfahrung Kenntnis",
+      "Wissensbestätigung"
     ]
   },
   {
     "fieldPath": "kenntnisse.fondsVersicherung",
-    "label": "Fondsgebundene Versicherung (Kenntnis)",
+    "label": "Fondsgebundene Versicherung (Kenntnisse)",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox Fondsgebundene Versicherung; bei hatKenntnisse=Ja muss mindestens eine Variante ausgewählt sein.",
+    "humanRule": "Checkbox: Kenntnisse zu fondsgebundenen Versicherungen.",
     "synonyms": [
       "Fondsversicherung",
+      "fondsgebundene Versicherung",
       "unit-linked insurance",
-      "Fondspolice",
-      "FLV"
+      "Fondspolice"
     ]
   },
   {
@@ -631,33 +655,31 @@
     "validators": [
       {
         "kind": "custom",
-        "message": "required when hatKenntnisse=Ja and fondsVersicherung checked"
+        "message": "required when hatKenntnisse=Ja and fondsVersicherung=true"
       }
     ],
     "enumValues": [
-      "Grundkenntnisse",
-      "Erweiterte Kenntnisse",
-      "Umfangreiche Kenntnisse"
+      "Basiskenntnisse",
+      "FortgeschritteneKenntnisse"
     ],
-    "humanRule": "Kenntnisstand zur Fondsversicherung ist Pflicht, wenn Kenntnisse=Ja und Checkbox aktiv.",
+    "humanRule": "Kenntnisstand zur Fondsversicherung ist erforderlich, wenn Kenntnisse vorhanden und Fondsversicherung angekreuzt.",
     "synonyms": [
       "Kenntnisstand Fondsversicherung",
-      "unit-linked knowledge level",
-      "Wissensstand FLV"
+      "knowledge level fund",
+      "Fondswissen"
     ]
   },
   {
     "fieldPath": "kenntnisse.aktienFonds",
-    "label": "Aktienfonds (Kenntnis)",
+    "label": "Aktienfonds (Kenntnisse)",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox Aktienfonds; trägt zur Mindestauswahl bei hatKenntnisse=Ja bei.",
+    "humanRule": "Checkbox: Kenntnisse zu Aktienfonds.",
     "synonyms": [
       "Aktienfonds",
       "equity funds",
-      "Aktien",
-      "stock funds"
+      "Stocks fund"
     ]
   },
   {
@@ -667,32 +689,31 @@
     "validators": [
       {
         "kind": "custom",
-        "message": "required when hatKenntnisse=Ja and aktienFonds checked"
+        "message": "required when hatKenntnisse=Ja and aktienFonds=true"
       }
     ],
     "enumValues": [
-      "Grundkenntnisse",
-      "Erweiterte Kenntnisse",
-      "Umfangreiche Kenntnisse"
+      "Basiskenntnisse",
+      "FortgeschritteneKenntnisse"
     ],
-    "humanRule": "Kenntnisstand zu Aktienfonds ist Pflicht, wenn Kenntnisse=Ja und Checkbox aktiv.",
+    "humanRule": "Kenntnisstand zu Aktienfonds ist erforderlich, wenn Kenntnisse vorhanden und Aktienfonds angekreuzt.",
     "synonyms": [
       "Kenntnisstand Aktienfonds",
-      "equity fund knowledge",
-      "Wissensstand Aktien"
+      "knowledge level equity",
+      "Aktienwissen"
     ]
   },
   {
     "fieldPath": "kenntnisse.klassischeVersicherung",
-    "label": "Klassische Versicherung (Kenntnis)",
+    "label": "Klassische Versicherung (Kenntnisse)",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox Klassische Versicherung; trägt zur Mindestauswahl bei hatKenntnisse=Ja bei.",
+    "humanRule": "Checkbox: Kenntnisse zu klassischen Versicherungen.",
     "synonyms": [
-      "klassische Versicherung",
-      "classic insurance",
-      "traditionelle Versicherung"
+      "Klassische Versicherung",
+      "traditional insurance",
+      "klassische Police"
     ]
   },
   {
@@ -702,18 +723,17 @@
     "validators": [
       {
         "kind": "custom",
-        "message": "required when hatKenntnisse=Ja and klassischeVersicherung checked"
+        "message": "required when hatKenntnisse=Ja and klassischeVersicherung=true"
       }
     ],
     "enumValues": [
-      "Grundkenntnisse",
-      "Erweiterte Kenntnisse",
-      "Umfangreiche Kenntnisse"
+      "Basiskenntnisse",
+      "FortgeschritteneKenntnisse"
     ],
-    "humanRule": "Kenntnisstand zur klassischen Versicherung ist Pflicht, wenn Kenntnisse=Ja und Checkbox aktiv.",
+    "humanRule": "Kenntnisstand zur klassischen Versicherung ist erforderlich, wenn Kenntnisse vorhanden und Checkbox aktiviert.",
     "synonyms": [
-      "Kenntnisstand klassisch",
-      "classic insurance knowledge"
+      "Kenntnisstand klassische Versicherung",
+      "knowledge level traditional"
     ]
   },
   {
@@ -723,106 +743,57 @@
     "validators": [
       {
         "kind": "required"
+      },
+      {
+        "kind": "custom",
+        "message": "atLeastOneSelectedValidatorErfahrungen"
       }
     ],
     "enumValues": [
       "Ja",
       "Nein"
     ],
-    "humanRule": "Pflichtangabe, ob der Kunde bereits Erfahrungen mit Versicherungsprodukten hat.",
+    "humanRule": "Angabe, ob Erfahrungen vorhanden sind, ist erforderlich; bei Ja muss mindestens eine Produktart geprüft sein.",
     "synonyms": [
       "Erfahrung vorhanden",
       "has experience",
-      "Vorerfahrung"
+      "Erfahrungsbestätigung"
     ]
   },
   {
-    "fieldPath": "erfahrungen.fondsVersicherung.geprueft",
+    "fieldPath": "erfahrungen.fondsVersicherung",
     "label": "Erfahrung Fondsversicherung",
-    "type": "boolean",
+    "type": "string",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox, ob Erfahrung mit Fondsversicherung; bei hatErfahrung=Ja muss mindestens eine Variante markiert sein.",
+    "humanRule": "Gruppe mit geprueft (boolean) und erfahrungsDauer (Bis3Jahre/LaengerAls3Jahre) zur Fondsversicherung.",
     "synonyms": [
-      "Erfahrung FLV",
-      "experience unit-linked",
-      "Fondsversicherung erfahren"
+      "Erfahrung Fondsversicherung",
+      "experience fund insurance"
     ]
   },
   {
-    "fieldPath": "erfahrungen.fondsVersicherung.erfahrungsDauer",
-    "label": "Erfahrungsdauer Fondsversicherung",
-    "type": "enum",
-    "validators": [],
-    "enumValues": [
-      "unter 1 Jahr",
-      "1-3 Jahre",
-      "3-5 Jahre",
-      "über 5 Jahre"
-    ],
-    "humanRule": "Dauer der Erfahrung mit Fondsversicherung gemäß IddErfahrungsDauerEnum.",
-    "synonyms": [
-      "Erfahrungsdauer FLV",
-      "experience duration unit-linked",
-      "Dauer Erfahrung Fonds"
-    ]
-  },
-  {
-    "fieldPath": "erfahrungen.aktienFonds.geprueft",
+    "fieldPath": "erfahrungen.aktienFonds",
     "label": "Erfahrung Aktienfonds",
-    "type": "boolean",
+    "type": "string",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox Erfahrung Aktienfonds; trägt zur Mindestauswahl bei.",
+    "humanRule": "Gruppe mit geprueft (boolean) und erfahrungsDauer (Bis3Jahre/LaengerAls3Jahre) zu Aktienfonds.",
     "synonyms": [
       "Erfahrung Aktienfonds",
-      "experience equity funds"
+      "experience equity"
     ]
   },
   {
-    "fieldPath": "erfahrungen.aktienFonds.erfahrungsDauer",
-    "label": "Erfahrungsdauer Aktienfonds",
-    "type": "enum",
-    "validators": [],
-    "enumValues": [
-      "unter 1 Jahr",
-      "1-3 Jahre",
-      "3-5 Jahre",
-      "über 5 Jahre"
-    ],
-    "humanRule": "Dauer der Erfahrung mit Aktienfonds gemäß IddErfahrungsDauerEnum.",
-    "synonyms": [
-      "Erfahrungsdauer Aktienfonds",
-      "equity fund experience duration"
-    ]
-  },
-  {
-    "fieldPath": "erfahrungen.klassischeVersicherung.geprueft",
+    "fieldPath": "erfahrungen.klassischeVersicherung",
     "label": "Erfahrung klassische Versicherung",
-    "type": "boolean",
+    "type": "string",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox Erfahrung klassische Versicherung; trägt zur Mindestauswahl bei.",
+    "humanRule": "Gruppe mit geprueft (boolean) und erfahrungsDauer (Bis3Jahre/LaengerAls3Jahre) zur klassischen Versicherung.",
     "synonyms": [
-      "Erfahrung klassisch",
-      "classic insurance experience"
-    ]
-  },
-  {
-    "fieldPath": "erfahrungen.klassischeVersicherung.erfahrungsDauer",
-    "label": "Erfahrungsdauer klassische Versicherung",
-    "type": "enum",
-    "validators": [],
-    "enumValues": [
-      "unter 1 Jahr",
-      "1-3 Jahre",
-      "3-5 Jahre",
-      "über 5 Jahre"
-    ],
-    "humanRule": "Dauer der Erfahrung mit klassischer Versicherung gemäß IddErfahrungsDauerEnum.",
-    "synonyms": [
-      "Erfahrungsdauer klassisch",
-      "classic insurance experience duration"
+      "Erfahrung klassische Versicherung",
+      "experience traditional"
     ]
   },
   {
@@ -835,23 +806,27 @@
       }
     ],
     "enumValues": [
-      "Angestellte/r",
-      "Selbstständig",
-      "Beamte/r",
-      "Arbeiter/in",
-      "Rentner/in",
-      "Schüler/in",
-      "Student/in",
-      "Hausfrau/-mann",
-      "Arbeitslos",
-      "Sonstiges"
+      "Angestellter",
+      "AngestellterImOeffentlichenDienst",
+      "Auszubildender",
+      "BeamterAufLebenszeit",
+      "BeamterAufWiderruf",
+      "BeamterAufProbe",
+      "Freiberufler",
+      "HausFrauMann",
+      "Rentner",
+      "Schueler",
+      "Selbststaendiger",
+      "Soldat",
+      "Student",
+      "UnbeschaeftigtNichtErwerbstaetig"
     ],
-    "humanRule": "Berufsstatus ist Pflicht und muss einem der IddBerufsstatusEnum-Werte entsprechen.",
+    "humanRule": "Berufsstatus ist erforderlich.",
     "synonyms": [
       "Berufsstatus",
       "employment status",
-      "Beschäftigungsstatus",
-      "occupation status"
+      "Erwerbsstatus",
+      "Beschäftigungsstatus"
     ]
   },
   {
@@ -868,13 +843,13 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Berufsbezeichnung ist Pflicht und muss mindestens 3 Zeichen lang sein.",
+    "humanRule": "Berufsbezeichnung ist erforderlich und mindestens 3 Zeichen lang.",
     "synonyms": [
       "Berufsbezeichnung",
-      "job title",
       "Beruf",
+      "job title",
       "occupation",
-      "profession"
+      "Tätigkeit"
     ]
   },
   {
@@ -887,20 +862,18 @@
       }
     ],
     "enumValues": [
-      "keine Angabe",
-      "Hauptschulabschluss",
-      "Realschulabschluss",
-      "Abitur",
-      "Berufsausbildung",
-      "Studium",
-      "Promotion"
+      "keineAngabe",
+      "SchulischeAusbildung",
+      "BeruflicheAusbildung",
+      "Studium"
     ],
-    "humanRule": "Höchster Bildungsabschluss ist Pflicht und muss einem der IddBildungsabschlussEnum-Werte entsprechen.",
+    "humanRule": "Höchster Bildungsabschluss ist erforderlich.",
     "synonyms": [
       "Bildungsabschluss",
-      "education level",
       "Schulabschluss",
-      "highest degree"
+      "education level",
+      "Abschluss",
+      "höchster Abschluss"
     ]
   },
   {
@@ -917,12 +890,12 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Monatliches Nettoeinkommen ist Pflicht und muss mindestens 1 betragen.",
+    "humanRule": "Monatliches Nettoeinkommen ist erforderlich und mindestens 1 €.",
     "synonyms": [
       "Nettoeinkommen",
-      "monthly net income",
-      "Netto",
-      "take-home pay"
+      "monatliches Einkommen",
+      "net income",
+      "Nettogehalt"
     ]
   },
   {
@@ -934,18 +907,13 @@
         "kind": "required"
       }
     ],
-    "enumValues": [
-      "Gehalt",
-      "Selbstständigkeit",
-      "Rente",
-      "Kapitalerträge",
-      "Sonstiges"
-    ],
-    "humanRule": "Einkommensherkunft ist Pflicht und muss einem der IddEinkommensHerkunftEnum-Werte entsprechen.",
+    "enumValues": null,
+    "humanRule": "Herkunft des Einkommens ist erforderlich (Werte aus IddEinkommensHerkunftEnum).",
     "synonyms": [
       "Einkommensherkunft",
-      "source of income",
-      "Einkommensquelle"
+      "Einkommensquelle",
+      "income source",
+      "Herkunft Einkommen"
     ]
   },
   {
@@ -958,12 +926,13 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Vermögenswerte sind Pflicht (numerischer Wert).",
+    "humanRule": "Vermögenswerte sind erforderlich.",
     "synonyms": [
+      "Vermögenswerte",
       "Vermögen",
       "assets",
-      "Vermögenswerte",
-      "total assets"
+      "Geldanlagen",
+      "Kapital"
     ]
   },
   {
@@ -976,18 +945,19 @@
       }
     ],
     "enumValues": [
-      "keine Angabe",
-      "unter 5.000 €",
-      "5.000 - 25.000 €",
-      "25.000 - 100.000 €",
-      "über 100.000 €"
+      "keineAngabe",
+      "bis10000",
+      "bis30000",
+      "bis50000",
+      "bis100000",
+      "ueber100000"
     ],
-    "humanRule": "Verfügbares Vermögen ist Pflicht und muss einem der IddVerfuegbaresVermoegenEnum-Werte entsprechen.",
+    "humanRule": "Verfügbares Vermögen ist erforderlich (Spannen bis 10.000 € bis über 100.000 €).",
     "synonyms": [
-      "verfügbares Vermögen",
+      "Verfügbares Vermögen",
       "available assets",
       "liquid assets",
-      "liquide Mittel"
+      "frei verfügbares Vermögen"
     ]
   },
   {
@@ -1000,17 +970,17 @@
       }
     ],
     "enumValues": [
-      "unter 100 €",
-      "100-300 €",
-      "300-500 €",
-      "über 500 €"
+      "bis100",
+      "bis300",
+      "bis500",
+      "ueber500"
     ],
-    "humanRule": "Monatlich verfügbares Einkommen ist Pflicht und muss einem der IddMonatlichVerfuegbarEnum-Werte entsprechen.",
+    "humanRule": "Monatlich verfügbarer Betrag ist erforderlich (bis 100 € bis über 500 €).",
     "synonyms": [
-      "monatlich verfügbar",
-      "monthly disposable",
-      "frei verfügbar",
-      "disposable income"
+      "Monatlich verfügbar",
+      "monthly available",
+      "monatlicher Spielraum",
+      "disposable monthly"
     ]
   },
   {
@@ -1023,17 +993,18 @@
       }
     ],
     "enumValues": [
-      "keine Angabe",
-      "unter 5.000 €",
-      "5.000 - 25.000 €",
-      "25.000 - 100.000 €",
-      "über 100.000 €"
+      "keineAngabe",
+      "bis10000",
+      "bis30000",
+      "bis50000",
+      "bis100000",
+      "ueber100000"
     ],
-    "humanRule": "Einmalig verfügbares Vermögen ist Pflicht (gleiche Werte wie verfügbares Vermögen).",
+    "humanRule": "Einmalig verfügbarer Betrag ist erforderlich.",
     "synonyms": [
-      "einmalig verfügbar",
+      "Einmalig verfügbar",
       "one-time available",
-      "lump sum available",
+      "Einmalvermögen",
       "Einmalbetrag"
     ]
   },
@@ -1047,30 +1018,30 @@
       }
     ],
     "enumValues": [
-      "Altersvorsorge",
-      "Vermögensaufbau",
-      "Kapitalerhalt",
+      "LebenslangeRente",
+      "EinmaligeAuszahlung",
+      "Ausbildung",
       "Sonstiges"
     ],
-    "humanRule": "Anlageziel ist Pflicht und muss einem der IddAnlagezielEnum-Werte entsprechen.",
+    "humanRule": "Anlageziel ist erforderlich.",
     "synonyms": [
       "Anlageziel",
       "investment goal",
       "Sparziel",
-      "investment objective"
+      "Ziel"
     ]
   },
   {
     "fieldPath": "anlageziele.anlagezielSonstiges",
-    "label": "Anlageziel Sonstiges",
+    "label": "Sonstiges Anlageziel",
     "type": "string",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Freitextfeld für ein sonstiges Anlageziel (optional).",
+    "humanRule": "Freitext für sonstiges Anlageziel.",
     "synonyms": [
-      "Anlageziel sonstiges",
-      "other investment goal",
-      "custom goal"
+      "Sonstiges Anlageziel",
+      "other goal",
+      "Anlageziel Freitext"
     ]
   },
   {
@@ -1083,16 +1054,16 @@
       }
     ],
     "enumValues": [
-      "kurzfristig",
-      "mittelfristig",
-      "langfristig"
+      "Langfristig",
+      "Mittelfristig",
+      "Kurzfristig"
     ],
-    "humanRule": "Anlagedauer ist Pflicht und muss einem der IddAnlagedauerEnum-Werte entsprechen.",
+    "humanRule": "Anlagedauer ist erforderlich (kurz-, mittel- oder langfristig).",
     "synonyms": [
       "Anlagedauer",
-      "investment horizon",
       "Laufzeit",
-      "investment duration"
+      "investment horizon",
+      "Anlagehorizont"
     ]
   },
   {
@@ -1105,11 +1076,11 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Bewertung der akzeptierten Wertschwankungen ist Pflicht.",
+    "humanRule": "Bewertung der Toleranz für Wertschwankungen ist erforderlich.",
     "synonyms": [
       "Wertschwankungen",
       "value fluctuations",
-      "volatility tolerance",
+      "Volatilität",
       "Schwankungstoleranz"
     ]
   },
@@ -1123,12 +1094,12 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Bewertung der gewünschten garantierten Leistungen ist Pflicht.",
+    "humanRule": "Bewertung der Wichtigkeit garantierter Leistungen ist erforderlich.",
     "synonyms": [
-      "garantierte Leistungen",
+      "Garantierte Leistungen",
       "guaranteed benefits",
-      "Garantieanteil",
-      "guarantee level"
+      "Garantie",
+      "Sicherheit"
     ]
   },
   {
@@ -1141,12 +1112,12 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Anlegertyp (Risikoneigung) ist Pflicht.",
+    "humanRule": "Anlegertyp ist erforderlich.",
     "synonyms": [
       "Anlegertyp",
-      "investor profile",
-      "Risikotyp",
-      "risk profile"
+      "investor type",
+      "Risikoprofil",
+      "Anlegerprofil"
     ]
   },
   {
@@ -1155,12 +1126,12 @@
     "type": "number",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Untergrenze des Garantieniveaus in der Ansparphase (optional, Standard 0).",
+    "humanRule": "Untere Grenze des akzeptierten Garantieniveaus in der Ansparphase.",
     "synonyms": [
       "Garantieniveau von",
-      "guarantee level from",
-      "minimum guarantee",
-      "Mindestgarantie"
+      "minimum guarantee level",
+      "Mindestgarantie",
+      "Garantie Untergrenze"
     ]
   },
   {
@@ -1169,9 +1140,9 @@
     "type": "number",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Gewünschtes Garantieniveau in der Ansparphase (optional, Standard 0).",
+    "humanRule": "Gewünschtes Garantieniveau in der Ansparphase.",
     "synonyms": [
-      "Garantieniveau gewünscht",
+      "Gewünschtes Garantieniveau",
       "desired guarantee level",
       "Wunschgarantie"
     ]
@@ -1182,12 +1153,11 @@
     "type": "number",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Obergrenze des Garantieniveaus in der Ansparphase (optional, Standard 0).",
+    "humanRule": "Obere Grenze des akzeptierten Garantieniveaus in der Ansparphase.",
     "synonyms": [
       "Garantieniveau bis",
-      "guarantee level to",
-      "maximum guarantee",
-      "Maximalgarantie"
+      "maximum guarantee level",
+      "Garantie Obergrenze"
     ]
   },
   {
@@ -1203,11 +1173,11 @@
       "Ja",
       "Nein"
     ],
-    "humanRule": "Pflichtangabe, ob über Nachhaltigkeitsaspekte informiert wurde.",
+    "humanRule": "Angabe, ob über Nachhaltigkeitsaspekte informiert wurde, ist erforderlich.",
     "synonyms": [
       "Nachhaltigkeitsaspekte informiert",
-      "sustainability aspects informed",
-      "ESG informed"
+      "sustainability informed",
+      "ESG informiert"
     ]
   },
   {
@@ -1217,20 +1187,15 @@
     "validators": [
       {
         "kind": "custom",
-        "message": "required when nachhaltigkeitsaspekteInformiert=Nein"
-      },
-      {
-        "kind": "minLength",
-        "value": 3,
-        "message": "min 3 chars when required"
+        "message": "required and minLength 3 when nachhaltigkeitsaspekteInformiert=Nein"
       }
     ],
     "enumValues": null,
-    "humanRule": "Begründung ist Pflicht (mindestens 3 Zeichen), wenn Nachhaltigkeitsaspekte=Nein.",
+    "humanRule": "Bei „Nein“ ist eine Begründung mit mindestens 3 Zeichen erforderlich.",
     "synonyms": [
       "Begründung Nachhaltigkeit",
-      "sustainability justification",
-      "reason ESG"
+      "sustainability reason",
+      "Begründung ESG"
     ]
   },
   {
@@ -1246,16 +1211,16 @@
       "Ja",
       "Nein"
     ],
-    "humanRule": "Pflichtangabe, ob eine Nachhaltigkeitspräferenz besteht (Ja/Nein).",
+    "humanRule": "Nachhaltigkeitspräferenz (Ja/Nein) ist erforderlich.",
     "synonyms": [
       "Nachhaltigkeitspräferenz",
       "sustainability preference",
-      "ESG preference"
+      "ESG-Präferenz"
     ]
   },
   {
     "fieldPath": "paiEsg.paiEsgInformiert",
-    "label": "PAI/ESG informiert",
+    "label": "Über PAI/ESG informiert",
     "type": "enum",
     "validators": [
       {
@@ -1266,11 +1231,11 @@
       "Ja",
       "Nein"
     ],
-    "humanRule": "Pflichtangabe, ob über PAI/ESG informiert wurde.",
+    "humanRule": "Angabe, ob über PAI/ESG informiert wurde, ist erforderlich.",
     "synonyms": [
-      "PAI ESG informiert",
-      "PAI ESG informed",
-      "ESG aufgeklärt"
+      "PAI/ESG informiert",
+      "PAI informed",
+      "ESG informed"
     ]
   },
   {
@@ -1280,25 +1245,20 @@
     "validators": [
       {
         "kind": "custom",
-        "message": "required when paiEsgInformiert=Nein"
-      },
-      {
-        "kind": "minLength",
-        "value": 3,
-        "message": "min 3 chars when required"
+        "message": "required and minLength 3 when paiEsgInformiert=Nein"
       }
     ],
     "enumValues": null,
-    "humanRule": "Begründung ist Pflicht (mindestens 3 Zeichen), wenn PAI/ESG=Nein.",
+    "humanRule": "Bei „Nein“ ist eine Begründung mit mindestens 3 Zeichen erforderlich.",
     "synonyms": [
-      "Begründung PAI ESG",
-      "PAI ESG justification",
-      "reason PAI"
+      "Begründung PAI",
+      "PAI reason",
+      "ESG-Begründung"
     ]
   },
   {
     "fieldPath": "paiAusschluesse.pai",
-    "label": "PAI-Ausschlüsse",
+    "label": "PAI Ausschlüsse",
     "type": "enum",
     "validators": [
       {
@@ -1306,29 +1266,30 @@
       }
     ],
     "enumValues": [
-      "Ja, mit speziellem Fokus",
-      "Ja, allgemein",
-      "Nein"
+      "Nein",
+      "JaAllgemein",
+      "JaMitFokus"
     ],
-    "humanRule": "PAI-Ausschluss-Auswahl ist Pflicht und muss einem der IddPaiEnum-Werte entsprechen.",
+    "humanRule": "PAI-Ausschluss-Auswahl ist erforderlich (Nein, allgemein oder mit speziellem Fokus).",
     "synonyms": [
-      "PAI Ausschlüsse",
-      "PAI exclusions",
-      "negative impact exclusions"
+      "PAI",
+      "Principal Adverse Impact",
+      "Ausschlüsse",
+      "exclusions"
     ]
   },
   {
     "fieldPath": "paiAusschluesse.treibhausgasEmissionen",
-    "label": "Treibhausgasemissionen",
+    "label": "Treibhausgas-Emissionen",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox PAI-Ausschluss Treibhausgasemissionen.",
+    "humanRule": "Checkbox: Ausschluss von Treibhausgas-Emissionen.",
     "synonyms": [
-      "Treibhausgase",
-      "greenhouse gas emissions",
+      "Treibhausgas",
+      "greenhouse gas",
       "CO2",
-      "GHG"
+      "GHG emissions"
     ]
   },
   {
@@ -1337,24 +1298,25 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox PAI-Ausschluss fossile Brennstoffe.",
+    "humanRule": "Checkbox: Ausschluss fossiler Brennstoffe.",
     "synonyms": [
-      "fossile Brennstoffe",
+      "Fossile Brennstoffe",
       "fossil fuels",
-      "Kohle/Öl/Gas"
+      "Kohle Öl Gas"
     ]
   },
   {
     "fieldPath": "paiAusschluesse.negativeEffekteBiodiversitaet",
-    "label": "Negative Effekte Biodiversität",
+    "label": "Negative Effekte auf Biodiversität",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox PAI-Ausschluss negative Effekte auf Biodiversität.",
+    "humanRule": "Checkbox: Ausschluss negativer Auswirkungen auf die Biodiversität.",
     "synonyms": [
       "Biodiversität",
-      "biodiversity impact",
-      "Artenvielfalt"
+      "biodiversity",
+      "Artenvielfalt",
+      "Naturschutz"
     ]
   },
   {
@@ -1363,7 +1325,7 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox PAI-Ausschluss Emissionen ins Wasser.",
+    "humanRule": "Checkbox: Ausschluss von Wasser-Emissionen.",
     "synonyms": [
       "Wasseremissionen",
       "water emissions",
@@ -1376,12 +1338,11 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox PAI-Ausschluss gefährlicher und radioaktiver Abfall.",
+    "humanRule": "Checkbox: Ausschluss gefährlichen oder radioaktiven Abfalls.",
     "synonyms": [
-      "radioaktiver Abfall",
+      "Radioaktiver Abfall",
       "hazardous waste",
-      "gefährlicher Abfall",
-      "radioactive waste"
+      "Atommüll"
     ]
   },
   {
@@ -1390,11 +1351,11 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox PAI-Ausschluss Gas/Öl.",
+    "humanRule": "Checkbox: Ausschluss von Gas und Öl.",
     "synonyms": [
-      "Gas Öl",
-      "gas oil",
-      "Erdöl/Erdgas"
+      "Gas und Öl",
+      "oil and gas",
+      "Erdöl Erdgas"
     ]
   },
   {
@@ -1403,11 +1364,12 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox PAI-Ausschluss Atomkraft.",
+    "humanRule": "Checkbox: Ausschluss von Atomkraft.",
     "synonyms": [
       "Atomkraft",
+      "Kernenergie",
       "nuclear power",
-      "Kernenergie"
+      "Atomenergie"
     ]
   },
   {
@@ -1416,26 +1378,26 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox PAI-Ausschluss soziale und Arbeitnehmerbelange.",
+    "humanRule": "Checkbox: Ausschluss bei Verstößen gegen soziale und Arbeitnehmerbelange.",
     "synonyms": [
-      "Arbeitnehmerbelange",
-      "social and labor matters",
-      "social issues",
-      "Arbeitsrechte"
+      "Soziale Belange",
+      "Arbeitnehmerrechte",
+      "social labor",
+      "workers rights"
     ]
   },
   {
     "fieldPath": "paiAusschluesse.atomwaffenUnkonventionelleWaffen",
-    "label": "Atomwaffen/unkonventionelle Waffen",
+    "label": "Atomwaffen/Unkonventionelle Waffen",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Checkbox PAI-Ausschluss Atomwaffen und unkonventionelle Waffen.",
+    "humanRule": "Checkbox: Ausschluss von Atomwaffen und unkonventionellen Waffen.",
     "synonyms": [
       "Atomwaffen",
-      "nuclear weapons",
-      "controversial weapons",
-      "unkonventionelle Waffen"
+      "Waffen",
+      "weapons",
+      "controversial weapons"
     ]
   },
   {
@@ -1448,14 +1410,15 @@
       }
     ],
     "enumValues": [
+      "Nein",
       "Ja",
-      "Nein"
+      "JaMitMindestanteil"
     ],
-    "humanRule": "Pflichtangabe, ob nachhaltige Investitionen gewünscht sind (eingeschränkte Optionen ohne 'Ja, mit Mindestanteil').",
+    "humanRule": "Auswahl zur nachhaltigen Investition ist erforderlich.",
     "synonyms": [
-      "nachhaltige Investition",
+      "Nachhaltige Investition",
       "sustainable investment",
-      "SFDR Art. 9"
+      "grünes Investment"
     ]
   },
   {
@@ -1469,18 +1432,17 @@
       }
     ],
     "enumValues": [
-      "mind. 1%",
-      "mind. 5%",
-      "mind. 10%",
-      "mind. 25%",
-      "mind. 50%"
+      "1",
+      "5",
+      "10",
+      "50"
     ],
-    "humanRule": "Mindestanteil ist Pflicht, wenn nachhaltige Investition=Ja (Standard 'mind. 1%').",
+    "humanRule": "Mindestanteil ist erforderlich, wenn nachhaltige Investition = Ja (1%, 5%, 10% oder 50%).",
     "synonyms": [
       "Mindestanteil",
       "minimum share",
       "Mindestquote",
-      "minimum allocation"
+      "Anteil nachhaltig"
     ]
   },
   {
@@ -1493,16 +1455,16 @@
       }
     ],
     "enumValues": [
-      "Ja",
       "Nein",
-      "Ja, mit Mindestanteil"
+      "Ja",
+      "JaMitMindestanteil"
     ],
-    "humanRule": "Pflichtangabe, ob ökologisch nachhaltige Investitionen gewünscht sind.",
+    "humanRule": "Auswahl zur ökologischen Investition ist erforderlich.",
     "synonyms": [
-      "ökologische Investition",
+      "Ökologische Investition",
       "ecological investment",
       "Taxonomie",
-      "green investment"
+      "grün"
     ]
   },
   {
@@ -1512,22 +1474,20 @@
     "validators": [
       {
         "kind": "custom",
-        "message": "required when ökologische Investition=Ja"
+        "message": "required when nachhaltigeInvestition=Ja"
       }
     ],
     "enumValues": [
-      "mind. 0.1%",
-      "mind. 1%",
-      "mind. 5%",
-      "mind. 10%",
-      "mind. 25%"
+      "0.1",
+      "1",
+      "10",
+      "50"
     ],
-    "humanRule": "Mindestanteil ökologisch ist Pflicht, wenn ökologische Investition=Ja (Standard 'mind. 0.1%').",
+    "humanRule": "Mindestanteil ist erforderlich, wenn ökologische Investition = Ja (0,1%, 1%, 10% oder 50%).",
     "synonyms": [
       "Mindestanteil ökologisch",
-      "minimum ecological share",
-      "Taxonomie-Quote",
-      "green minimum"
+      "minimum share ecological",
+      "Taxonomieanteil"
     ]
   }
 ]

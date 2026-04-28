@@ -8,13 +8,20 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Gebäudetyp ist ein Pflichtfeld und muss aus den vordefinierten Gebäudetypen ausgewählt werden.",
+    "enumValues": [
+      "Einfamilienhaus",
+      "Doppelhashalfte",
+      "Zweifamilienhaus",
+      "Reihenhaus",
+      "Mehrfamilienhaus"
+    ],
+    "humanRule": "Gebäudetyp ist Pflichtfeld (Einfamilienhaus, Doppelhaushälfte, Zweifamilienhaus, Reihenhaus oder Mehrfamilienhaus).",
     "synonyms": [
       "Gebäudetyp",
       "building type",
-      "Haustyp",
-      "Objekttyp"
+      "Hausart",
+      "Gebäudeart",
+      "Haustyp"
     ]
   },
   {
@@ -26,13 +33,25 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Bauartklasse (BAK) ist ein Pflichtfeld.",
+    "enumValues": [
+      "BAK1",
+      "BAK2",
+      "BAK3",
+      "BAK4",
+      "BAK5",
+      "FHG1",
+      "FHG2",
+      "FHG3",
+      "FHG4",
+      "FHG5"
+    ],
+    "humanRule": "Bauartklasse (BAK I-V oder FHG I-V) ist Pflichtfeld.",
     "synonyms": [
       "Bauartklasse",
       "BAK",
       "construction class",
-      "building class"
+      "building class",
+      "Baukategorie"
     ]
   },
   {
@@ -45,12 +64,12 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Angabe, ob die Bauartklasse ermittelt werden soll, ist erforderlich.",
+    "humanRule": "Auswahl, ob die Bauartklasse ermittelt werden soll, ist Pflichtfeld.",
     "synonyms": [
       "Bauartklasse ermitteln",
       "determine BAK",
       "BAK-Ermittlung",
-      "Bauartklassenermittlung"
+      "Bauartklassen-Hilfe"
     ]
   },
   {
@@ -58,13 +77,17 @@
     "label": "Dacheindeckung",
     "type": "enum",
     "validators": [],
-    "enumValues": null,
-    "humanRule": "Dacheindeckung des Fertighauses (kein Validator gesetzt).",
+    "enumValues": [
+      "HarteBedachung",
+      "WeicheBedachung"
+    ],
+    "humanRule": "Dacheindeckung (harte oder weiche Bedachung) für die Bauartklassen-Ermittlung.",
     "synonyms": [
       "Dacheindeckung",
       "roof covering",
-      "Dachmaterial",
-      "roofing"
+      "Dach",
+      "Bedachung",
+      "Dachart"
     ]
   },
   {
@@ -72,13 +95,19 @@
     "label": "Bauweise Außenwände",
     "type": "enum",
     "validators": [],
-    "enumValues": null,
-    "humanRule": "Bauweise der Außenwände (kein Validator gesetzt).",
+    "enumValues": [
+      "Massiv",
+      "StahlHolzfachwerkFV",
+      "StahlHolzfachwerkBV",
+      "Holz"
+    ],
+    "humanRule": "Bauweise der Außenwände (Massiv, Stahl-/Holzfachwerk oder Holz).",
     "synonyms": [
-      "Bauweise Außenwände",
-      "exterior wall construction",
-      "Außenwandbauweise",
-      "wall type"
+      "Bauweise",
+      "Außenwände",
+      "wall construction",
+      "Wandbauweise",
+      "Außenwandbauweise"
     ]
   },
   {
@@ -86,18 +115,21 @@
     "label": "Fertighaus",
     "type": "enum",
     "validators": [],
-    "enumValues": null,
+    "enumValues": [
+      "Ja",
+      "Nein"
+    ],
     "humanRule": "Angabe, ob es sich um ein Fertighaus handelt (Ja/Nein).",
     "synonyms": [
       "Fertighaus",
       "prefab house",
-      "prefabricated home",
-      "Fertigbau"
+      "prefabricated",
+      "Fertigbauhaus"
     ]
   },
   {
     "fieldPath": "hrNutzungflaeche.wohnflaecheOhneKeller",
-    "label": "Wohnfläche ohne Keller (qm)",
+    "label": "Wohnfläche ohne Keller",
     "type": "integer",
     "validators": [
       {
@@ -113,13 +145,13 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Wohnfläche ohne Keller ist erforderlich und muss eine ganze Zahl zwischen 1 und 999 m² sein.",
+    "humanRule": "Wohnfläche ohne Keller (in m²) ist Pflichtfeld und muss zwischen 1 und 999 liegen.",
     "synonyms": [
-      "Wohnfläche ohne Keller",
-      "living area without basement",
       "Wohnfläche",
-      "floor area",
-      "qm Wohnfläche"
+      "living area",
+      "Wohnflaeche ohne Keller",
+      "Wohnfläche m²",
+      "living space"
     ]
   },
   {
@@ -128,11 +160,11 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Wohnung ist ständig bewohnt (deaktiviertes Feld, fest auf true gesetzt).",
+    "humanRule": "Angabe, ob die Wohnung ständig bewohnt ist (deaktiviert, Standard true).",
     "synonyms": [
       "ständig bewohnt",
       "permanently occupied",
-      "dauerhaft bewohnt",
+      "Dauerbewohnung",
       "permanent residence"
     ]
   },
@@ -146,22 +178,23 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Angabe, ob ein Keller vorhanden ist, ist erforderlich.",
+    "humanRule": "Angabe, ob ein Keller vorhanden ist, ist Pflichtfeld.",
     "synonyms": [
       "Keller vorhanden",
-      "basement exists",
-      "cellar present",
-      "Untergeschoss"
+      "basement",
+      "cellar",
+      "Untergeschoss",
+      "Keller"
     ]
   },
   {
     "fieldPath": "hrNutzungflaeche.gesamtflaecheImKeller",
-    "label": "Gesamtfläche im Keller (qm)",
+    "label": "Gesamtfläche im Keller",
     "type": "integer",
     "validators": [
       {
         "kind": "required",
-        "message": "only when Keller vorhanden"
+        "message": "only when einKelleristVorhanden=true"
       },
       {
         "kind": "min",
@@ -169,31 +202,31 @@
       },
       {
         "kind": "max",
-        "value": 0,
-        "message": "dynamic: max = wohnflaecheOhneKeller"
+        "message": "max = wohnflaecheOhneKeller (dynamic)"
       },
       {
         "kind": "custom",
-        "message": "disabled when einKelleristVorhanden=false"
+        "message": "disabled when no cellar"
       }
     ],
     "enumValues": null,
-    "humanRule": "Gesamtfläche im Keller ist nur erforderlich, wenn ein Keller vorhanden ist; dann mindestens 1 m² und höchstens die Wohnfläche ohne Keller.",
+    "humanRule": "Gesamtfläche im Keller (m²) ist Pflichtfeld wenn Keller vorhanden, mindestens 1 und höchstens die Wohnfläche ohne Keller.",
     "synonyms": [
       "Gesamtfläche Keller",
-      "total basement area",
-      "Kellerfläche",
-      "cellar area"
+      "total cellar area",
+      "Kellergesamtfläche",
+      "cellar total area",
+      "Kellerfläche gesamt"
     ]
   },
   {
     "fieldPath": "hrNutzungflaeche.wohnflaecheImKeller",
-    "label": "Wohnfläche im Keller (qm)",
+    "label": "Wohnfläche im Keller",
     "type": "integer",
     "validators": [
       {
         "kind": "required",
-        "message": "only when Keller vorhanden and Gesamtfläche set"
+        "message": "only when cellar present and gesamtflaeche set"
       },
       {
         "kind": "min",
@@ -201,21 +234,20 @@
       },
       {
         "kind": "max",
-        "value": 0,
-        "message": "dynamic: max = gesamtflaecheImKeller"
+        "message": "max = gesamtflaecheImKeller (dynamic)"
       },
       {
         "kind": "custom",
-        "message": "disabled otherwise"
+        "message": "disabled when no cellar"
       }
     ],
     "enumValues": null,
-    "humanRule": "Wohnfläche im Keller ist nur aktiv, wenn ein Keller mit Gesamtfläche angegeben ist; sie muss zwischen 0 und der Gesamtfläche im Keller liegen.",
+    "humanRule": "Wohnfläche im Keller (m²) ist Pflicht wenn Keller vorhanden, zwischen 0 und der Gesamtfläche im Keller.",
     "synonyms": [
-      "Wohnfläche im Keller",
-      "living area basement",
+      "Wohnfläche Keller",
+      "cellar living area",
       "Kellerwohnfläche",
-      "basement living space"
+      "living area in cellar"
     ]
   },
   {
@@ -237,16 +269,16 @@
       {
         "kind": "minAge",
         "value": 18,
-        "message": "minAgeAtContract relative to vertragsbeginn"
+        "message": "minAgeAtContractValidator vs. vertragsbeginn"
       }
     ],
     "enumValues": null,
-    "humanRule": "Geburtsdatum ist erforderlich, muss ein gültiges Datum sein, darf nicht in der Zukunft liegen, und der Versicherungsnehmer muss zum Vertragsbeginn mindestens 18 Jahre alt sein.",
+    "humanRule": "Geburtsdatum (Pflicht) muss ein gültiges Datum in der Vergangenheit sein und der Versicherungsnehmer muss zum Vertragsbeginn mindestens 18 Jahre alt sein.",
     "synonyms": [
       "Geburtsdatum",
       "date of birth",
       "DOB",
-      "Geburtstag",
+      "Geb.-Datum",
       "birthday"
     ]
   },
@@ -259,13 +291,17 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Geschlecht ist ein Pflichtfeld.",
+    "enumValues": [
+      "Maennlich",
+      "Weiblich",
+      "Divers"
+    ],
+    "humanRule": "Geschlecht (männlich, weiblich oder divers) ist Pflichtfeld.",
     "synonyms": [
       "Geschlecht",
       "gender",
       "sex",
-      "Anrede"
+      "Geschlechtsangabe"
     ]
   },
   {
@@ -282,23 +318,21 @@
       },
       {
         "kind": "minDate",
-        "value": "tomorrow",
-        "message": "getNextDate"
+        "value": "tomorrow"
       },
       {
         "kind": "maxDate",
-        "value": "+1 year",
-        "message": "getXYearInTheFutureDate(1)"
+        "value": "+1 year"
       }
     ],
     "enumValues": null,
-    "humanRule": "Vertragsbeginn ist erforderlich, muss ein gültiges Datum frühestens ab dem nächsten Tag und höchstens ein Jahr in der Zukunft sein.",
+    "humanRule": "Vertragsbeginn ist Pflicht, muss ein gültiges Datum sein, frühestens morgen und höchstens 1 Jahr in der Zukunft.",
     "synonyms": [
       "Vertragsbeginn",
       "contract start",
       "start date",
       "Versicherungsbeginn",
-      "policy start"
+      "Beginn"
     ]
   },
   {
@@ -310,33 +344,39 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Beschäftigungsart (Privatwirtschaft oder Öffentlicher Dienst) ist erforderlich.",
+    "enumValues": [
+      "Normal",
+      "OeffentlicherDienst"
+    ],
+    "humanRule": "Beschäftigungsart (Privatwirtschaft oder Öffentlicher Dienst) ist Pflichtfeld.",
     "synonyms": [
       "Beschäftigungsart",
-      "employment type",
-      "Beruf",
       "Beamter",
       "öffentlicher Dienst",
-      "occupation"
+      "employment type",
+      "public service"
     ]
   },
   {
     "fieldPath": "anzalJahre",
-    "label": "Laufzeit (Jahre)",
+    "label": "Laufzeit",
     "type": "enum",
     "validators": [
       {
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Vertragslaufzeit in Jahren ist erforderlich.",
+    "enumValues": [
+      "L1Jahr",
+      "L3Jahre",
+      "L5Jahre"
+    ],
+    "humanRule": "Laufzeit (1, 3 oder 5 Jahre) ist Pflichtfeld.",
     "synonyms": [
       "Laufzeit",
-      "contract term",
+      "contract duration",
       "Vertragslaufzeit",
-      "duration",
+      "term",
       "Anzahl Jahre"
     ]
   },
@@ -349,13 +389,19 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Zahlungsweise (z. B. jährlich) ist erforderlich.",
+    "enumValues": [
+      "Jaehrlich",
+      "Halbjaehrlich",
+      "Vierteljaehrlich",
+      "Monatlich"
+    ],
+    "humanRule": "Zahlungsweise (jährlich, halbjährlich, vierteljährlich oder monatlich) ist Pflichtfeld.",
     "synonyms": [
       "Zahlungsweise",
       "payment frequency",
-      "payment mode",
-      "Zahlrhythmus"
+      "Zahlrhythmus",
+      "billing cycle",
+      "payment interval"
     ]
   },
   {
@@ -363,13 +409,17 @@
     "label": "Zahlungsart",
     "type": "enum",
     "validators": [],
-    "enumValues": null,
-    "humanRule": "Zahlungsart (z. B. Lastschrift) ist optional, Standard ist Lastschrift.",
+    "enumValues": [
+      "LASTSCHRIFT",
+      "RECHNUNG"
+    ],
+    "humanRule": "Zahlungsart (Lastschrift oder Rechnung).",
     "synonyms": [
       "Zahlungsart",
       "payment method",
-      "Zahlweg",
-      "direct debit"
+      "Lastschrift",
+      "Rechnung",
+      "payment type"
     ]
   },
   {
@@ -378,12 +428,12 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Optionale Angabe, ob die Anschrift des Versicherungsnehmers übernommen werden soll.",
+    "humanRule": "Optionale Übernahme der Anschrift des Versicherungsnehmers als Risikoanschrift.",
     "synonyms": [
       "Anschrift übernehmen",
-      "use policyholder address",
+      "use VN address",
       "copy address",
-      "Adresse übernehmen"
+      "Versicherungsnehmer-Anschrift"
     ]
   },
   {
@@ -395,15 +445,16 @@
         "kind": "required"
       },
       {
-        "kind": "custom",
+        "kind": "pattern",
+        "value": "^[0-9]{5}$",
         "message": "postalCodeValidator"
       }
     ],
     "enumValues": null,
-    "humanRule": "Postleitzahl ist erforderlich und muss aus genau 5 Ziffern bestehen.",
+    "humanRule": "Postleitzahl ist Pflicht und muss aus 5 Ziffern bestehen.",
     "synonyms": [
-      "Postleitzahl",
       "PLZ",
+      "Postleitzahl",
       "postal code",
       "ZIP",
       "zip code"
@@ -419,13 +470,13 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Ort ist ein Pflichtfeld.",
+    "humanRule": "Ort ist Pflichtfeld.",
     "synonyms": [
       "Ort",
       "city",
-      "town",
       "Stadt",
-      "location"
+      "place",
+      "Wohnort"
     ]
   },
   {
@@ -438,12 +489,13 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Straße ist ein Pflichtfeld.",
+    "humanRule": "Straße ist Pflichtfeld.",
     "synonyms": [
       "Straße",
       "street",
       "Strasse",
-      "road"
+      "road",
+      "Straßenname"
     ]
   },
   {
@@ -456,12 +508,13 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Hausnummer ist ein Pflichtfeld.",
+    "humanRule": "Hausnummer ist Pflichtfeld.",
     "synonyms": [
       "Hausnummer",
       "house number",
+      "Nr.",
       "street number",
-      "Nr."
+      "HsNr"
     ]
   },
   {
@@ -470,12 +523,12 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Optionaler Zusatzschutz für Mobiliarglas.",
+    "humanRule": "Optionaler Zusatzschutz Mobiliarglas (Standard aktiviert).",
     "synonyms": [
       "Mobiliarglas",
-      "furniture glass",
+      "glass insurance",
       "Glasversicherung",
-      "glass coverage"
+      "Glasbruch"
     ]
   },
   {
@@ -484,13 +537,13 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Optionaler Elementarschadenschutz.",
+    "humanRule": "Optionaler Zusatzschutz Elementarschäden.",
     "synonyms": [
       "Elementar",
       "Elementarschäden",
       "natural hazards",
       "Naturgefahren",
-      "elemental coverage"
+      "Elementarschutz"
     ]
   },
   {
@@ -499,17 +552,17 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Optionaler Schutz gegen Fahrraddiebstahl.",
+    "humanRule": "Optionaler Zusatzschutz Fahrraddiebstahl.",
     "synonyms": [
       "Fahrraddiebstahl",
       "bicycle theft",
-      "bike theft",
-      "Diebstahlschutz Fahrrad"
+      "Bike theft",
+      "Raddiebstahl"
     ]
   },
   {
     "fieldPath": "fahrraddiebstahlwert",
-    "label": "Fahrraddiebstahlwert (€)",
+    "label": "Fahrraddiebstahl-Wert",
     "type": "integer",
     "validators": [
       {
@@ -530,40 +583,44 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Wert für Fahrraddiebstahl ist nur erforderlich, wenn Fahrraddiebstahlschutz aktiv ist; muss zwischen 1 und 50.000 € liegen.",
+    "humanRule": "Fahrraddiebstahl-Wert (€) ist Pflicht wenn Fahrraddiebstahlschutz aktiv, zwischen 1 und 50.000.",
     "synonyms": [
       "Fahrraddiebstahlwert",
       "bike value",
       "Fahrradwert",
-      "bicycle value"
+      "bicycle sum insured",
+      "Versicherungssumme Fahrrad"
     ]
   },
   {
     "fieldPath": "versicherungssummeOptions",
-    "label": "Versicherungssumme Ermittlungsart",
+    "label": "Ermittlung der Versicherungssumme",
     "type": "enum",
     "validators": [
       {
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Auswahl der Ermittlungsart der Versicherungssumme (z. B. automatisch ermitteln) ist erforderlich.",
+    "enumValues": [
+      "AutomatischErmitteln",
+      "EigeneVorgabe"
+    ],
+    "humanRule": "Auswahl, ob die Versicherungssumme automatisch ermittelt oder manuell vorgegeben wird, ist Pflicht.",
     "synonyms": [
-      "Versicherungssumme Ermittlung",
-      "sum insured method",
-      "insurance sum option",
-      "Ermittlungsart"
+      "Versicherungssumme Option",
+      "sum insured option",
+      "Ermittlungsart",
+      "Vorgabe Versicherungssumme"
     ]
   },
   {
     "fieldPath": "versicherungssumme",
-    "label": "Versicherungssumme (€)",
+    "label": "Versicherungssumme",
     "type": "integer",
     "validators": [
       {
         "kind": "required",
-        "message": "only when not auto-determined"
+        "message": "only when EigeneVorgabe"
       },
       {
         "kind": "min",
@@ -575,17 +632,17 @@
       },
       {
         "kind": "custom",
-        "message": "disabled when automatisch ermitteln"
+        "message": "disabled when AutomatischErmitteln"
       }
     ],
     "enumValues": null,
-    "humanRule": "Versicherungssumme ist nur erforderlich, wenn nicht automatisch ermittelt; sie muss zwischen 0 und 900.000 € liegen.",
+    "humanRule": "Versicherungssumme (€) ist Pflicht bei eigener Vorgabe, zwischen 0 und 900.000.",
     "synonyms": [
       "Versicherungssumme",
       "sum insured",
-      "insurance amount",
       "VS",
-      "coverage amount"
+      "Deckungssumme",
+      "insured amount"
     ]
   },
   {
@@ -597,8 +654,14 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Selbstbeteiligung ist erforderlich (z. B. 0 €).",
+    "enumValues": [
+      "Zero",
+      "OneHundredFifty",
+      "ThreeHundred",
+      "FiveHundred",
+      "OneThousand"
+    ],
+    "humanRule": "Selbstbeteiligung (0, 150, 300, 500 oder 1000 €) ist Pflichtfeld.",
     "synonyms": [
       "Selbstbeteiligung",
       "SB",
@@ -617,12 +680,13 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Bestätigung der Mindestsicherung der Wohnung ist erforderlich.",
+    "humanRule": "Angabe der Mindestsicherung der Wohnungs-/Haustüren ist Pflicht (Standard aktiviert).",
     "synonyms": [
       "Mindestsicherung",
       "minimum security",
-      "Wohnungssicherung",
-      "basic security"
+      "door security",
+      "Türsicherung",
+      "Wohnungssicherung"
     ]
   },
   {
@@ -637,7 +701,7 @@
       "surveillance system",
       "alarm system",
       "Alarmanlage",
-      "monitoring"
+      "Videoüberwachung"
     ]
   },
   {
@@ -646,12 +710,12 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Angabe, ob eine Vorversicherung besteht (optional).",
+    "humanRule": "Angabe, ob eine Vorversicherung vorhanden ist (Standard aktiviert).",
     "synonyms": [
       "Vorversicherung",
       "previous insurance",
-      "prior coverage",
-      "Voversicherer"
+      "Vorversicherer",
+      "prior policy"
     ]
   },
   {
@@ -660,13 +724,13 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Angabe, ob der Versicherungsnehmer Schäden hatte/regulierte; aktiviert die Schadenliste.",
+    "humanRule": "Angabe, ob der Versicherungsnehmer in den letzten Jahren Schäden hatte/regulierte.",
     "synonyms": [
-      "Schäden reguliert",
-      "prior claims",
+      "Schäden vorhanden",
+      "previous claims",
       "Vorschäden",
-      "damage history",
-      "claims history"
+      "damages regulated",
+      "claim history"
     ]
   },
   {
@@ -676,17 +740,17 @@
     "validators": [
       {
         "kind": "custom",
-        "message": "damagesValidator (FormArray must not be empty)"
+        "message": "damagesValidator – mindestens ein Schaden, wenn aktiviert"
       }
     ],
     "enumValues": null,
-    "humanRule": "Wenn Vorschäden vorhanden sind, muss mindestens ein Schaden erfasst werden.",
+    "humanRule": "Schadenliste muss mindestens einen Eintrag enthalten, wenn Schäden angegeben sind.",
     "synonyms": [
       "Schäden",
       "damages",
-      "Vorschäden",
       "claims",
-      "damage list"
+      "Vorschäden",
+      "Schadensliste"
     ]
   },
   {
@@ -698,13 +762,23 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Art des Schadens ist für jeden erfassten Schaden erforderlich.",
+    "enumValues": [
+      "Feuer",
+      "Einbruchdiebstahl",
+      "Leitungswasser",
+      "Sturm",
+      "Elementar",
+      "Starkregen",
+      "Glas",
+      "Fahrraddiebstahl"
+    ],
+    "humanRule": "Art des Schadens (z. B. Feuer, Einbruchdiebstahl, Leitungswasser) ist Pflichtfeld pro Schadenseintrag.",
     "synonyms": [
-      "Art des Schadens",
+      "Schadensart",
+      "type of damage",
       "damage type",
-      "claim type",
-      "Schadenart"
+      "Art Schaden",
+      "claim type"
     ]
   },
   {
@@ -722,22 +796,23 @@
       },
       {
         "kind": "max",
-        "value": 0,
-        "message": "maxYearValidator: current year"
+        "value": "currentYear",
+        "message": "maxYearValidator"
       }
     ],
     "enumValues": null,
-    "humanRule": "Jahr des Schadens ist erforderlich und muss zwischen 1900 und dem aktuellen Jahr liegen.",
+    "humanRule": "Jahr des Schadens ist Pflicht und muss zwischen 1900 und dem aktuellen Jahr liegen.",
     "synonyms": [
       "Jahr des Schadens",
       "year of damage",
+      "Schadensjahr",
       "claim year",
-      "Schadensjahr"
+      "damage year"
     ]
   },
   {
     "fieldPath": "schadenHinzufugen.hoheDesSchadens",
-    "label": "Höhe des Schadens (€)",
+    "label": "Höhe des Schadens",
     "type": "integer",
     "validators": [
       {
@@ -753,13 +828,13 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Schadenhöhe ist erforderlich und muss zwischen 1 und 999.999 € liegen.",
+    "humanRule": "Höhe des Schadens (€) ist Pflicht und muss zwischen 1 und 999.999 liegen.",
     "synonyms": [
       "Höhe des Schadens",
       "damage amount",
+      "Schadenshöhe",
       "claim amount",
-      "Schadenhöhe",
-      "loss amount"
+      "Schadenssumme"
     ]
   }
 ]

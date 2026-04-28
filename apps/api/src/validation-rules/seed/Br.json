@@ -9,16 +9,17 @@
       }
     ],
     "enumValues": [
-      "Aufgeschobene Rente",
-      "Sofortbeginnend"
+      "AufgeschobeneRente",
+      "Sofortbeginnend",
+      "Kindertarif"
     ],
-    "humanRule": "Die Tarifart ist eine Pflichtangabe (Aufgeschobene Rente oder Sofortbeginnend).",
+    "humanRule": "Tarifart ist Pflicht; Standard ist 'Aufgeschobene Rente'.",
     "synonyms": [
       "Tarifart",
       "tariff type",
-      "TarifArt",
       "Vertragsart",
-      "Rentenart"
+      "TarifArt",
+      "product type"
     ]
   },
   {
@@ -35,8 +36,7 @@
       },
       {
         "kind": "minDate",
-        "value": "today-70y",
-        "message": "Frühestens 70 Jahre in der Vergangenheit (bzw. 85 Jahre bei Sofortbeginn)"
+        "value": "today-70y"
       },
       {
         "kind": "maxDate",
@@ -45,17 +45,17 @@
       {
         "kind": "minAge",
         "value": 18,
-        "message": "minAgeAtContractValidator (62 bei Sofortbeginnend, sonst 18 zum Vertragsbeginn)"
+        "message": "minAgeAtContractValidator (62 if Sofortbeginnend, 18 otherwise)"
       }
     ],
     "enumValues": null,
-    "humanRule": "Das Geburtsdatum ist Pflicht, muss ein gültiges Datum in der Vergangenheit (max. 70 Jahre, bei Sofortbeginn 85 Jahre) sein, und der Versicherte muss bei Vertragsbeginn mindestens 18 Jahre (bzw. 62 Jahre bei Sofortbeginnend) alt sein.",
+    "humanRule": "Geburtsdatum (Pflicht): gültiges Datum, höchstens 70 Jahre in der Vergangenheit (bei Sofortbeginnend bis 85 Jahre), nicht in der Zukunft, mit Mindestalter 18 bei Vertragsbeginn (62 bei Sofortbeginnend).",
     "synonyms": [
       "Geburtsdatum",
       "date of birth",
       "DOB",
-      "Geb.-Datum",
-      "birthday"
+      "birthday",
+      "Geb.-Datum"
     ]
   },
   {
@@ -68,11 +68,11 @@
       }
     ],
     "enumValues": [
-      "Männlich",
+      "Maennlich",
       "Weiblich",
       "Divers"
     ],
-    "humanRule": "Das Geschlecht ist eine Pflichtangabe.",
+    "humanRule": "Geschlecht ist Pflicht.",
     "synonyms": [
       "Geschlecht",
       "gender",
@@ -103,12 +103,12 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Der Vertragsbeginn ist Pflicht und muss zwischen drei Monaten vor dem nächsten Monatsersten und einem Jahr in der Zukunft liegen.",
+    "humanRule": "Vertragsbeginn (Pflicht): gültiges Datum, frühestens drei Monate vor dem ersten des Folgemonats, höchstens ein Jahr in der Zukunft.",
     "synonyms": [
       "Vertragsbeginn",
-      "Versicherungsbeginn",
-      "start of contract",
       "contract start",
+      "start of contract",
+      "Versicherungsbeginn",
       "Beginn"
     ]
   },
@@ -127,20 +127,16 @@
       {
         "kind": "max",
         "value": 99
-      },
-      {
-        "kind": "custom",
-        "message": "dynamic min based on age at Vertragsbeginn"
       }
     ],
     "enumValues": null,
-    "humanRule": "Der Rentenbeginn (zum Alter) ist Pflicht und muss zwischen 62 und 99 Jahren liegen, mindestens jedoch über dem aktuellen Alter bei Vertragsbeginn.",
+    "humanRule": "Rentenbeginn zum Alter (Pflicht): zwischen 62 und 99 Jahren; Mindestwert wird dynamisch je nach Geburtsdatum/Vertragsbeginn erhöht.",
     "synonyms": [
-      "Rentenbeginn",
+      "Rentenbeginnalter",
       "retirement age",
-      "Renteneintrittsalter",
       "Rentenalter",
-      "RB-Alter"
+      "pension start age",
+      "Renteneintrittsalter"
     ]
   },
   {
@@ -149,26 +145,26 @@
     "type": "date",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Der Rentenbeginn wird automatisch berechnet (deaktiviertes Feld) auf Basis von Geburtsdatum und Rentenbeginn-Alter.",
+    "humanRule": "Rentenbeginn ist ein berechnetes, deaktiviertes Feld.",
     "synonyms": [
-      "Rentenbeginn Datum",
-      "retirement date",
-      "Renteneintritt",
-      "Rentenstart"
+      "Rentenbeginn",
+      "retirement start date",
+      "pension start",
+      "Rentenbeginndatum"
     ]
   },
   {
     "fieldPath": "monatsgenau",
-    "label": "Monatsgenau",
+    "label": "Monatsgenauer Rentenbeginn",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Optionales Kennzeichen, ob der Rentenbeginn monatsgenau berechnet wird.",
+    "humanRule": "Schalter ob der Rentenbeginn monatsgenau erfolgt; Standard true.",
     "synonyms": [
       "monatsgenau",
       "monthly precision",
-      "exakt monatlich",
-      "monatsweise"
+      "monatsgenauer Rentenbeginn",
+      "exact month"
     ]
   },
   {
@@ -185,14 +181,17 @@
       "Verheiratet",
       "Geschieden",
       "Verwitwet",
-      "Eingetragene Lebenspartnerschaft"
+      "GetrenntLebend",
+      "Eheaehnlich_eGemeinschaft",
+      "Eingetragene_Lebenspartnerschaft",
+      "Sonstiges"
     ],
-    "humanRule": "Der Familienstand ist eine Pflichtangabe.",
+    "humanRule": "Familienstand ist Pflicht.",
     "synonyms": [
       "Familienstand",
       "marital status",
-      "Familienverhältnis",
-      "Zivilstand"
+      "Ehestatus",
+      "civil status"
     ]
   },
   {
@@ -201,12 +200,12 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Optionales Kennzeichen für eine abgekürzte Beitragszahlungsdauer.",
+    "humanRule": "Schalter ob eine abgekürzte Beitragszahlungsdauer gewünscht ist.",
     "synonyms": [
-      "abgekürzte Beitragszahlung",
-      "shortened premium period",
-      "ABZ",
-      "verkürzte Zahldauer"
+      "abgekürzte Beitragszahlungsdauer",
+      "shortened payment duration",
+      "abgekürzte Zahlungsdauer",
+      "ABZ"
     ]
   },
   {
@@ -227,13 +226,13 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Das Endalter der Beitragszahlung ist Pflicht und muss zwischen 15 und 75 Jahren liegen.",
+    "humanRule": "Beitragszahlung bis Alter (Pflicht): zwischen 15 und 75 Jahren.",
     "synonyms": [
-      "Beitragszahlung bis Alter",
-      "premium payment until age",
+      "Beitragszahlungsende",
+      "payment end age",
       "Endalter Beitrag",
-      "BZ-Alter",
-      "Zahldauer"
+      "contribution end age",
+      "Zahldauer Alter"
     ]
   },
   {
@@ -242,12 +241,12 @@
     "type": "date",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Das Datum für das Ende der Beitragszahlung wird automatisch berechnet (deaktiviertes Feld).",
+    "humanRule": "Beitragszahlung bis ist ein berechnetes, deaktiviertes Datumsfeld.",
     "synonyms": [
       "Beitragszahlung bis",
-      "premium payment end",
-      "Zahlungsende",
-      "Zahldauer-Datum"
+      "payment end date",
+      "Beitragsende",
+      "contribution end date"
     ]
   },
   {
@@ -261,16 +260,15 @@
     ],
     "enumValues": [
       "Beitrag",
-      "Einmalbeitrag",
-      "Rente"
+      "Einmalbeitrag"
     ],
-    "humanRule": "Der Vorgabewunsch (Beitrag, Einmalbeitrag oder Rente) ist eine Pflichtangabe.",
+    "humanRule": "Vorgabewunsch ist Pflicht (Beitrag oder Einmalbeitrag).",
     "synonyms": [
       "Vorgabewunsch",
-      "preference",
-      "Berechnungsvorgabe",
-      "Eingabewunsch",
-      "Rechenvorgabe"
+      "calculation target",
+      "Berechnungsziel",
+      "goal",
+      "Vorgabe"
     ]
   },
   {
@@ -283,24 +281,24 @@
       }
     ],
     "enumValues": [
+      "Jaehrlich",
+      "Halbjaehrlich",
+      "Vierteljaehrlich",
       "Monatlich",
-      "Vierteljährlich",
-      "Halbjährlich",
-      "Jährlich",
       "Einmalig"
     ],
-    "humanRule": "Die Zahlungsweise ist eine Pflichtangabe.",
+    "humanRule": "Zahlungsweise ist Pflicht; Standard Monatlich.",
     "synonyms": [
       "Zahlungsweise",
       "payment frequency",
-      "Zahlrhythmus",
-      "Zahlungsintervall",
-      "ZW"
+      "Zahlweise",
+      "payment mode",
+      "frequency"
     ]
   },
   {
     "fieldPath": "vorgabewunschPrice",
-    "label": "Vorgabewunsch Betrag",
+    "label": "Vorgabewunsch Beitrag",
     "type": "number",
     "validators": [
       {
@@ -311,18 +309,18 @@
         "value": 1
       },
       {
-        "kind": "custom",
-        "message": "maxPriceValidator (abhängig von Familienstand, Zahlungsweise, Einmalzahlung)"
+        "kind": "max",
+        "message": "maxPriceValidator (gesetzlicher Höchstbeitrag abhängig von Familienstand und Einmalzahlung)"
       }
     ],
     "enumValues": null,
-    "humanRule": "Der Betrag zum Vorgabewunsch ist Pflicht, muss mindestens 1 sein und darf den dynamisch berechneten Maximalbetrag (abhängig von Familienstand und Zahlungsweise) nicht überschreiten.",
+    "humanRule": "Beitragsvorgabe (Pflicht): mindestens 1 €, höchstens der gesetzliche Höchstbeitrag bei Basisrenten je nach Familienstand und zusätzlicher Einmalzahlung.",
     "synonyms": [
-      "Vorgabewunsch Betrag",
       "Beitrag",
       "contribution amount",
-      "Wunschbeitrag",
-      "Zielbeitrag"
+      "Vorgabewunsch Preis",
+      "premium",
+      "Beitragshöhe"
     ]
   },
   {
@@ -335,18 +333,24 @@
       }
     ],
     "enumValues": [
-      "keine",
-      "1%",
-      "2%",
-      "3%",
-      "4%",
-      "5%"
+      "Keine",
+      "Percent1",
+      "Percent2",
+      "Percent3",
+      "Percent4",
+      "Percent5",
+      "Percent6",
+      "Percent7",
+      "Percent8",
+      "Percent9",
+      "Percent10"
     ],
-    "humanRule": "Der Inflationsschutz ist eine Pflichtangabe.",
+    "humanRule": "Inflationsschutz ist Pflicht; Standard 'keine'.",
     "synonyms": [
       "Inflationsschutz",
       "inflation protection",
       "Dynamik",
+      "dynamic increase",
       "Beitragsdynamik"
     ]
   },
@@ -360,17 +364,20 @@
       }
     ],
     "enumValues": [
-      "keine",
-      "1%",
-      "2%",
-      "3%"
+      "Keine",
+      "Percent1",
+      "Percent2",
+      "Percent3",
+      "Percent4",
+      "Percent5"
     ],
-    "humanRule": "Die garantierte Rentensteigerung ist eine Pflichtangabe.",
+    "humanRule": "Garantierte Rentensteigerung ist Pflicht; Standard 'keine'.",
     "synonyms": [
       "garantierte Rentensteigerung",
       "guaranteed pension increase",
-      "Rentendynamik",
-      "Steigerung Rente"
+      "Rentensteigerung",
+      "pension growth",
+      "GRS"
     ]
   },
   {
@@ -379,13 +386,13 @@
     "type": "number",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Optionale zusätzliche Einmalzahlung zu Vertragsbeginn; darf zusammen mit dem Beitrag den Maximalbetrag nicht überschreiten.",
+    "humanRule": "Optionale zusätzliche Einmalzahlung zu Vertragsbeginn; bei Überschreiten der Beitragsobergrenze wird ein Fehler gesetzt.",
     "synonyms": [
-      "zusätzliche Einmalzahlung",
+      "Einmalzahlung",
       "initial lump sum",
-      "Zuzahlung",
-      "Einmalzahlung Beginn",
-      "Anfangs-Einmalzahlung"
+      "Einmalbeitrag zu Beginn",
+      "one-time payment",
+      "Sonderzahlung"
     ]
   },
   {
@@ -394,16 +401,17 @@
     "type": "enum",
     "validators": [],
     "enumValues": [
-      "Mindestens Auszahlung des Vertragsguthabens",
-      "Beitragsrückgewähr",
-      "Keine"
+      "KeineTodesfallleistung",
+      "MindestensAuszahlungVertraguthabens",
+      "MindestensRueckzahlungEingezahltenBeitraege",
+      "MaximumEingezahltenBeitraegenVertragsguthaben"
     ],
-    "humanRule": "Optionale Auswahl zur Absicherung im Todesfall.",
+    "humanRule": "Absicherung im Todesfall (optional); Standard ist 'Mindestens Auszahlung des Vertragsguthabens'.",
     "synonyms": [
       "Absicherung Todesfall",
       "death benefit coverage",
       "Todesfallabsicherung",
-      "Hinterbliebenenschutz"
+      "death protection"
     ]
   },
   {
@@ -416,16 +424,16 @@
       }
     ],
     "enumValues": [
-      "keine",
-      "Beitragsrückgewähr",
-      "Rentengarantiezeit"
+      "Keine",
+      "Rentengarantiezeit",
+      "Kapitalrueckgewaehr"
     ],
-    "humanRule": "Die Todesfallleistung ist eine Pflichtangabe.",
+    "humanRule": "Todesfallleistung ist Pflicht; Standard 'keine'.",
     "synonyms": [
       "Todesfallleistung",
       "death benefit",
       "Hinterbliebenenleistung",
-      "TFL"
+      "survivor benefit"
     ]
   },
   {
@@ -438,17 +446,19 @@
       }
     ],
     "enumValues": [
-      "keine",
-      "5 Jahre",
-      "10 Jahre",
-      "15 Jahre",
-      "20 Jahre"
+      "Value5",
+      "Value10",
+      "Value15",
+      "Value20",
+      "Value25",
+      "Value30"
     ],
-    "humanRule": "Die Rentengarantiezeit ist eine Pflichtangabe.",
+    "humanRule": "Rentengarantiezeit ist Pflicht; Standard 10 Jahre.",
     "synonyms": [
       "Rentengarantiezeit",
-      "pension guarantee period",
+      "guarantee period",
       "RGZ",
+      "pension guarantee period",
       "Garantiezeit"
     ]
   },
@@ -462,12 +472,12 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Pflichtkennzeichen für die Beitragsbefreiung bei Berufsunfähigkeit (BUZ).",
+    "humanRule": "Beitragsbefreiung bei Berufsunfähigkeit ist Pflicht (true/false).",
     "synonyms": [
       "Beitragsbefreiung BU",
-      "BBU",
-      "premium waiver disability",
-      "BU-Beitragsbefreiung"
+      "BU exemption",
+      "BUZ Beitragsbefreiung",
+      "disability premium waiver"
     ]
   },
   {
@@ -481,12 +491,12 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Optionales Endalter des Vertrags, muss im gültigen Dezimalbereich liegen.",
+    "humanRule": "Vertragsablauf-Alter mit Dezimalzahl im zulässigen Wertebereich.",
     "synonyms": [
       "Vertragsablauf",
       "contract end age",
-      "Ablaufalter",
-      "Endalter Vertrag"
+      "Endalter",
+      "contract maturity age"
     ]
   },
   {
@@ -495,12 +505,13 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Optionales Kennzeichen für eine BU-Rente.",
+    "humanRule": "Schalter, ob eine BU-Rente eingeschlossen werden soll.",
     "synonyms": [
       "BU-Rente",
       "disability pension",
       "Berufsunfähigkeitsrente",
-      "BUR"
+      "BU",
+      "incapacity pension"
     ]
   },
   {
@@ -514,26 +525,26 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Optionale Höhe der garantierten BU-Rente, muss im gültigen Dezimalbereich liegen.",
+    "humanRule": "Garantierte BU-Rente als Dezimalzahl; Standard 500.",
     "synonyms": [
       "garantierte BU-Rente",
       "guaranteed disability pension",
-      "BU-Renten-Höhe",
-      "BUR garantiert"
+      "BU-Rente",
+      "BUZ-Rente"
     ]
   },
   {
     "fieldPath": "minimaleAltersrente",
-    "label": "Minimale Altersrente",
+    "label": "Minimale Altersrente zur BU-Rente",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Optionales Kennzeichen für die Vorgabe einer minimalen Altersrente.",
+    "humanRule": "Schalter für minimale Altersrente in Verbindung mit BU-Rente.",
     "synonyms": [
       "minimale Altersrente",
       "minimum old-age pension",
-      "Mindestrente",
-      "Mindestaltersrente"
+      "Mindestaltersrente",
+      "minimal pension"
     ]
   },
   {
@@ -546,19 +557,24 @@
       }
     ],
     "enumValues": [
-      "keine",
-      "1%",
-      "2%",
-      "3%",
-      "4%",
-      "5%"
+      "Keine",
+      "Percent1",
+      "Percent2",
+      "Percent3",
+      "Percent4",
+      "Percent5",
+      "Percent6",
+      "Percent7",
+      "Percent8",
+      "Percent9",
+      "Percent10"
     ],
-    "humanRule": "Der Inflationsschutz für die BU-Rente ist eine Pflichtangabe.",
+    "humanRule": "Inflationsschutz für die BU-Komponente ist Pflicht; Standard 'keine'.",
     "synonyms": [
       "Inflationsschutz BU",
       "BU inflation protection",
-      "BU-Dynamik",
-      "Dynamik BU"
+      "Dynamik BU",
+      "BU dynamic"
     ]
   },
   {
@@ -571,17 +587,19 @@
       }
     ],
     "enumValues": [
-      "keine",
-      "1%",
-      "2%",
-      "3%"
+      "Keine",
+      "Percent1",
+      "Percent2",
+      "Percent3",
+      "Percent4",
+      "Percent5"
     ],
-    "humanRule": "Die garantierte Rentensteigerung der BU-Rente ist eine Pflichtangabe.",
+    "humanRule": "Garantierte Rentensteigerung der BU-Rente ist Pflicht; Standard 'keine'.",
     "synonyms": [
       "garantierte Rentensteigerung BU",
-      "guaranteed BU pension increase",
-      "BU-Rentendynamik",
-      "Steigerung BU-Rente"
+      "BU guaranteed pension increase",
+      "BU Rentensteigerung",
+      "disability pension growth"
     ]
   }
 ]

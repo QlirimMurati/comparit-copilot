@@ -1,5 +1,180 @@
 [
   {
+    "fieldPath": "geburtsdatum",
+    "label": "Geburtsdatum",
+    "type": "date",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Das Geburtsdatum (Geburtstag) der versicherten Person ist erforderlich.",
+    "synonyms": [
+      "Geburtstag",
+      "DOB",
+      "date of birth",
+      "Birthday",
+      "Geb.-Datum"
+    ]
+  },
+  {
+    "fieldPath": "geschlecht",
+    "label": "Geschlecht",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "Maennlich",
+      "Weiblich",
+      "Divers"
+    ],
+    "humanRule": "Das Geschlecht muss ausgewählt werden (männlich, weiblich oder divers).",
+    "synonyms": [
+      "Gender",
+      "Sex",
+      "Anrede",
+      "Geschlechtsangabe"
+    ]
+  },
+  {
+    "fieldPath": "vertragsbeginn",
+    "label": "Vertragsbeginn",
+    "type": "date",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Der Vertragsbeginn (Beginn der Versicherung) ist anzugeben.",
+    "synonyms": [
+      "Versicherungsbeginn",
+      "Start of contract",
+      "Vertragsstart",
+      "Beginn"
+    ]
+  },
+  {
+    "fieldPath": "beschaeftigungsverhaeltnis",
+    "label": "Beschäftigungsverhältnis",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "Angestellter",
+      "AngestellterImOeffentlichenDienst",
+      "Auszubildender",
+      "BeamterAufLebenszeit",
+      "BeamtenanwarterIn",
+      "BeamterAufProbe",
+      "Soldat",
+      "FreiberuflerIn",
+      "HausFrauMann",
+      "Rentner",
+      "Schueler",
+      "Selbststaendiger",
+      "Student",
+      "UnbeschaeftigtNichtErwerbstaetig"
+    ],
+    "humanRule": "Das Beschäftigungsverhältnis (Berufsstatus) ist erforderlich.",
+    "synonyms": [
+      "Berufsstatus",
+      "Employment status",
+      "Beruf",
+      "Tätigkeitsstatus",
+      "Job"
+    ]
+  },
+  {
+    "fieldPath": "berufAusgeubteTatigkeit",
+    "label": "Beruf / Ausgeübte Tätigkeit",
+    "type": "string",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Der Beruf bzw. die ausgeübte Tätigkeit kann angegeben werden.",
+    "synonyms": [
+      "Beruf",
+      "Tätigkeit",
+      "Occupation",
+      "Job",
+      "Profession"
+    ]
+  },
+  {
+    "fieldPath": "selbstaendigFreiberuflichSeit",
+    "label": "Selbständig/Freiberuflich seit",
+    "type": "date",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Datum, seit wann die Person selbständig oder freiberuflich tätig ist.",
+    "synonyms": [
+      "Selbständig seit",
+      "Freiberuflich seit",
+      "Self-employed since",
+      "Gründungsdatum"
+    ]
+  },
+  {
+    "fieldPath": "arztOderNormal.normalTarife",
+    "label": "Normaltarife",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Gibt an, ob normale Tarife berücksichtigt werden sollen.",
+    "synonyms": [
+      "Normaltarife",
+      "Standardtarife",
+      "Regular tariffs"
+    ]
+  },
+  {
+    "fieldPath": "arztOderNormal.arztTarife",
+    "label": "Arzttarife",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Gibt an, ob spezielle Arzttarife berücksichtigt werden sollen.",
+    "synonyms": [
+      "Arzttarife",
+      "Doctor tariffs",
+      "Mediziner-Tarife"
+    ]
+  },
+  {
+    "fieldPath": "arztOderNormal.zahnArztTarife",
+    "label": "Zahnarzttarife",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Gibt an, ob spezielle Zahnarzttarife berücksichtigt werden sollen.",
+    "synonyms": [
+      "Zahnarzttarife",
+      "Dentist tariffs",
+      "Dental tariffs",
+      "ZA-Tarife"
+    ]
+  },
+  {
+    "fieldPath": "ambulanteLeistungenBoolean",
+    "label": "Ambulante Leistungen aktiv",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Schaltet den Bereich ambulante Leistungen ein oder aus.",
+    "synonyms": [
+      "Ambulant aktiv",
+      "Outpatient enabled",
+      "Ambulante Leistungen Toggle"
+    ]
+  },
+  {
     "fieldPath": "ambulanteLeistungen.sehhilfen",
     "label": "Sehhilfen",
     "type": "enum",
@@ -8,14 +183,18 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Sehhilfen ist eine Pflichtangabe aus der Auswahlliste SehhilfenPAEnum (Standard: Egal).",
+    "enumValues": [
+      "Mind300PA",
+      "Mind500PA",
+      "Egal"
+    ],
+    "humanRule": "Auswahl der Mindestleistung für Sehhilfen pro Jahr (mind. 300 € p.a., mind. 500 € p.a. oder egal); Pflichtfeld.",
     "synonyms": [
-      "Sehhilfen",
-      "Brillen",
+      "Brille",
+      "Sehhilfe",
       "Vision aids",
-      "Glasses",
-      "Sehhilfe"
+      "Glasses coverage",
+      "Sehhilfenleistung"
     ]
   },
   {
@@ -44,12 +223,12 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Naturheilverfahren muss eine ganze Zahl zwischen 0 und 5000, teilbar durch 5, sein (Pflichtfeld).",
+    "humanRule": "Erstattungsbetrag für Naturheilverfahren (0–5000 €, ganzzahlig, durch 5 teilbar); Pflichtfeld.",
     "synonyms": [
-      "Naturheilverfahren",
+      "Heilpraktiker",
+      "Alternativmedizin",
       "Naturopathy",
-      "Alternative Heilmethoden",
-      "NHV"
+      "Heilverfahren"
     ]
   },
   {
@@ -61,13 +240,17 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Vorsorge ist eine Pflichtangabe aus der Auswahlliste VorsorgeEnum (Standard: Egal).",
+    "enumValues": [
+      "Egal",
+      "Mind150",
+      "Mind300"
+    ],
+    "humanRule": "Auswahl der gewünschten Vorsorgeleistung (egal, mind. 150 € oder mind. 300 €); Pflichtfeld.",
     "synonyms": [
-      "Vorsorge",
-      "Preventive care",
+      "Vorsorgeuntersuchung",
       "Prevention",
-      "Vorsorgeuntersuchung"
+      "Checkup",
+      "Prophylaxe"
     ]
   },
   {
@@ -79,13 +262,29 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Privatärztliche Behandlung ist Pflicht und wählt aus PrivataerztlicheBehandlungEnum (Standard: Nein).",
+    "enumValues": [
+      "Ja",
+      "Nein"
+    ],
+    "humanRule": "Gibt an, ob eine privatärztliche Behandlung gewünscht ist (Ja/Nein); Pflichtfeld.",
     "synonyms": [
-      "Privatärztliche Behandlung",
+      "Privatarzt",
       "Private treatment",
       "Privatbehandlung",
-      "PÄB"
+      "Privatpatient"
+    ]
+  },
+  {
+    "fieldPath": "stationaerLeistungenBoolean",
+    "label": "Stationäre Leistungen aktiv",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Schaltet den Bereich stationäre Leistungen ein oder aus.",
+    "synonyms": [
+      "Stationär aktiv",
+      "Inpatient enabled",
+      "Krankenhaus Toggle"
     ]
   },
   {
@@ -97,32 +296,38 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Stationäre Unterkunft ist Pflicht (KvzStationarUnterkunftEnum, Standard: mind. 2-Bettzimmer).",
+    "enumValues": [
+      "EinBettzimmer",
+      "ZweiBettzimmer",
+      "Egal"
+    ],
+    "humanRule": "Auswahl der gewünschten Unterkunft im Krankenhaus (1-Bettzimmer, mind. 2-Bettzimmer oder egal); Pflichtfeld.",
     "synonyms": [
-      "Stationäre Unterkunft",
-      "Unterkunft",
-      "Hospital accommodation",
-      "Zimmer",
-      "Bettzimmer"
+      "Zimmerwahl",
+      "Krankenhauszimmer",
+      "Hospital room",
+      "Unterbringung"
     ]
   },
   {
     "fieldPath": "stationaerLeistungen.stationarWahlarzt",
-    "label": "Stationärer Wahlarzt",
+    "label": "Wahlarzt stationär",
     "type": "enum",
     "validators": [
       {
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Stationärer Wahlarzt ist Pflicht (KvzStationarWahlarztEnum, Standard: Ja).",
+    "enumValues": [
+      "Ja",
+      "Egal"
+    ],
+    "humanRule": "Auswahl, ob ein Wahlarzt im Krankenhaus gewünscht wird (Ja oder egal); Pflichtfeld.",
     "synonyms": [
-      "Wahlarzt",
       "Chefarztbehandlung",
-      "Chief physician",
-      "Stationärer Wahlarzt"
+      "Wahlarzt",
+      "Specialist doctor",
+      "Chefarzt"
     ]
   },
   {
@@ -134,13 +339,29 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Gebührenordnung stationär ist Pflicht (GebuhrenordnungEnum, Standard: Egal).",
+    "enumValues": [
+      "Egal",
+      "OhneBegrenzung"
+    ],
+    "humanRule": "Auswahl der Gebührenordnung für stationäre Leistungen (egal oder ohne Begrenzung); Pflichtfeld.",
     "synonyms": [
-      "Gebührenordnung",
-      "GOÄ",
-      "Fee schedule",
-      "Gebührenordnung stationär"
+      "GOÄ stationär",
+      "Fee scale",
+      "Höchstsatz",
+      "Gebühren"
+    ]
+  },
+  {
+    "fieldPath": "dentaleLeistungenBoolean",
+    "label": "Dentale Leistungen aktiv",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Schaltet den Bereich dentale Leistungen (Zahn) ein oder aus.",
+    "synonyms": [
+      "Zahn aktiv",
+      "Dental enabled",
+      "Zahnzusatz Toggle"
     ]
   },
   {
@@ -152,13 +373,35 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Zahnbehandlung ist Pflicht (DentaleLeistungenEnum, Standard: 0%).",
+    "enumValues": [
+      "Prozent100",
+      "Prozent95",
+      "Prozent90",
+      "Prozent85",
+      "Prozent80",
+      "Prozent75",
+      "Prozent70",
+      "Prozent65",
+      "Prozent60",
+      "Prozent55",
+      "Prozent50",
+      "Prozent45",
+      "Prozent40",
+      "Prozent35",
+      "Prozent30",
+      "Prozent25",
+      "Prozent20",
+      "Prozent15",
+      "Prozent10",
+      "Prozent5",
+      "Prozent0"
+    ],
+    "humanRule": "Erstattungsprozentsatz für Zahnbehandlung (0–100 % in 5er-Schritten); Pflichtfeld.",
     "synonyms": [
-      "Zahnbehandlung",
+      "ZB",
       "Dental treatment",
-      "Zahnarzt",
-      "ZB"
+      "Zahnarztbehandlung",
+      "Behandlung"
     ]
   },
   {
@@ -170,13 +413,36 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Zahnersatz ist Pflicht (DentaleLeistungenEnum, Standard: 70%).",
+    "enumValues": [
+      "Prozent100",
+      "Prozent95",
+      "Prozent90",
+      "Prozent85",
+      "Prozent80",
+      "Prozent75",
+      "Prozent70",
+      "Prozent65",
+      "Prozent60",
+      "Prozent55",
+      "Prozent50",
+      "Prozent45",
+      "Prozent40",
+      "Prozent35",
+      "Prozent30",
+      "Prozent25",
+      "Prozent20",
+      "Prozent15",
+      "Prozent10",
+      "Prozent5",
+      "Prozent0"
+    ],
+    "humanRule": "Erstattungsprozentsatz für Zahnersatz (0–100 % in 5er-Schritten); Pflichtfeld.",
     "synonyms": [
-      "Zahnersatz",
-      "Dental prosthetics",
       "ZE",
-      "Dentures"
+      "Dental prosthesis",
+      "Zahnprothese",
+      "Krone",
+      "Implantat"
     ]
   },
   {
@@ -188,50 +454,184 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Kieferorthopädie ist Pflicht (DentaleLeistungenEnum, Standard: 0%).",
+    "enumValues": [
+      "Prozent100",
+      "Prozent95",
+      "Prozent90",
+      "Prozent85",
+      "Prozent80",
+      "Prozent75",
+      "Prozent70",
+      "Prozent65",
+      "Prozent60",
+      "Prozent55",
+      "Prozent50",
+      "Prozent45",
+      "Prozent40",
+      "Prozent35",
+      "Prozent30",
+      "Prozent25",
+      "Prozent20",
+      "Prozent15",
+      "Prozent10",
+      "Prozent5",
+      "Prozent0"
+    ],
+    "humanRule": "Erstattungsprozentsatz für Kieferorthopädie (0–100 % in 5er-Schritten); Pflichtfeld.",
     "synonyms": [
-      "Kieferorthopädie",
-      "Orthodontics",
       "KFO",
-      "Zahnspange"
+      "Orthodontics",
+      "Zahnspange",
+      "Kieferregulierung"
     ]
   },
   {
     "fieldPath": "dentaleLeistungen.profZahnreinigungPA",
-    "label": "Professionelle Zahnreinigung / PA",
+    "label": "Prof. Zahnreinigung p.a.",
     "type": "enum",
     "validators": [
       {
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Professionelle Zahnreinigung/PA ist Pflicht (ProfZahnreinigungPAEnum, Standard: Egal).",
+    "enumValues": [
+      "Mind150",
+      "Mind200",
+      "Egal"
+    ],
+    "humanRule": "Auswahl der gewünschten Mindestleistung für professionelle Zahnreinigung pro Jahr (mind. 150 €, mind. 200 € oder egal); Pflichtfeld.",
     "synonyms": [
       "PZR",
       "Zahnreinigung",
-      "Professional cleaning",
-      "Prof. Zahnreinigung",
-      "Parodontosebehandlung"
+      "Dental cleaning",
+      "Prophylaxe"
+    ]
+  },
+  {
+    "fieldPath": "optionstarifeBoolean",
+    "label": "Optionstarife aktiv",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Schaltet den Bereich Optionstarife ein oder aus.",
+    "synonyms": [
+      "Optionstarif Toggle",
+      "Optionsversicherung",
+      "Anwartschaft"
     ]
   },
   {
     "fieldPath": "optionstarife.optionAuchKvv",
-    "label": "Option auch KVV",
+    "label": "Option auch für KVV",
     "type": "enum",
     "validators": [
       {
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Option auch KVV ist Pflicht (OptionAuchKvvEnum, Standard: Ja).",
+    "enumValues": [
+      "Ja",
+      "Nein"
+    ],
+    "humanRule": "Gibt an, ob die Option auch auf eine Krankenvollversicherung (KVV) anwendbar ist (Ja/Nein); Pflichtfeld.",
     "synonyms": [
-      "Option auch KVV",
-      "KVV-Option",
-      "Optionstarif",
-      "Option KVV"
+      "Option KVV",
+      "KV-Vollversicherung Option",
+      "Vollversicherungs-Option"
+    ]
+  },
+  {
+    "fieldPath": "krankentagegeldBoolean",
+    "label": "Krankentagegeld aktiv",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Schaltet den Bereich Krankentagegeld ein oder aus.",
+    "synonyms": [
+      "KTG aktiv",
+      "Sick pay enabled",
+      "Krankentagegeld Toggle"
+    ]
+  },
+  {
+    "fieldPath": "krankentagegeld[].tagessatz",
+    "label": "Krankentagegeld Tagessatz",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required"
+      },
+      {
+        "kind": "min",
+        "value": 5
+      },
+      {
+        "kind": "max",
+        "value": 1000
+      },
+      {
+        "kind": "custom",
+        "message": "divisibleByValueValidator(5)"
+      },
+      {
+        "kind": "custom",
+        "message": "integerValidator"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Tagessatz des Krankentagegelds (5–1000 €, ganzzahlig, durch 5 teilbar); Pflichtfeld.",
+    "synonyms": [
+      "KTG",
+      "Sick day pay",
+      "Tagegeld",
+      "Daily benefit"
+    ]
+  },
+  {
+    "fieldPath": "krankentagegeld[].karenzzeit",
+    "label": "Karenzzeit",
+    "type": "enum",
+    "validators": [
+      {
+        "kind": "required"
+      }
+    ],
+    "enumValues": [
+      "Ab4Tag",
+      "Ab8Tag",
+      "Ab15Tag",
+      "Ab22Tag",
+      "Ab29Tag",
+      "Ab43Tag",
+      "Ab64Tag",
+      "Ab85Tag",
+      "Ab92Tag",
+      "Ab106Tag",
+      "Ab127Tag",
+      "Ab183Tag",
+      "Ab274Tag",
+      "Ab365Tag"
+    ],
+    "humanRule": "Karenzzeit (KZH) ab welchem Tag das Krankentagegeld gezahlt wird; Pflichtfeld.",
+    "synonyms": [
+      "KZH",
+      "Wartezeit",
+      "Waiting period",
+      "Karenztage",
+      "Selbstbehaltszeit"
+    ]
+  },
+  {
+    "fieldPath": "krankenhaustagegeldBoolean",
+    "label": "Krankenhaustagegeld aktiv",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Schaltet den Bereich Krankenhaustagegeld ein oder aus.",
+    "synonyms": [
+      "KHT aktiv",
+      "Hospital cash enabled",
+      "Krankenhaustagegeld Toggle"
     ]
   },
   {
@@ -260,12 +660,25 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Krankenhaustagegeld-Tagessatz muss eine ganze Zahl zwischen 10 und 5000, teilbar durch 5, sein.",
+    "humanRule": "Tagessatz des Krankenhaustagegelds (10–5000 €, ganzzahlig, durch 5 teilbar); Pflichtfeld.",
     "synonyms": [
-      "Krankenhaustagegeld",
       "KHT",
-      "Hospital daily allowance",
-      "Tagessatz Krankenhaus"
+      "Hospital cash",
+      "Krankenhausgeld",
+      "Daily hospital benefit"
+    ]
+  },
+  {
+    "fieldPath": "kurtagegeldBoolean",
+    "label": "Kurtagegeld aktiv",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Schaltet den Bereich Kurtagegeld ein oder aus.",
+    "synonyms": [
+      "Kur aktiv",
+      "Spa allowance enabled",
+      "Kurtagegeld Toggle"
     ]
   },
   {
@@ -294,12 +707,26 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Kurtagegeld-Tagessatz muss eine ganze Zahl zwischen 10 und 500, teilbar durch 5, sein.",
+    "humanRule": "Tagessatz des Kurtagegelds (10–500 €, ganzzahlig, durch 5 teilbar); Pflichtfeld.",
     "synonyms": [
-      "Kurtagegeld",
-      "Cure daily allowance",
-      "Tagessatz Kur",
-      "KTG"
+      "Kurgeld",
+      "Spa daily benefit",
+      "Kurleistung",
+      "Kurzuschuss"
+    ]
+  },
+  {
+    "fieldPath": "pflegezusatzBoolean",
+    "label": "Pflegezusatz aktiv",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Schaltet den Bereich Pflegezusatzversicherung ein oder aus.",
+    "synonyms": [
+      "Pflegezusatz Toggle",
+      "Long term care enabled",
+      "PZV aktiv",
+      "Pflegevorsorge"
     ]
   },
   {
@@ -311,13 +738,15 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Pflegetagegeld-Auswahl ist Pflicht (PflegetagegeldEnum, Standard: Pflegetagegeld).",
+    "enumValues": [
+      "Pflegetagegeld"
+    ],
+    "humanRule": "Art der Pflegezusatzleistung; aktuell nur Pflegetagegeld auswählbar; Pflichtfeld.",
     "synonyms": [
-      "Pflegetagegeld",
       "PTG",
-      "Care daily allowance",
-      "Pflegegeld"
+      "Care daily benefit",
+      "Pflegegeld",
+      "Tagegeld Pflege"
     ]
   },
   {
@@ -337,21 +766,25 @@
         "message": "integerValidator"
       },
       {
-        "kind": "custom",
-        "message": "minHundredOrZero"
+        "kind": "min",
+        "value": 100,
+        "message": "minHundredOrZero (oder 0)"
       },
       {
         "kind": "max",
         "value": 6000
+      },
+      {
+        "kind": "custom",
+        "message": "max(referenzwert) – darf Pflegegrad 1 stationär und Pflegegrad 2 ambulant nicht übersteigen"
       }
     ],
     "enumValues": null,
-    "humanRule": "Pflegegrad 1 ambulant: ganze Zahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und nicht über folgender Stufe.",
+    "humanRule": "Monatliches Pflegetagegeld bei Pflegegrad 1 ambulant (0 oder mindestens 100 €, durch 10 teilbar, max. 6000 € und nicht höher als Pflegegrad 1 stationär bzw. Pflegegrad 2 ambulant).",
     "synonyms": [
-      "Pflegegrad 1 ambulant",
       "PG1 ambulant",
-      "Pflegestufe 1 ambulant",
-      "Care level 1 outpatient"
+      "Care level 1 outpatient",
+      "Pflegestufe 1 ambulant"
     ]
   },
   {
@@ -371,21 +804,25 @@
         "message": "integerValidator"
       },
       {
-        "kind": "custom",
-        "message": "minHundredOrZero"
+        "kind": "min",
+        "value": 100,
+        "message": "minHundredOrZero (oder 0)"
       },
       {
         "kind": "max",
         "value": 6000
+      },
+      {
+        "kind": "custom",
+        "message": "max(referenzwert) – darf Pflegegrad 2 stationär und Pflegegrad 3 ambulant nicht übersteigen"
       }
     ],
     "enumValues": null,
-    "humanRule": "Pflegegrad 2 ambulant: ganze Zahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und nicht über folgender Stufe.",
+    "humanRule": "Monatliches Pflegetagegeld bei Pflegegrad 2 ambulant (0 oder mindestens 100 €, durch 10 teilbar, max. 6000 €, nicht höher als Pflegegrad 2 stationär oder Pflegegrad 3 ambulant).",
     "synonyms": [
-      "Pflegegrad 2 ambulant",
       "PG2 ambulant",
-      "Pflegestufe 2 ambulant",
-      "Care level 2 outpatient"
+      "Care level 2 outpatient",
+      "Pflegestufe 2 ambulant"
     ]
   },
   {
@@ -405,21 +842,25 @@
         "message": "integerValidator"
       },
       {
-        "kind": "custom",
-        "message": "minHundredOrZero"
+        "kind": "min",
+        "value": 100,
+        "message": "minHundredOrZero (oder 0)"
       },
       {
         "kind": "max",
         "value": 6000
+      },
+      {
+        "kind": "custom",
+        "message": "max(referenzwert) – darf Pflegegrad 3 stationär und Pflegegrad 4 ambulant nicht übersteigen"
       }
     ],
     "enumValues": null,
-    "humanRule": "Pflegegrad 3 ambulant: ganze Zahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und nicht über folgender Stufe.",
+    "humanRule": "Monatliches Pflegetagegeld bei Pflegegrad 3 ambulant (0 oder mindestens 100 €, durch 10 teilbar, max. 6000 €, nicht höher als Pflegegrad 3 stationär oder Pflegegrad 4 ambulant).",
     "synonyms": [
-      "Pflegegrad 3 ambulant",
       "PG3 ambulant",
-      "Pflegestufe 3 ambulant",
-      "Care level 3 outpatient"
+      "Care level 3 outpatient",
+      "Pflegestufe 3 ambulant"
     ]
   },
   {
@@ -439,21 +880,25 @@
         "message": "integerValidator"
       },
       {
-        "kind": "custom",
-        "message": "minHundredOrZero"
+        "kind": "min",
+        "value": 100,
+        "message": "minHundredOrZero (oder 0)"
       },
       {
         "kind": "max",
         "value": 6000
+      },
+      {
+        "kind": "custom",
+        "message": "max(referenzwert) – darf Pflegegrad 4 stationär und Pflegegrad 5 ambulant nicht übersteigen"
       }
     ],
     "enumValues": null,
-    "humanRule": "Pflegegrad 4 ambulant: ganze Zahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und nicht über folgender Stufe.",
+    "humanRule": "Monatliches Pflegetagegeld bei Pflegegrad 4 ambulant (0 oder mindestens 100 €, durch 10 teilbar, max. 6000 €, nicht höher als Pflegegrad 4 stationär oder Pflegegrad 5 ambulant).",
     "synonyms": [
-      "Pflegegrad 4 ambulant",
       "PG4 ambulant",
-      "Pflegestufe 4 ambulant",
-      "Care level 4 outpatient"
+      "Care level 4 outpatient",
+      "Pflegestufe 4 ambulant"
     ]
   },
   {
@@ -473,21 +918,25 @@
         "message": "integerValidator"
       },
       {
-        "kind": "custom",
-        "message": "minHundredOrZero"
+        "kind": "min",
+        "value": 100,
+        "message": "minHundredOrZero (oder 0)"
       },
       {
         "kind": "max",
         "value": 6000
+      },
+      {
+        "kind": "custom",
+        "message": "max(referenzwert) – darf Pflegegrad 5 stationär nicht übersteigen"
       }
     ],
     "enumValues": null,
-    "humanRule": "Pflegegrad 5 ambulant: ganze Zahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000.",
+    "humanRule": "Monatliches Pflegetagegeld bei Pflegegrad 5 ambulant (0 oder mindestens 100 €, durch 10 teilbar, max. 6000 €, nicht höher als Pflegegrad 5 stationär).",
     "synonyms": [
-      "Pflegegrad 5 ambulant",
       "PG5 ambulant",
-      "Pflegestufe 5 ambulant",
-      "Care level 5 outpatient"
+      "Care level 5 outpatient",
+      "Pflegestufe 5 ambulant"
     ]
   },
   {
@@ -507,18 +956,22 @@
         "message": "integerValidator"
       },
       {
-        "kind": "custom",
-        "message": "minHundredOrZero"
+        "kind": "min",
+        "value": 100,
+        "message": "minHundredOrZero (oder 0)"
       },
       {
         "kind": "max",
         "value": 6000
+      },
+      {
+        "kind": "custom",
+        "message": "max(referenzwert) – darf Pflegegrad 2 stationär nicht übersteigen"
       }
     ],
     "enumValues": null,
-    "humanRule": "Pflegegrad 1 stationär: ganze Zahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und nicht über folgender Stufe.",
+    "humanRule": "Monatliches Pflegetagegeld bei Pflegegrad 1 stationär (0 oder mindestens 100 €, durch 10 teilbar, max. 6000 €, nicht höher als Pflegegrad 2 stationär).",
     "synonyms": [
-      "Pflegegrad 1 stationär",
       "PG1 stationär",
       "Care level 1 inpatient",
       "Pflegestufe 1 stationär"
@@ -541,18 +994,22 @@
         "message": "integerValidator"
       },
       {
-        "kind": "custom",
-        "message": "minHundredOrZero"
+        "kind": "min",
+        "value": 100,
+        "message": "minHundredOrZero (oder 0)"
       },
       {
         "kind": "max",
         "value": 6000
+      },
+      {
+        "kind": "custom",
+        "message": "max(referenzwert) – darf Pflegegrad 3 stationär nicht übersteigen"
       }
     ],
     "enumValues": null,
-    "humanRule": "Pflegegrad 2 stationär: ganze Zahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und nicht über folgender Stufe.",
+    "humanRule": "Monatliches Pflegetagegeld bei Pflegegrad 2 stationär (0 oder mindestens 100 €, durch 10 teilbar, max. 6000 €, nicht höher als Pflegegrad 3 stationär).",
     "synonyms": [
-      "Pflegegrad 2 stationär",
       "PG2 stationär",
       "Care level 2 inpatient",
       "Pflegestufe 2 stationär"
@@ -575,18 +1032,22 @@
         "message": "integerValidator"
       },
       {
-        "kind": "custom",
-        "message": "minHundredOrZero"
+        "kind": "min",
+        "value": 100,
+        "message": "minHundredOrZero (oder 0)"
       },
       {
         "kind": "max",
         "value": 6000
+      },
+      {
+        "kind": "custom",
+        "message": "max(referenzwert) – darf Pflegegrad 4 stationär nicht übersteigen"
       }
     ],
     "enumValues": null,
-    "humanRule": "Pflegegrad 3 stationär: ganze Zahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und nicht über folgender Stufe.",
+    "humanRule": "Monatliches Pflegetagegeld bei Pflegegrad 3 stationär (0 oder mindestens 100 €, durch 10 teilbar, max. 6000 €, nicht höher als Pflegegrad 4 stationär).",
     "synonyms": [
-      "Pflegegrad 3 stationär",
       "PG3 stationär",
       "Care level 3 inpatient",
       "Pflegestufe 3 stationär"
@@ -609,18 +1070,22 @@
         "message": "integerValidator"
       },
       {
-        "kind": "custom",
-        "message": "minHundredOrZero"
+        "kind": "min",
+        "value": 100,
+        "message": "minHundredOrZero (oder 0)"
       },
       {
         "kind": "max",
         "value": 6000
+      },
+      {
+        "kind": "custom",
+        "message": "max(referenzwert) – darf Pflegegrad 5 stationär nicht übersteigen"
       }
     ],
     "enumValues": null,
-    "humanRule": "Pflegegrad 4 stationär: ganze Zahl, durch 10 teilbar, 0 oder ≥ 100, ≤ 6000 und nicht über folgender Stufe.",
+    "humanRule": "Monatliches Pflegetagegeld bei Pflegegrad 4 stationär (0 oder mindestens 100 €, durch 10 teilbar, max. 6000 €, nicht höher als Pflegegrad 5 stationär).",
     "synonyms": [
-      "Pflegegrad 4 stationär",
       "PG4 stationär",
       "Care level 4 inpatient",
       "Pflegestufe 4 stationär"
@@ -652,65 +1117,11 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Pflegegrad 5 stationär: ganze Zahl, durch 10 teilbar, mindestens 600 und höchstens 6000.",
+    "humanRule": "Monatliches Pflegetagegeld bei Pflegegrad 5 stationär (mindestens 600 €, max. 6000 €, durch 10 teilbar, ganzzahlig); Pflichtfeld.",
     "synonyms": [
-      "Pflegegrad 5 stationär",
       "PG5 stationär",
       "Care level 5 inpatient",
       "Pflegestufe 5 stationär"
-    ]
-  },
-  {
-    "fieldPath": "krankentagegeld.tagessatz",
-    "label": "Krankentagegeld Tagessatz",
-    "type": "integer",
-    "validators": [
-      {
-        "kind": "required"
-      },
-      {
-        "kind": "min",
-        "value": 5
-      },
-      {
-        "kind": "max",
-        "value": 1000
-      },
-      {
-        "kind": "custom",
-        "message": "divisibleByValueValidator(5)"
-      },
-      {
-        "kind": "custom",
-        "message": "integerValidator"
-      }
-    ],
-    "enumValues": null,
-    "humanRule": "Krankentagegeld-Tagessatz muss eine ganze Zahl zwischen 5 und 1000, teilbar durch 5, sein.",
-    "synonyms": [
-      "Krankentagegeld",
-      "KTG",
-      "Sick daily allowance",
-      "Tagessatz Krankentagegeld"
-    ]
-  },
-  {
-    "fieldPath": "krankentagegeld.karenzzeit",
-    "label": "Karenzzeit",
-    "type": "enum",
-    "validators": [
-      {
-        "kind": "required"
-      }
-    ],
-    "enumValues": null,
-    "humanRule": "Karenzzeit ist Pflicht (KarenzzeitEnum); für die erste Zeile Standard 'ab 43. Tag'.",
-    "synonyms": [
-      "Karenzzeit",
-      "KZH",
-      "Waiting period",
-      "Wartezeit",
-      "Karenz"
     ]
   }
 ]

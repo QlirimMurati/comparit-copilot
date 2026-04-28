@@ -1,21 +1,25 @@
 [
   {
     "fieldPath": "anzalJahre",
-    "label": "Laufzeit",
+    "label": "Laufzeit (Jahre)",
     "type": "enum",
     "validators": [
       {
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Laufzeit (Anzahl Jahre) ist Pflichtfeld und muss aus dem Enum LaufzeitEnum gewählt werden.",
+    "enumValues": [
+      "L1Jahr",
+      "L3Jahre",
+      "L5Jahre"
+    ],
+    "humanRule": "Laufzeit (Anzahl Jahre) ist Pflicht; erlaubte Werte: 1, 3 oder 5 Jahre.",
     "synonyms": [
       "Laufzeit",
       "Vertragslaufzeit",
-      "anzahlJahre",
-      "duration",
-      "contractTerm"
+      "Years",
+      "Duration",
+      "Anzahl Jahre"
     ]
   },
   {
@@ -27,13 +31,18 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Zahlungsweise ist Pflichtfeld (z. B. jährlich, halbjährlich).",
+    "enumValues": [
+      "Jaehrlich",
+      "Halbjaehrlich",
+      "Vierteljaehrlich",
+      "Monatlich"
+    ],
+    "humanRule": "Zahlungsweise ist Pflicht (jährlich, halbjährlich, vierteljährlich oder monatlich).",
     "synonyms": [
-      "Zahlweise",
-      "payment frequency",
-      "Zahlungsperiode",
-      "Zahlungsrhythmus"
+      "Payment frequency",
+      "Beitragszahlweise",
+      "Zahlrhythmus",
+      "Payment mode"
     ]
   },
   {
@@ -41,25 +50,28 @@
     "label": "Zahlungsart",
     "type": "enum",
     "validators": [],
-    "enumValues": null,
-    "humanRule": "Zahlungsart (z. B. Lastschrift) wird aus dem Enum ZahlungsartEnum gewählt; kein Pflichtfeld.",
+    "enumValues": [
+      "LASTSCHRIFT",
+      "RECHNUNG"
+    ],
+    "humanRule": "Zahlungsart (Lastschrift oder Rechnung); kein Pflichtfeld.",
     "synonyms": [
-      "payment method",
-      "Zahlweg",
+      "Payment method",
+      "Zahlmodus",
       "Bezahlart"
     ]
   },
   {
     "fieldPath": "anschriftVersicherungsnehmerUebernehmen",
-    "label": "Anschrift Versicherungsnehmer übernehmen",
+    "label": "Anschrift VN übernehmen",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Boolean-Schalter, ob die Anschrift des Versicherungsnehmers übernommen werden soll.",
+    "humanRule": "Optionales Häkchen, ob die Anschrift des Versicherungsnehmers übernommen werden soll.",
     "synonyms": [
-      "use policyholder address",
       "Adresse übernehmen",
-      "VN-Anschrift übernehmen"
+      "Use policyholder address",
+      "VN-Adresse übernehmen"
     ]
   },
   {
@@ -71,12 +83,18 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Gebäudetyp (z. B. Einfamilienhaus, Mehrfamilienhaus) ist Pflichtfeld.",
+    "enumValues": [
+      "Einfamilienhaus",
+      "Doppelhashalfte",
+      "Zweifamilienhaus",
+      "Reihenhaus",
+      "Mehrfamilienhaus"
+    ],
+    "humanRule": "Gebäudetyp ist Pflicht (z. B. Einfamilienhaus, Mehrfamilienhaus).",
     "synonyms": [
-      "building type",
+      "Building type",
       "Haustyp",
-      "Objektart"
+      "Property type"
     ]
   },
   {
@@ -97,12 +115,12 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Anzahl der Wohneinheiten ist Pflichtfeld bei Mehrfamilienhaus, mindestens 1, maximal 99; bei anderen Gebäudetypen deaktiviert.",
+    "humanRule": "Anzahl Wohneinheiten ist Pflicht (1–99); nur aktiv, wenn Gebäudetyp Mehrfamilienhaus ist.",
     "synonyms": [
-      "number of residential units",
-      "Wohneinheiten",
-      "WE",
-      "units"
+      "Number of dwellings",
+      "Wohnungen",
+      "Units",
+      "Anzahl Wohnungen"
     ]
   },
   {
@@ -111,11 +129,11 @@
     "type": "integer",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Anzahl Gewerbeeinheiten ist optional.",
+    "humanRule": "Anzahl Gewerbeeinheiten (optional).",
     "synonyms": [
-      "commercial units",
+      "Number of commercial units",
       "Gewerbeeinheiten",
-      "GE"
+      "Commercial units"
     ]
   },
   {
@@ -127,12 +145,24 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Bauartklasse des Gebäudes ist Pflichtfeld.",
+    "enumValues": [
+      "BAK1",
+      "BAK2",
+      "BAK3",
+      "BAK4",
+      "BAK5",
+      "FHG1",
+      "FHG2",
+      "FHG3",
+      "FHG4",
+      "FHG5"
+    ],
+    "humanRule": "Bauartklasse (BAK/FHG) ist Pflicht.",
     "synonyms": [
       "BAK",
-      "building class",
-      "construction class"
+      "Construction class",
+      "Building class",
+      "Bauart"
     ]
   },
   {
@@ -150,15 +180,17 @@
       },
       {
         "kind": "max",
-        "message": "maxYearValidator: aktuelles Jahr + 3"
+        "value": "currentYear+3",
+        "message": "maxYearValidator (active when vertragsbeginn valid)"
       }
     ],
     "enumValues": null,
-    "humanRule": "Baujahr ist Pflichtfeld, frühestens 1600 und höchstens aktuelles Jahr + 3 (sofern Vertragsbeginn gültig).",
+    "humanRule": "Baujahr ist Pflicht, mindestens 1600; bei gültigem Vertragsbeginn maximal aktuelles Jahr + 3.",
     "synonyms": [
-      "year of construction",
-      "construction year",
-      "Errichtungsjahr"
+      "Year built",
+      "Construction year",
+      "Erbaut",
+      "Bauj."
     ]
   },
   {
@@ -167,29 +199,33 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Boolean-Schalter, ob das Gebäude unter Denkmalschutz steht.",
+    "humanRule": "Gibt an, ob das Gebäude unter Denkmalschutz steht.",
     "synonyms": [
-      "heritage protection",
-      "listed building",
-      "Denkmal"
+      "Heritage protection",
+      "Listed building",
+      "Monument protection"
     ]
   },
   {
     "fieldPath": "angabenGebaude.denkmalAuspraegung",
-    "label": "Denkmalschutz-Ausprägung",
+    "label": "Denkmalschutz Ausprägung",
     "type": "enum",
     "validators": [
       {
         "kind": "required",
-        "message": "nur wenn denkmalschutz=true"
+        "message": "only when denkmalschutz=true"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Denkmalschutz-Ausprägung ist Pflichtfeld, wenn Denkmalschutz aktiv ist; sonst deaktiviert.",
+    "enumValues": [
+      "Gering",
+      "Mittel",
+      "Hoch"
+    ],
+    "humanRule": "Ausprägung des Denkmalschutzes (gering/mittel/hoch); Pflicht, wenn Denkmalschutz aktiv ist.",
     "synonyms": [
-      "heritage type",
-      "Denkmalkategorie",
-      "Denkmalart"
+      "Heritage level",
+      "Denkmal-Stufe",
+      "Monument level"
     ]
   },
   {
@@ -198,29 +234,33 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Boolean, ob es sich um einen Feuerrohbau handelt.",
+    "humanRule": "Gibt an, ob eine Feuer-Rohbau-Deckung gewünscht ist.",
     "synonyms": [
-      "fire shell",
+      "Fire shell construction",
       "Rohbau",
-      "shell construction"
+      "Construction phase fire"
     ]
   },
   {
     "fieldPath": "angabenGebaude.feuerrohbauEnum",
-    "label": "Feuerrohbau Ausprägung",
+    "label": "Feuerrohbau Dauer",
     "type": "enum",
     "validators": [
       {
         "kind": "required",
-        "message": "nur wenn feuerrohbau=true"
+        "message": "only when feuerrohbau=true"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Feuerrohbau-Ausprägung ist Pflichtfeld, wenn Feuerrohbau aktiv; sonst deaktiviert.",
+    "enumValues": [
+      "12",
+      "24",
+      "36"
+    ],
+    "humanRule": "Feuerrohbau-Dauer in Monaten (12/24/36); nur Pflicht, wenn Feuerrohbau aktiviert.",
     "synonyms": [
-      "fire shell type",
-      "Feuerrohbau Typ",
-      "Rohbauart"
+      "Fire shell duration",
+      "Rohbau-Dauer",
+      "Bauzeit Feuer"
     ]
   },
   {
@@ -232,12 +272,16 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Dachform ist Pflichtfeld.",
+    "enumValues": [
+      "HarteBedachungAusgebaut",
+      "HarteBedachungNichtAusgebaut",
+      "Flachdach"
+    ],
+    "humanRule": "Dachform ist Pflicht (Giebeldach ausgebaut/nicht ausgebaut oder Flachdach).",
     "synonyms": [
-      "roof shape",
-      "roof form",
-      "Dachtyp"
+      "Roof type",
+      "Roof shape",
+      "Dach"
     ]
   },
   {
@@ -250,11 +294,11 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Schalter, ob die Bauartklasse ermittelt werden soll; ist Pflichtfeld.",
+    "humanRule": "Pflicht-Schalter, ob die Bauartklasse automatisch ermittelt werden soll.",
     "synonyms": [
-      "determine BAK",
-      "Bauartklasse-Ermittlung",
-      "calculate building class"
+      "Determine BAK",
+      "Auto-determine class",
+      "Bauartklasse Auto"
     ]
   },
   {
@@ -262,12 +306,15 @@
     "label": "Dacheindeckung",
     "type": "enum",
     "validators": [],
-    "enumValues": null,
-    "humanRule": "Dacheindeckung wird zur Ermittlung der Bauartklasse erfasst.",
+    "enumValues": [
+      "HarteBedachung",
+      "WeicheBedachung"
+    ],
+    "humanRule": "Art der Dacheindeckung (harte oder weiche Bedachung) für die Bauartklassen-Ermittlung.",
     "synonyms": [
-      "roof covering",
+      "Roof covering",
       "Bedachung",
-      "roofing material"
+      "Dachmaterial"
     ]
   },
   {
@@ -275,12 +322,17 @@
     "label": "Bauweise Außenwände",
     "type": "enum",
     "validators": [],
-    "enumValues": null,
-    "humanRule": "Bauweise der Außenwände wird zur Ermittlung der Bauartklasse erfasst.",
+    "enumValues": [
+      "Massiv",
+      "StahlHolzfachwerkFV",
+      "StahlHolzfachwerkBV",
+      "Holz"
+    ],
+    "humanRule": "Bauweise der Außenwände (massiv, Stahl-/Holzfachwerk oder Holz).",
     "synonyms": [
-      "exterior wall construction",
+      "Wall construction",
       "Außenwandbauweise",
-      "wall construction"
+      "Construction method"
     ]
   },
   {
@@ -288,12 +340,15 @@
     "label": "Fertighaus",
     "type": "enum",
     "validators": [],
-    "enumValues": null,
-    "humanRule": "Angabe ob es sich um ein Fertighaus handelt (Ja/Nein).",
+    "enumValues": [
+      "Ja",
+      "Nein"
+    ],
+    "humanRule": "Gibt an, ob es sich um ein Fertighaus handelt (Ja/Nein).",
     "synonyms": [
-      "prefabricated house",
-      "prefab",
-      "Modulhaus"
+      "Prefabricated house",
+      "Prefab",
+      "Fertigbau"
     ]
   },
   {
@@ -305,13 +360,17 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Nutzungsart (z. B. Selbstbewohnt, Vermietet) ist Pflichtfeld.",
+    "enumValues": [
+      "Selbstbewohnt",
+      "Vermietet",
+      "Teilwisevermietet"
+    ],
+    "humanRule": "Nutzungsart ist Pflicht (selbstbewohnt, vermietet oder teilweise vermietet).",
     "synonyms": [
-      "usage type",
+      "Usage type",
       "Wohnstatus",
-      "occupancy",
-      "use"
+      "Occupancy",
+      "Property usage"
     ]
   },
   {
@@ -320,16 +379,16 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Schalter, ob das Gebäude ständig bewohnt ist (deaktiviert, default true).",
+    "humanRule": "Wert ist fest auf 'true' gesetzt und deaktiviert (nur ständig bewohnte Gebäude möglich).",
     "synonyms": [
-      "permanently inhabited",
-      "ständig genutzt",
-      "permanent residence"
+      "Permanently occupied",
+      "Daueraufenthalt",
+      "Always inhabited"
     ]
   },
   {
     "fieldPath": "wgNutzungflaeche.wohnflaecheOhneKeller",
-    "label": "Wohnfläche ohne Keller",
+    "label": "Wohnfläche ohne Keller (qm)",
     "type": "integer",
     "validators": [
       {
@@ -342,16 +401,16 @@
       {
         "kind": "max",
         "value": 899,
-        "message": "nur wenn nicht Mehrfamilienhaus"
+        "message": "only when gebaeudetyp != Mehrfamilienhaus"
       }
     ],
     "enumValues": null,
-    "humanRule": "Wohnfläche ohne Keller (qm) ist Pflichtfeld, mindestens 1; bei Nicht-Mehrfamilienhaus maximal 899.",
+    "humanRule": "Wohnfläche ohne Keller in qm ist Pflicht, mindestens 1; bei Nicht-Mehrfamilienhaus maximal 899.",
     "synonyms": [
-      "living area without basement",
+      "Living area",
       "Wohnfläche",
-      "floor area",
-      "qm"
+      "Floor area",
+      "qm Wohnfläche"
     ]
   },
   {
@@ -363,18 +422,25 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Anzahl der Vollgeschosse ist Pflichtfeld.",
+    "enumValues": [
+      "KeinObergeschoss",
+      "Obergeschoss1",
+      "Obergeschoss2",
+      "Obergeschoss3",
+      "Obergeschoss4",
+      "Obergeschoss5"
+    ],
+    "humanRule": "Anzahl der Vollgeschosse ist Pflicht (1 bis 6 Vollgeschosse).",
     "synonyms": [
-      "number of floors",
-      "Vollgeschosse",
+      "Number of floors",
       "Stockwerke",
-      "stories"
+      "Geschosse",
+      "Floors"
     ]
   },
   {
     "fieldPath": "wgNutzungflaeche.dasGebaeudeIstUnterkellert",
-    "label": "Gebäude ist unterkellert",
+    "label": "Gebäude unterkellert",
     "type": "boolean",
     "validators": [
       {
@@ -382,22 +448,22 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Pflichtangabe, ob das Gebäude einen Keller hat.",
+    "humanRule": "Pflichtangabe, ob das Gebäude unterkellert ist.",
     "synonyms": [
-      "has basement",
-      "unterkellert",
-      "basement available",
-      "Keller vorhanden"
+      "Has basement",
+      "Keller",
+      "Cellar",
+      "Unterkellert"
     ]
   },
   {
     "fieldPath": "wgNutzungflaeche.gesamtflaecheImKeller",
-    "label": "Gesamtfläche im Keller",
+    "label": "Gesamtfläche im Keller (qm)",
     "type": "integer",
     "validators": [
       {
         "kind": "required",
-        "message": "nur wenn unterkellert"
+        "message": "only when unterkellert=true"
       },
       {
         "kind": "min",
@@ -405,25 +471,25 @@
       },
       {
         "kind": "max",
-        "message": "max = wohnflaecheOhneKeller"
+        "value": "wohnflaecheOhneKeller"
       }
     ],
     "enumValues": null,
-    "humanRule": "Gesamte Kellerfläche (qm) ist Pflichtfeld bei unterkellertem Gebäude, mindestens 1 und höchstens so groß wie die Wohnfläche ohne Keller.",
+    "humanRule": "Gesamtfläche im Keller ist Pflicht, wenn unterkellert (1 qm bis Wohnfläche ohne Keller); sonst deaktiviert.",
     "synonyms": [
-      "total basement area",
+      "Basement total area",
       "Kellerfläche",
-      "basement size"
+      "Cellar area"
     ]
   },
   {
     "fieldPath": "wgNutzungflaeche.wohnflaecheImKeller",
-    "label": "Wohnfläche im Keller",
+    "label": "Wohnfläche im Keller (qm)",
     "type": "integer",
     "validators": [
       {
         "kind": "required",
-        "message": "nur wenn unterkellert und gesamtflaecheImKeller gesetzt"
+        "message": "only when unterkellert=true and gesamtflaecheImKeller set"
       },
       {
         "kind": "min",
@@ -431,20 +497,20 @@
       },
       {
         "kind": "max",
-        "message": "max = gesamtflaecheImKeller"
+        "value": "gesamtflaecheImKeller"
       }
     ],
     "enumValues": null,
-    "humanRule": "Wohnfläche im Keller (qm) ist Pflichtfeld wenn Keller vorhanden, mindestens 0 und höchstens die Gesamtkellerfläche.",
+    "humanRule": "Wohnfläche im Keller ist Pflicht (0 bis Gesamtfläche Keller), wenn unterkellert.",
     "synonyms": [
-      "living area in basement",
-      "Kellerwohnfläche",
-      "basement living area"
+      "Basement living area",
+      "Wohnfläche Keller",
+      "Cellar living"
     ]
   },
   {
     "fieldPath": "wgNutzungflaeche.gewerblicheNutzungImGebaeude",
-    "label": "Gewerbliche Nutzung im Gebäude",
+    "label": "Gewerbliche Nutzung",
     "type": "boolean",
     "validators": [
       {
@@ -452,21 +518,21 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Pflichtangabe, ob im Gebäude gewerbliche Nutzung erfolgt.",
+    "humanRule": "Pflichtangabe, ob das Gebäude gewerblich genutzt wird.",
     "synonyms": [
-      "commercial use",
-      "gewerbliche Nutzung",
-      "business use"
+      "Commercial use",
+      "Gewerbe",
+      "Business use"
     ]
   },
   {
     "fieldPath": "wgNutzungflaeche.gewerbeflaeche",
-    "label": "Gewerbefläche",
+    "label": "Gewerbefläche (qm)",
     "type": "integer",
     "validators": [
       {
         "kind": "required",
-        "message": "nur bei gewerblicher Nutzung"
+        "message": "only when gewerblicheNutzung=true"
       },
       {
         "kind": "min",
@@ -474,15 +540,15 @@
       },
       {
         "kind": "max",
-        "message": "max = floor(0.5*(WohnflKeller+WohnflOhneKeller)-1)"
+        "value": "floor(0.5*(wohnflaecheImKeller+wohnflaecheOhneKeller))-1"
       }
     ],
     "enumValues": null,
-    "humanRule": "Gewerbefläche (qm) ist Pflichtfeld bei gewerblicher Nutzung, mindestens 1 und maximal weniger als 50% der gesamten Wohnfläche.",
+    "humanRule": "Gewerbefläche ist Pflicht bei gewerblicher Nutzung; muss <50% der gesamten Wohnfläche sein.",
     "synonyms": [
-      "commercial area",
-      "Gewerbefläche qm",
-      "business area"
+      "Commercial area",
+      "Gewerbe-qm",
+      "Business area"
     ]
   },
   {
@@ -492,16 +558,16 @@
     "validators": [
       {
         "kind": "required",
-        "message": "nur bei gewerblicher Nutzung"
+        "message": "only when gewerblicheNutzung=true"
       }
     ],
     "enumValues": null,
-    "humanRule": "Branche der gewerblichen Nutzung ist Pflichtfeld, wenn gewerbliche Nutzung vorhanden ist.",
+    "humanRule": "Branche der gewerblichen Nutzung; Pflicht bei gewerblicher Nutzung.",
     "synonyms": [
-      "industry",
-      "Gewerbe",
-      "sector",
-      "trade"
+      "Industry",
+      "Sector",
+      "Gewerbeart",
+      "Business sector"
     ]
   },
   {
@@ -522,16 +588,16 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Anzahl der Carports ist Pflichtfeld, zwischen 0 und 20.",
+    "humanRule": "Anzahl der Carports (0–20) ist Pflicht.",
     "synonyms": [
-      "number of carports",
       "Carports",
+      "Number of carports",
       "Anzahl Carport"
     ]
   },
   {
     "fieldPath": "garageCarport.anzahlStellplaetze",
-    "label": "Anzahl Garagen/Stellplätze",
+    "label": "Anzahl Stellplätze/Garagen",
     "type": "integer",
     "validators": [
       {
@@ -547,12 +613,12 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Anzahl der Garagen/Stellplätze ist Pflichtfeld, zwischen 0 und 20.",
+    "humanRule": "Anzahl der Garagen/Stellplätze (0–20) ist Pflicht.",
     "synonyms": [
-      "number of garages",
+      "Parking spaces",
       "Garagen",
       "Stellplätze",
-      "parking spaces"
+      "Parking spots"
     ]
   },
   {
@@ -563,32 +629,14 @@
     "enumValues": null,
     "humanRule": "Schalter, ob Nebengebäude vorhanden sind.",
     "synonyms": [
-      "outbuildings",
-      "Nebengebäude vorhanden",
-      "secondary buildings"
-    ]
-  },
-  {
-    "fieldPath": "nebengebaeudeList",
-    "label": "Nebengebäudeliste",
-    "type": "string",
-    "validators": [
-      {
-        "kind": "custom",
-        "message": "Summe der Nutzflächen aller Nebengebäude darf wohnflaecheOhneKeller (qm) nicht überschreiten"
-      }
-    ],
-    "enumValues": null,
-    "humanRule": "Liste der Nebengebäude; die Summe ihrer Nutzflächen darf die Wohnfläche ohne Keller nicht überschreiten.",
-    "synonyms": [
-      "outbuilding list",
-      "Nebengebäudeliste",
-      "secondary buildings list"
+      "Outbuildings",
+      "Nebenbauten",
+      "Auxiliary buildings"
     ]
   },
   {
     "fieldPath": "nebengebaeudeList[].bezeichnung",
-    "label": "Bezeichnung Nebengebäude",
+    "label": "Nebengebäude Bezeichnung",
     "type": "string",
     "validators": [
       {
@@ -596,17 +644,16 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Bezeichnung des Nebengebäudes ist Pflichtfeld.",
+    "humanRule": "Bezeichnung jedes Nebengebäudes ist Pflicht (z. B. Gartenhaus, Schuppen).",
     "synonyms": [
-      "outbuilding name",
-      "Bezeichnung",
-      "label",
-      "Name"
+      "Outbuilding name",
+      "Nebenbau Bezeichnung",
+      "Type of outbuilding"
     ]
   },
   {
     "fieldPath": "nebengebaeudeList[].nutzflaeche",
-    "label": "Nutzfläche Nebengebäude",
+    "label": "Nebengebäude Nutzfläche (qm)",
     "type": "integer",
     "validators": [
       {
@@ -615,14 +662,19 @@
       {
         "kind": "min",
         "value": 1
+      },
+      {
+        "kind": "custom",
+        "message": "sumMax: total nutzflaeche of all nebengebaeude must not exceed wohnflaecheOhneKeller"
       }
     ],
     "enumValues": null,
-    "humanRule": "Nutzfläche des Nebengebäudes (qm) ist Pflichtfeld, mindestens 1.",
+    "humanRule": "Nutzfläche jedes Nebengebäudes (≥1 qm); Summe aller Nebengebäude darf die Wohnfläche ohne Keller nicht überschreiten.",
     "synonyms": [
-      "usable area",
+      "Outbuilding area",
       "Nutzfläche",
-      "floor area"
+      "Usable area",
+      "qm Nebengebäude"
     ]
   },
   {
@@ -644,16 +696,17 @@
       {
         "kind": "minAge",
         "value": 18,
-        "message": "minAgeAtContractValidator gegen Vertragsbeginn"
+        "message": "minAgeAtContractValidator(vertragsbeginn)"
       }
     ],
     "enumValues": null,
-    "humanRule": "Geburtsdatum ist Pflichtfeld, muss ein gültiges Datum in der Vergangenheit sein und der Versicherungsnehmer muss am Vertragsbeginn mindestens 18 Jahre alt sein.",
+    "humanRule": "Geburtsdatum (DOB) ist Pflicht, muss ein gültiges Datum in der Vergangenheit sein und Kunde muss bei Vertragsbeginn mindestens 18 Jahre alt sein.",
     "synonyms": [
       "DOB",
-      "date of birth",
-      "Geburtstag",
-      "Geb.-Datum"
+      "Date of birth",
+      "Birthday",
+      "Geb.-Datum",
+      "Birth date"
     ]
   },
   {
@@ -665,11 +718,15 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Geschlecht ist Pflichtfeld.",
+    "enumValues": [
+      "Maennlich",
+      "Weiblich",
+      "Divers"
+    ],
+    "humanRule": "Geschlecht ist Pflicht (männlich/weiblich/divers).",
     "synonyms": [
-      "gender",
-      "sex",
+      "Gender",
+      "Sex",
       "Anrede"
     ]
   },
@@ -687,20 +744,20 @@
       },
       {
         "kind": "minDate",
-        "value": "nextDay"
+        "value": "tomorrow"
       },
       {
         "kind": "maxDate",
-        "value": "today+1Year"
+        "value": "today+1year"
       }
     ],
     "enumValues": null,
-    "humanRule": "Vertragsbeginn ist Pflichtfeld, muss ein gültiges Datum frühestens am nächsten Tag und spätestens in einem Jahr sein.",
+    "humanRule": "Vertragsbeginn ist Pflicht, muss ein gültiges Datum zwischen morgen und einem Jahr in der Zukunft sein.",
     "synonyms": [
-      "contract start",
-      "policy start",
-      "Versicherungsbeginn",
-      "start date"
+      "Contract start",
+      "Policy start",
+      "Beginn",
+      "Start date"
     ]
   },
   {
@@ -712,13 +769,16 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Beschäftigungsart (Beamter/Öffentlicher Dienst oder Privatwirtschaft) ist Pflichtfeld.",
+    "enumValues": [
+      "Normal",
+      "OeffentlicherDienst"
+    ],
+    "humanRule": "Beschäftigungsart ist Pflicht (Privatwirtschaft oder Öffentlicher Dienst).",
     "synonyms": [
-      "employment type",
-      "Berufsstatus",
-      "Beschäftigung",
-      "occupation"
+      "Employment type",
+      "Beruf",
+      "Civil service",
+      "Public sector"
     ]
   },
   {
@@ -730,18 +790,17 @@
         "kind": "required"
       },
       {
-        "kind": "pattern",
-        "value": "^[0-9]{5}$",
-        "message": "postalCodeValidator"
+        "kind": "custom",
+        "message": "postalCodeValidator (5 digits)"
       }
     ],
     "enumValues": null,
-    "humanRule": "Postleitzahl ist Pflichtfeld und muss eine gültige 5-stellige PLZ sein.",
+    "humanRule": "Postleitzahl ist Pflicht und muss 5-stellig sein.",
     "synonyms": [
       "PLZ",
-      "ZIP",
-      "postal code",
-      "ZIP code"
+      "Postal code",
+      "Zip code",
+      "Postcode"
     ]
   },
   {
@@ -754,12 +813,12 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Ort ist Pflichtfeld.",
+    "humanRule": "Ort ist Pflicht.",
     "synonyms": [
-      "city",
+      "City",
       "Stadt",
-      "town",
-      "Ortschaft"
+      "Town",
+      "Place"
     ]
   },
   {
@@ -772,11 +831,12 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Straße ist Pflichtfeld.",
+    "humanRule": "Straße ist Pflicht.",
     "synonyms": [
-      "street",
-      "Str.",
-      "Straßenname"
+      "Street",
+      "Strasse",
+      "Road",
+      "Str."
     ]
   },
   {
@@ -789,70 +849,66 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Hausnummer ist Pflichtfeld.",
+    "humanRule": "Hausnummer ist Pflicht.",
     "synonyms": [
-      "house number",
+      "House number",
       "Nr.",
-      "Hausnr."
-    ]
-  },
-  {
-    "fieldPath": "grundElementarschutz",
-    "label": "Grund-/Elementarschutz",
-    "type": "string",
-    "validators": [
-      {
-        "kind": "custom",
-        "message": "checkboxSelectionValidator: mindestens eine von feuer/leitungswasser/sturm"
-      }
-    ],
-    "enumValues": null,
-    "humanRule": "Mindestens eine der Grunddeckungen Feuer, Leitungswasser oder Sturm muss aktiviert sein.",
-    "synonyms": [
-      "basic coverage",
-      "Grunddeckung",
-      "elementar coverage"
+      "Street number",
+      "HsNr"
     ]
   },
   {
     "fieldPath": "grundElementarschutz.feuer",
     "label": "Feuer",
     "type": "boolean",
-    "validators": [],
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "checkboxSelectionValidator(feuer/leitungswasser/sturm,1)"
+      }
+    ],
     "enumValues": null,
-    "humanRule": "Feuerdeckung (deaktiviert, default true).",
+    "humanRule": "Feuer-Deckung ist immer aktiv (deaktiviertes Pflichthäkchen); mindestens eine der Grunddeckungen Feuer/Leitungswasser/Sturm muss gewählt sein.",
     "synonyms": [
-      "fire",
-      "Feuerversicherung",
-      "fire coverage"
+      "Fire",
+      "Brand",
+      "Fire coverage"
     ]
   },
   {
     "fieldPath": "grundElementarschutz.leitungswasser",
     "label": "Leitungswasser",
     "type": "boolean",
-    "validators": [],
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "checkboxSelectionValidator"
+      }
+    ],
     "enumValues": null,
-    "humanRule": "Leitungswasserdeckung (deaktiviert, default true).",
+    "humanRule": "Leitungswasser-Deckung ist immer aktiv (deaktiviertes Pflichthäkchen).",
     "synonyms": [
-      "water damage",
-      "LW",
-      "tap water",
-      "Wasserschäden"
+      "Water damage",
+      "Tap water",
+      "Wasserschaden"
     ]
   },
   {
     "fieldPath": "grundElementarschutz.sturm",
     "label": "Sturm",
     "type": "boolean",
-    "validators": [],
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "checkboxSelectionValidator"
+      }
+    ],
     "enumValues": null,
-    "humanRule": "Sturmdeckung (deaktiviert, default true).",
+    "humanRule": "Sturm-Deckung ist immer aktiv (deaktiviertes Pflichthäkchen).",
     "synonyms": [
-      "storm",
-      "Sturmschaden",
-      "wind damage",
-      "Hagel"
+      "Storm",
+      "Sturm/Hagel",
+      "Wind damage"
     ]
   },
   {
@@ -861,11 +917,10 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Optionale Elementarschadendeckung.",
+    "humanRule": "Optionale Elementarschadendeckung (Standard: aktiviert).",
     "synonyms": [
-      "natural hazards",
-      "Elementar",
-      "elemental damage",
+      "Natural hazards",
+      "Elementarschäden",
       "Naturgefahren"
     ]
   },
@@ -877,22 +932,22 @@
     "enumValues": null,
     "humanRule": "Optionale Glasversicherung.",
     "synonyms": [
-      "glass",
-      "Glasversicherung",
-      "glass coverage"
+      "Glass insurance",
+      "Glasbruch",
+      "Glass coverage"
     ]
   },
   {
     "fieldPath": "grundElementarschutz.feuerrohbauDeckung",
-    "label": "Feuerrohbaudeckung",
+    "label": "Feuerrohbau-Deckung",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Optionale Feuerrohbaudeckung.",
+    "humanRule": "Optionale Feuer-Rohbau-Deckung im Deckungsumfang.",
     "synonyms": [
-      "fire shell coverage",
-      "Rohbaudeckung",
-      "Feuerrohbau-Deckung"
+      "Fire shell coverage",
+      "Rohbauversicherung",
+      "Fire construction cover"
     ]
   },
   {
@@ -901,11 +956,11 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Schalter, ob Photovoltaik versichert ist.",
+    "humanRule": "Gibt an, ob eine Photovoltaikanlage versichert wird.",
     "synonyms": [
       "PV",
-      "solar panels",
-      "Solaranlage"
+      "Solar PV",
+      "Photovoltaikanlage"
     ]
   },
   {
@@ -914,11 +969,10 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Schalter, ob Solarthermie versichert ist.",
+    "humanRule": "Gibt an, ob eine Solarthermieanlage versichert wird.",
     "synonyms": [
-      "solar thermal",
-      "Solarthermie",
-      "thermal solar"
+      "Solar thermal",
+      "Thermische Solaranlage"
     ]
   },
   {
@@ -927,11 +981,10 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Schalter, ob Wärmepumpe versichert ist.",
+    "humanRule": "Gibt an, ob eine Wärmepumpe versichert wird.",
     "synonyms": [
-      "heat pump",
-      "Wärmepumpe",
-      "WP"
+      "Heat pump",
+      "Waermepumpe"
     ]
   },
   {
@@ -943,13 +996,22 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Selbstbeteiligung ist Pflichtfeld (z. B. 0 €).",
+    "enumValues": [
+      "Zero",
+      "TwoHundredFifty",
+      "FiveHundred",
+      "SevenHundredFifty",
+      "OneThousand",
+      "OneThousandFiveHundred",
+      "TwoThousand",
+      "TwoThousandFiveHundred"
+    ],
+    "humanRule": "Selbstbeteiligung (0–2500 €) ist Pflicht.",
     "synonyms": [
+      "Deductible",
       "SB",
-      "deductible",
-      "excess",
-      "Selbstbehalt"
+      "Excess",
+      "Eigenanteil"
     ]
   },
   {
@@ -958,42 +1020,42 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Schalter, ob eine Vorversicherung besteht.",
+    "humanRule": "Gibt an, ob eine Vorversicherung besteht.",
     "synonyms": [
-      "previous insurance",
-      "Vorversicherung",
-      "prior cover"
+      "Previous insurance",
+      "Vorvertrag",
+      "Prior coverage"
     ]
   },
   {
     "fieldPath": "versicherungsnehmerReguliert",
-    "label": "Versicherungsnehmer reguliert (Schäden hinzufügen)",
+    "label": "Schäden vorhanden",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Schalter aktiviert die Erfassung von Vorschäden.",
+    "humanRule": "Schalter, ob der VN bereits Schäden hatte; aktiviert die Schadenliste.",
     "synonyms": [
-      "damages reported",
-      "Schadensregulierung",
-      "claims declaration"
+      "Damages occurred",
+      "Vorschäden",
+      "Claims history"
     ]
   },
   {
     "fieldPath": "schadenHinzufugen",
-    "label": "Schäden hinzufügen",
+    "label": "Schadenliste",
     "type": "string",
     "validators": [
       {
         "kind": "custom",
-        "message": "damagesValidator: Liste darf nicht leer sein"
+        "message": "damagesValidator: array must not be empty when active"
       }
     ],
     "enumValues": null,
-    "humanRule": "Liste der Vorschäden darf nicht leer sein, wenn Schäden zu erfassen sind.",
+    "humanRule": "Liste der Schäden; muss mindestens einen Eintrag enthalten, wenn aktiviert.",
     "synonyms": [
-      "damages list",
+      "Damage list",
       "Vorschäden",
-      "claims history"
+      "Claims list"
     ]
   },
   {
@@ -1005,12 +1067,19 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Art des Schadens ist Pflichtfeld.",
+    "enumValues": [
+      "Feuer",
+      "Leitungswasser",
+      "Sturm",
+      "Elementar",
+      "Starkregen",
+      "Glas"
+    ],
+    "humanRule": "Art des Schadens ist Pflicht (z. B. Feuer, Leitungswasser, Sturm/Hagel).",
     "synonyms": [
-      "type of damage",
-      "Schadensart",
-      "claim type"
+      "Damage type",
+      "Schadenart",
+      "Type of claim"
     ]
   },
   {
@@ -1023,25 +1092,24 @@
       },
       {
         "kind": "min",
-        "value": 1900,
-        "message": "minYearValidator"
+        "value": 1900
       },
       {
         "kind": "max",
-        "message": "maxYearValidator: aktuelles Jahr"
+        "value": "currentYear"
       }
     ],
     "enumValues": null,
-    "humanRule": "Jahr des Schadens ist Pflichtfeld, zwischen 1900 und dem aktuellen Jahr.",
+    "humanRule": "Jahr des Schadens ist Pflicht (zwischen 1900 und aktuellem Jahr).",
     "synonyms": [
-      "year of damage",
-      "Schadensjahr",
-      "claim year"
+      "Damage year",
+      "Schadenjahr",
+      "Year of claim"
     ]
   },
   {
     "fieldPath": "schadenHinzufugen[].hoheDesSchadens",
-    "label": "Höhe des Schadens",
+    "label": "Höhe des Schadens (€)",
     "type": "integer",
     "validators": [
       {
@@ -1057,55 +1125,46 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Höhe des Schadens (€) ist Pflichtfeld, zwischen 1 und 999.999.",
+    "humanRule": "Schadenhöhe in € ist Pflicht (1 bis 999.999).",
     "synonyms": [
-      "damage amount",
-      "Schadenshöhe",
-      "claim amount",
-      "Schaden EUR"
-    ]
-  },
-  {
-    "fieldPath": "tarifart",
-    "label": "Tarifart",
-    "type": "string",
-    "validators": [
-      {
-        "kind": "custom",
-        "message": "checkboxSelectionValidator: mindestens eine von wohnflaechentarif/summentarif"
-      }
-    ],
-    "enumValues": null,
-    "humanRule": "Mindestens eine Tarifart (Wohnflächentarif oder Summentarif) muss gewählt sein.",
-    "synonyms": [
-      "tariff type",
-      "Tarifvariante",
-      "tariff selection"
+      "Damage amount",
+      "Schadenhöhe",
+      "Claim amount"
     ]
   },
   {
     "fieldPath": "tarifart.wohnflaechentarif",
     "label": "Wohnflächentarif",
     "type": "boolean",
-    "validators": [],
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "checkboxSelectionValidator(wohnflaechentarif/summentarif,1)"
+      }
+    ],
     "enumValues": null,
-    "humanRule": "Schalter, ob Wohnflächentarif gewählt wird.",
+    "humanRule": "Wohnflächentarif; mindestens einer der beiden Tarifarten (Wohnflächen- oder Summentarif) muss aktiviert sein.",
     "synonyms": [
-      "living area tariff",
-      "Flächentarif"
+      "Living area tariff",
+      "Flächentarif",
+      "Area tariff"
     ]
   },
   {
     "fieldPath": "tarifart.summentarif",
     "label": "Summentarif",
     "type": "boolean",
-    "validators": [],
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "checkboxSelectionValidator"
+      }
+    ],
     "enumValues": null,
-    "humanRule": "Schalter, ob Summentarif gewählt wird.",
+    "humanRule": "Summentarif; mindestens einer der beiden Tarifarten muss aktiviert sein.",
     "synonyms": [
-      "sum tariff",
-      "gleitender Neuwert",
-      "value tariff"
+      "Sum-insured tariff",
+      "Versicherungssumme-Tarif"
     ]
   },
   {
@@ -1117,31 +1176,36 @@
         "kind": "required"
       }
     ],
-    "enumValues": null,
-    "humanRule": "Wertermittlung (z. B. automatisch ermitteln, eigene Vorgabe) ist Pflichtfeld; nur aktiv bei Summentarif.",
+    "enumValues": [
+      "AutomatischErmitteln",
+      "EigeneVorgabeWert1914",
+      "BaugutachtenEur",
+      "EigeneVorgabeEur"
+    ],
+    "humanRule": "Wertermittlungsmethode ist Pflicht; nur aktiv bei Summentarif.",
     "synonyms": [
-      "value determination",
-      "Wertermittlungsart",
-      "valuation"
+      "Valuation method",
+      "Wertbestimmung",
+      "Sum determination"
     ]
   },
   {
     "fieldPath": "versicherungssumme",
-    "label": "Versicherungssumme",
+    "label": "Versicherungssumme (€)",
     "type": "number",
     "validators": [
       {
         "kind": "required",
-        "message": "nur bei eigener Vorgabe in EUR"
+        "message": "only when wertermittlung in Baugutachten/EigeneVorgabe EUR"
       }
     ],
     "enumValues": null,
-    "humanRule": "Versicherungssumme (€) ist Pflichtfeld bei Wertermittlung 'Baugutachten in EUR' oder 'Eigene Vorgabe in EUR'.",
+    "humanRule": "Versicherungssumme in € ist Pflicht bei Wertermittlung 'Baugutachten' oder 'Eigene Vorgabe in EUR'.",
     "synonyms": [
-      "sum insured",
-      "Versicherungssumme",
-      "coverage amount",
-      "VS"
+      "Sum insured",
+      "VS",
+      "Insurance sum",
+      "Deckungssumme"
     ]
   },
   {
@@ -1151,16 +1215,15 @@
     "validators": [
       {
         "kind": "required",
-        "message": "nur bei Wertermittlung 'Eigene Vorgabe Wert 1914'"
+        "message": "only when wertermittlung=EigeneVorgabeWert1914"
       }
     ],
     "enumValues": null,
-    "humanRule": "Wert 1914 ist Pflichtfeld, wenn die Wertermittlung 'Eigene Vorgabe Wert 1914' gewählt wurde.",
+    "humanRule": "Wert 1914 ist Pflicht bei Wertermittlung 'Eigene Vorgabe Wert 1914'.",
     "synonyms": [
-      "value 1914",
-      "Wert1914",
-      "1914 value",
-      "gleitender Neuwertfaktor"
+      "Value 1914",
+      "1914-Wert",
+      "Reconstruction value 1914"
     ]
   },
   {
@@ -1168,12 +1231,16 @@
     "label": "Baustandard",
     "type": "enum",
     "validators": [],
-    "enumValues": null,
-    "humanRule": "Baustandard (Einfach, Standard, Gehoben) wird gewählt; setzt automatisch die zugehörigen Detail-Schalter.",
+    "enumValues": [
+      "Gehoben",
+      "Standard",
+      "Einfach"
+    ],
+    "humanRule": "Baustandard (gehoben, standard oder einfach).",
     "synonyms": [
-      "building standard",
+      "Construction standard",
       "Ausstattungsstandard",
-      "quality"
+      "Quality level"
     ]
   },
   {
@@ -1182,87 +1249,89 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Schalter, um die Baustandard-Detailansicht anzuzeigen.",
+    "humanRule": "Schalter zum Anzeigen der Detailansicht der Baustandard-Eigenschaften.",
     "synonyms": [
-      "detail view",
-      "Details anzeigen"
+      "Detail view",
+      "Details",
+      "Detailmodus"
     ]
   },
   {
     "fieldPath": "baustandard.dach",
-    "label": "Dach (Naturschiefer/Kupfer)",
+    "label": "Dach Naturschiefer/Kupfer",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Detailmerkmal Baustandard: Dach aus Naturschiefer oder Kupfer.",
+    "humanRule": "Detail-Häkchen: hochwertige Dacheindeckung (Naturschiefer/Kupfer).",
     "synonyms": [
-      "roof natural slate",
-      "Dach hochwertig",
-      "slate copper roof"
+      "Roof high quality",
+      "Naturschiefer",
+      "Copper roof"
     ]
   },
   {
     "fieldPath": "baustandard.aussenwaende",
-    "label": "Außenwände (Natur-/Keramik-/Kunststein/Klinker)",
+    "label": "Außenwände hochwertig",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Detailmerkmal Baustandard: hochwertige Außenwände.",
+    "humanRule": "Detail-Häkchen: hochwertige Außenwände (Naturstein/Keramik/Klinker).",
     "synonyms": [
-      "exterior walls",
+      "Exterior walls premium",
       "Klinker",
-      "Naturstein Außenwand"
+      "Naturstein"
     ]
   },
   {
     "fieldPath": "baustandard.innenausbau",
-    "label": "Innenausbau (Stuck/Edelholz)",
+    "label": "Innenausbau Stuck/Edelholz",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Detailmerkmal Baustandard: hochwertiger Innenausbau.",
+    "humanRule": "Detail-Häkchen: hochwertiger Innenausbau (Stuck/Edelholz).",
     "synonyms": [
-      "interior finish",
-      "Innenausbau hochwertig",
-      "Stuck"
+      "Interior premium",
+      "Stuck",
+      "Edelholz"
     ]
   },
   {
     "fieldPath": "baustandard.fussoeden",
-    "label": "Fußböden (Naturstein/Parkett)",
+    "label": "Fußböden Naturstein/Parkett",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Detailmerkmal Baustandard: hochwertige Fußböden.",
+    "humanRule": "Detail-Häkchen: hochwertige Fußböden (Naturstein/Parkett).",
     "synonyms": [
-      "floors stone parquet",
-      "Bodenbelag hochwertig",
-      "Parkett"
+      "Floors premium",
+      "Parkett",
+      "Naturstein-Boden"
     ]
   },
   {
     "fieldPath": "baustandard.fussoedenPVC",
-    "label": "Fußböden PVC auf Estrich",
+    "label": "Fußböden PVC",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Detailmerkmal Baustandard: einfache PVC-Fußböden.",
+    "humanRule": "Detail-Häkchen: einfache PVC-Fußböden auf Estrich.",
     "synonyms": [
-      "PVC floors",
-      "einfache Böden",
-      "vinyl floors"
+      "PVC floor",
+      "Vinyl",
+      "Bodenbelag PVC"
     ]
   },
   {
     "fieldPath": "baustandard.fensterLeichtmetall",
-    "label": "Fenster Leichtmetall und Holzsprossen",
+    "label": "Fenster Leichtmetall/Holzsprossen",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Detailmerkmal Baustandard: hochwertige Fenster.",
+    "humanRule": "Detail-Häkchen: hochwertige Fenster aus Leichtmetall mit Holzsprossen.",
     "synonyms": [
-      "high-end windows",
-      "Leichtmetallfenster"
+      "Premium windows",
+      "Sprossenfenster",
+      "Aluminium windows"
     ]
   },
   {
@@ -1271,10 +1340,11 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Detailmerkmal Baustandard: einfache Verglasung.",
+    "humanRule": "Detail-Häkchen: einfach verglaste Fenster.",
     "synonyms": [
-      "single glazing",
-      "Einfachverglasung"
+      "Single glazing",
+      "Einfachglas",
+      "Basic windows"
     ]
   },
   {
@@ -1283,10 +1353,11 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Detailmerkmal Baustandard: Edelholz-Türen.",
+    "humanRule": "Detail-Häkchen: hochwertige Edelholztüren.",
     "synonyms": [
-      "doors hardwood",
-      "Edelholztüren"
+      "Premium doors",
+      "Edelholztüren",
+      "Hardwood doors"
     ]
   },
   {
@@ -1295,10 +1366,11 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Detailmerkmal Baustandard: hochwertige Sanitärausstattung.",
+    "humanRule": "Detail-Häkchen: hochwertige Sanitärausstattung.",
     "synonyms": [
-      "high-end sanitary",
-      "Bad hochwertig"
+      "Premium sanitary",
+      "Hochwertige Sanitär",
+      "Luxury bathroom"
     ]
   },
   {
@@ -1307,35 +1379,35 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Detailmerkmal Baustandard: kein Bad oder Dusche.",
+    "humanRule": "Detail-Häkchen: einfacher Sanitärstandard ohne Bad oder Dusche.",
     "synonyms": [
-      "no bath shower",
-      "ohne Bad",
-      "minimal sanitary"
+      "No bath/shower",
+      "Einfache Sanitär",
+      "No bathroom"
     ]
   },
   {
     "fieldPath": "baustandard.heizungFussoeden",
-    "label": "Heizung Fußboden/Decke",
+    "label": "Fußboden-/Deckenheizung",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Detailmerkmal Baustandard: Fußboden- oder Deckenheizung.",
+    "humanRule": "Detail-Häkchen: hochwertige Fußboden- oder Deckenheizung.",
     "synonyms": [
-      "floor heating",
+      "Floor heating",
       "Fußbodenheizung",
-      "ceiling heating"
+      "Underfloor heating"
     ]
   },
   {
     "fieldPath": "baustandard.heizungOfenheizung",
-    "label": "Heizung Ofen/Nachtspeicher",
+    "label": "Ofen-/Nachtspeicherheizung",
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Detailmerkmal Baustandard: einfache Ofen- oder Nachtspeicherheizung.",
+    "humanRule": "Detail-Häkchen: einfache Ofen- oder Nachtspeicherheizung.",
     "synonyms": [
-      "stove heating",
+      "Stove heating",
       "Nachtspeicher",
       "Ofenheizung"
     ]
@@ -1346,28 +1418,32 @@
     "type": "boolean",
     "validators": [],
     "enumValues": null,
-    "humanRule": "Detailmerkmal Baustandard: hochwertige Einbauküche.",
+    "humanRule": "Detail-Häkchen: hochwertige Einbauküche.",
     "synonyms": [
-      "high-end kitchen",
+      "Premium kitchen",
       "Einbauküche",
-      "luxury kitchen"
+      "Luxury kitchen"
     ]
   },
   {
     "fieldPath": "photovoltaikDetails.typ",
-    "label": "Photovoltaik Typ",
+    "label": "Anlagetyp Photovoltaik",
     "type": "enum",
     "validators": [],
-    "enumValues": null,
-    "humanRule": "Anlagetyp Photovoltaik (nur aktiv bei Photovoltaik=true).",
+    "enumValues": [
+      "Photovoltaik",
+      "Solarthermie",
+      "Waermepumpe"
+    ],
+    "humanRule": "Anlagetyp (fest 'Photovoltaik') wenn PV-Details aktiv.",
     "synonyms": [
       "PV type",
-      "Anlagetyp PV"
+      "Anlagentyp PV"
     ]
   },
   {
     "fieldPath": "photovoltaikDetails.anschaffungswert",
-    "label": "Photovoltaik Anschaffungswert",
+    "label": "PV Anschaffungswert (€)",
     "type": "integer",
     "validators": [
       {
@@ -1379,16 +1455,16 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Anschaffungswert der Photovoltaik-Anlage (€) ist Pflichtfeld, mindestens 1 (nur aktiv bei Photovoltaik=true).",
+    "humanRule": "Anschaffungswert der PV-Anlage in € ist Pflicht (mindestens 1) wenn Photovoltaik aktiv.",
     "synonyms": [
-      "acquisition cost PV",
+      "PV purchase price",
       "Kaufpreis PV",
-      "cost"
+      "Investment cost"
     ]
   },
   {
     "fieldPath": "photovoltaikDetails.leistung",
-    "label": "Photovoltaik Leistung",
+    "label": "PV Leistung (kWp)",
     "type": "integer",
     "validators": [
       {
@@ -1404,17 +1480,16 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Leistung der PV-Anlage (kWp) ist Pflichtfeld, zwischen 1 und 499.",
+    "humanRule": "Leistung der PV-Anlage (1–499 kWp) ist Pflicht wenn Photovoltaik aktiv.",
     "synonyms": [
       "PV power",
-      "Leistung",
       "kWp",
-      "peak power"
+      "Output PV"
     ]
   },
   {
     "fieldPath": "photovoltaikDetails.anschaffungjahr",
-    "label": "Photovoltaik Anschaffungsjahr",
+    "label": "PV Anschaffungsjahr",
     "type": "integer",
     "validators": [
       {
@@ -1422,37 +1497,40 @@
       },
       {
         "kind": "min",
-        "value": 1901,
-        "message": "minYearValidator"
+        "value": 1901
       },
       {
         "kind": "max",
-        "message": "maxYearValidator: aktuelles Jahr"
+        "value": "currentYear"
       }
     ],
     "enumValues": null,
-    "humanRule": "Anschaffungsjahr der PV-Anlage ist Pflichtfeld, zwischen 1901 und dem aktuellen Jahr.",
+    "humanRule": "Anschaffungsjahr der PV-Anlage (1901 bis aktuelles Jahr) ist Pflicht wenn Photovoltaik aktiv.",
     "synonyms": [
-      "acquisition year PV",
-      "Baujahr PV",
-      "installation year"
+      "PV year",
+      "Kaufjahr PV",
+      "Year of purchase"
     ]
   },
   {
     "fieldPath": "solarthermieDetails.typ",
-    "label": "Solarthermie Typ",
+    "label": "Anlagetyp Solarthermie",
     "type": "enum",
     "validators": [],
-    "enumValues": null,
-    "humanRule": "Anlagetyp Solarthermie (nur aktiv bei Solarthermie=true).",
+    "enumValues": [
+      "Photovoltaik",
+      "Solarthermie",
+      "Waermepumpe"
+    ],
+    "humanRule": "Anlagetyp (fest 'Solarthermie') wenn Solarthermie-Details aktiv.",
     "synonyms": [
-      "solar thermal type",
-      "Anlagetyp Solarthermie"
+      "Solar thermal type",
+      "Anlagentyp ST"
     ]
   },
   {
     "fieldPath": "solarthermieDetails.anschaffungswert",
-    "label": "Solarthermie Anschaffungswert",
+    "label": "Solarthermie Anschaffungswert (€)",
     "type": "integer",
     "validators": [
       {
@@ -1464,10 +1542,10 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Anschaffungswert der Solarthermie (€) ist Pflichtfeld, mindestens 1.",
+    "humanRule": "Anschaffungswert der Solarthermieanlage in € ist Pflicht wenn aktiv.",
     "synonyms": [
-      "solar thermal cost",
-      "Kaufpreis Solarthermie"
+      "Solar thermal cost",
+      "Kaufpreis ST"
     ]
   },
   {
@@ -1488,10 +1566,10 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Leistung der Solarthermie ist Pflichtfeld, zwischen 1 und 499.",
+    "humanRule": "Leistung der Solarthermie (1–499) ist Pflicht wenn aktiv.",
     "synonyms": [
-      "solar thermal power",
-      "Leistung Solarthermie"
+      "Solar thermal power",
+      "ST Leistung"
     ]
   },
   {
@@ -1504,36 +1582,39 @@
       },
       {
         "kind": "min",
-        "value": 1901,
-        "message": "minYearValidator"
+        "value": 1901
       },
       {
         "kind": "max",
-        "message": "maxYearValidator: aktuelles Jahr"
+        "value": "currentYear"
       }
     ],
     "enumValues": null,
-    "humanRule": "Anschaffungsjahr der Solarthermie ist Pflichtfeld, zwischen 1901 und dem aktuellen Jahr.",
+    "humanRule": "Anschaffungsjahr der Solarthermie (1901 bis aktuelles Jahr) ist Pflicht wenn aktiv.",
     "synonyms": [
-      "solar thermal year",
-      "Baujahr Solarthermie"
+      "Solar thermal year",
+      "Kaufjahr ST"
     ]
   },
   {
     "fieldPath": "waermepumpeDetails.typ",
-    "label": "Wärmepumpe Typ",
+    "label": "Anlagetyp Wärmepumpe",
     "type": "enum",
     "validators": [],
-    "enumValues": null,
-    "humanRule": "Anlagetyp Wärmepumpe (nur aktiv bei Wärmepumpe=true).",
+    "enumValues": [
+      "Photovoltaik",
+      "Solarthermie",
+      "Waermepumpe"
+    ],
+    "humanRule": "Anlagetyp (fest 'Wärmepumpe') wenn Wärmepumpe-Details aktiv.",
     "synonyms": [
-      "heat pump type",
-      "Anlagetyp WP"
+      "Heat pump type",
+      "Anlagentyp WP"
     ]
   },
   {
     "fieldPath": "waermepumpeDetails.anschaffungswert",
-    "label": "Wärmepumpe Anschaffungswert",
+    "label": "Wärmepumpe Anschaffungswert (€)",
     "type": "integer",
     "validators": [
       {
@@ -1545,9 +1626,9 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Anschaffungswert der Wärmepumpe (€) ist Pflichtfeld, mindestens 1.",
+    "humanRule": "Anschaffungswert der Wärmepumpe in € ist Pflicht wenn aktiv.",
     "synonyms": [
-      "heat pump cost",
+      "Heat pump cost",
       "Kaufpreis WP"
     ]
   },
@@ -1569,11 +1650,10 @@
       }
     ],
     "enumValues": null,
-    "humanRule": "Leistung der Wärmepumpe ist Pflichtfeld, zwischen 1 und 499.",
+    "humanRule": "Leistung der Wärmepumpe (1–499) ist Pflicht wenn aktiv.",
     "synonyms": [
-      "heat pump power",
-      "Leistung WP",
-      "kW"
+      "Heat pump power",
+      "WP Leistung"
     ]
   },
   {
@@ -1586,92 +1666,36 @@
       },
       {
         "kind": "min",
-        "value": 1900,
-        "message": "minYearValidator"
+        "value": 1900
       },
       {
         "kind": "max",
-        "message": "maxYearValidator: aktuelles Jahr"
+        "value": "currentYear"
       }
     ],
     "enumValues": null,
-    "humanRule": "Anschaffungsjahr der Wärmepumpe ist Pflichtfeld, zwischen 1900 und dem aktuellen Jahr.",
+    "humanRule": "Anschaffungsjahr der Wärmepumpe (1900 bis aktuelles Jahr) ist Pflicht wenn aktiv.",
     "synonyms": [
-      "heat pump year",
-      "Baujahr WP"
-    ]
-  },
-  {
-    "fieldPath": "gesamtesGebaeudeWurdeKernsaniert",
-    "label": "Gesamtes Gebäude wurde kernsaniert",
-    "type": "boolean",
-    "validators": [],
-    "enumValues": null,
-    "humanRule": "Schalter, ob das gesamte Gebäude kernsaniert wurde.",
-    "synonyms": [
-      "full renovation",
-      "Kernsanierung",
-      "gut renovation"
-    ]
-  },
-  {
-    "fieldPath": "jahrLetztenKernsanierung",
-    "label": "Jahr der letzten Kernsanierung",
-    "type": "integer",
-    "validators": [
-      {
-        "kind": "required",
-        "message": "nur wenn gesamtesGebaeudeWurdeKernsaniert=true"
-      }
-    ],
-    "enumValues": null,
-    "humanRule": "Jahr der letzten Kernsanierung ist Pflichtfeld, wenn das Gebäude kernsaniert wurde.",
-    "synonyms": [
-      "renovation year",
-      "Sanierungsjahr",
-      "year of refurbishment"
-    ]
-  },
-  {
-    "fieldPath": "einzelneBereicheWurdenSaniert",
-    "label": "Einzelne Bereiche wurden saniert",
-    "type": "boolean",
-    "validators": [],
-    "enumValues": null,
-    "humanRule": "Schalter, ob einzelne Bereiche teilsaniert wurden; aktiviert die Teilsanierungsfelder.",
-    "synonyms": [
-      "partial renovation",
-      "Teilsanierung",
-      "areas renovated"
-    ]
-  },
-  {
-    "fieldPath": "_form",
-    "label": "Teilsanierung Mindestauswahl",
-    "type": "string",
-    "validators": [
-      {
-        "kind": "custom",
-        "message": "checkboxSelectionValidator: mind. eine von rohre/elektrik/heizung/dach, wenn einzelneBereicheWurdenSaniert=true"
-      }
-    ],
-    "enumValues": null,
-    "humanRule": "Wenn 'einzelne Bereiche wurden saniert' aktiviert ist, muss mindestens eine der Sanierungen Rohre, Elektrik, Heizung oder Dach gewählt werden.",
-    "synonyms": [
-      "partial renovation selection",
-      "Teilsanierung Auswahl"
+      "Heat pump year",
+      "Kaufjahr WP"
     ]
   },
   {
     "fieldPath": "rohre",
     "label": "Sanierung Rohre",
     "type": "boolean",
-    "validators": [],
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "checkboxSelectionValidator(rohre/elektrik/heizung/dach,1) when einzelneBereicheWurdenSaniert=true"
+      }
+    ],
     "enumValues": null,
-    "humanRule": "Schalter, ob die Rohre teilsaniert wurden.",
+    "humanRule": "Schalter Sanierung Rohre; bei Teilsanierung muss mindestens eines von Rohre/Elektrik/Heizung/Dach gewählt sein.",
     "synonyms": [
-      "pipes renovated",
-      "Rohrsanierung"
+      "Pipes renovation",
+      "Rohrleitungen",
+      "Plumbing"
     ]
   },
   {
@@ -1679,11 +1703,16 @@
     "label": "Rohre Typ",
     "type": "enum",
     "validators": [],
-    "enumValues": null,
-    "humanRule": "Modernisierungstyp Rohre (nur aktiv bei Rohre=true).",
+    "enumValues": [
+      "Rohre",
+      "Elektrik",
+      "Heizung",
+      "Dach"
+    ],
+    "humanRule": "Modernisierungstyp 'Rohre'.",
     "synonyms": [
-      "pipe type",
-      "Rohrart"
+      "Pipe modernization",
+      "Rohrtyp"
     ]
   },
   {
@@ -1696,26 +1725,31 @@
       },
       {
         "kind": "max",
-        "message": "maxYearValidator: aktuelles Jahr"
+        "value": "currentYear"
       }
     ],
     "enumValues": null,
-    "humanRule": "Jahr der Rohrsanierung ist Pflichtfeld, höchstens aktuelles Jahr.",
+    "humanRule": "Sanierungsjahr Rohre ist Pflicht (max. aktuelles Jahr) wenn aktiv.",
     "synonyms": [
-      "pipe renovation year",
-      "Rohrjahr"
+      "Pipe renovation year",
+      "Sanierungsjahr Rohre"
     ]
   },
   {
     "fieldPath": "elektrik",
     "label": "Sanierung Elektrik",
     "type": "boolean",
-    "validators": [],
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "checkboxSelectionValidator group"
+      }
+    ],
     "enumValues": null,
-    "humanRule": "Schalter, ob die Elektrik teilsaniert wurde.",
+    "humanRule": "Schalter Sanierung Elektrik.",
     "synonyms": [
-      "electrical renovated",
-      "Elektrosanierung"
+      "Electrical renovation",
+      "Elektroinstallation"
     ]
   },
   {
@@ -1723,11 +1757,15 @@
     "label": "Elektrik Typ",
     "type": "enum",
     "validators": [],
-    "enumValues": null,
-    "humanRule": "Modernisierungstyp Elektrik (nur aktiv bei Elektrik=true).",
+    "enumValues": [
+      "Rohre",
+      "Elektrik",
+      "Heizung",
+      "Dach"
+    ],
+    "humanRule": "Modernisierungstyp 'Elektrik'.",
     "synonyms": [
-      "electrical type",
-      "Elektrikart"
+      "Electrical type"
     ]
   },
   {
@@ -1740,26 +1778,30 @@
       },
       {
         "kind": "max",
-        "message": "maxYearValidator: aktuelles Jahr"
+        "value": "currentYear"
       }
     ],
     "enumValues": null,
-    "humanRule": "Jahr der Elektriksanierung ist Pflichtfeld, höchstens aktuelles Jahr.",
+    "humanRule": "Sanierungsjahr Elektrik ist Pflicht (max. aktuelles Jahr) wenn aktiv.",
     "synonyms": [
-      "electrical year",
-      "Elektrikjahr"
+      "Electrical renovation year"
     ]
   },
   {
     "fieldPath": "heizung",
     "label": "Sanierung Heizung",
     "type": "boolean",
-    "validators": [],
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "checkboxSelectionValidator group"
+      }
+    ],
     "enumValues": null,
-    "humanRule": "Schalter, ob die Heizung teilsaniert wurde.",
+    "humanRule": "Schalter Sanierung Heizung.",
     "synonyms": [
-      "heating renovated",
-      "Heizungssanierung"
+      "Heating renovation",
+      "Heizungsanlage"
     ]
   },
   {
@@ -1767,11 +1809,15 @@
     "label": "Heizung Typ",
     "type": "enum",
     "validators": [],
-    "enumValues": null,
-    "humanRule": "Modernisierungstyp Heizung (nur aktiv bei Heizung=true).",
+    "enumValues": [
+      "Rohre",
+      "Elektrik",
+      "Heizung",
+      "Dach"
+    ],
+    "humanRule": "Modernisierungstyp 'Heizung'.",
     "synonyms": [
-      "heating type",
-      "Heizungsart"
+      "Heating type"
     ]
   },
   {
@@ -1784,25 +1830,29 @@
       },
       {
         "kind": "max",
-        "message": "maxYearValidator: aktuelles Jahr"
+        "value": "currentYear"
       }
     ],
     "enumValues": null,
-    "humanRule": "Jahr der Heizungssanierung ist Pflichtfeld, höchstens aktuelles Jahr.",
+    "humanRule": "Sanierungsjahr Heizung ist Pflicht (max. aktuelles Jahr) wenn aktiv.",
     "synonyms": [
-      "heating year",
-      "Heizungsjahr"
+      "Heating renovation year"
     ]
   },
   {
     "fieldPath": "dach",
     "label": "Sanierung Dach",
     "type": "boolean",
-    "validators": [],
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "checkboxSelectionValidator group"
+      }
+    ],
     "enumValues": null,
-    "humanRule": "Schalter, ob das Dach teilsaniert wurde.",
+    "humanRule": "Schalter Sanierung Dach.",
     "synonyms": [
-      "roof renovated",
+      "Roof renovation",
       "Dachsanierung"
     ]
   },
@@ -1811,11 +1861,15 @@
     "label": "Dach Typ",
     "type": "enum",
     "validators": [],
-    "enumValues": null,
-    "humanRule": "Modernisierungstyp Dach (nur aktiv bei Dach=true).",
+    "enumValues": [
+      "Rohre",
+      "Elektrik",
+      "Heizung",
+      "Dach"
+    ],
+    "humanRule": "Modernisierungstyp 'Dach'.",
     "synonyms": [
-      "roof type",
-      "Dachart"
+      "Roof type modernization"
     ]
   },
   {
@@ -1828,15 +1882,57 @@
       },
       {
         "kind": "max",
-        "message": "maxYearValidator: aktuelles Jahr"
+        "value": "currentYear"
       }
     ],
     "enumValues": null,
-    "humanRule": "Jahr der Dachsanierung ist Pflichtfeld, höchstens aktuelles Jahr.",
+    "humanRule": "Sanierungsjahr Dach ist Pflicht (max. aktuelles Jahr) wenn aktiv.",
     "synonyms": [
-      "roof year",
-      "Dachjahr",
-      "roof renovation year"
+      "Roof renovation year"
+    ]
+  },
+  {
+    "fieldPath": "gesamtesGebaeudeWurdeKernsaniert",
+    "label": "Gebäude kernsaniert",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Gibt an, ob das gesamte Gebäude kernsaniert wurde.",
+    "synonyms": [
+      "Core renovation",
+      "Vollsanierung",
+      "Kernsanierung"
+    ]
+  },
+  {
+    "fieldPath": "jahrLetztenKernsanierung",
+    "label": "Jahr letzte Kernsanierung",
+    "type": "integer",
+    "validators": [
+      {
+        "kind": "required",
+        "message": "only when gesamtesGebaeudeWurdeKernsaniert=true"
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Jahr der letzten Kernsanierung ist Pflicht, wenn das Gebäude kernsaniert wurde.",
+    "synonyms": [
+      "Year core renovation",
+      "Sanierungsjahr",
+      "Renovation year"
+    ]
+  },
+  {
+    "fieldPath": "einzelneBereicheWurdenSaniert",
+    "label": "Einzelne Bereiche saniert",
+    "type": "boolean",
+    "validators": [],
+    "enumValues": null,
+    "humanRule": "Schalter, ob einzelne Bereiche saniert wurden (aktiviert Rohre/Elektrik/Heizung/Dach).",
+    "synonyms": [
+      "Partial renovation",
+      "Teilsanierung",
+      "Areas renovated"
     ]
   }
 ]

@@ -1,6 +1,6 @@
 [
   {
-    "fieldPath": "youngestAndOldestDrivers.youngestDriverDob",
+    "fieldPath": "zurPerson.youngestAndOldestDrivers.youngestDriverDob",
     "label": "Geburtsdatum jüngster Fahrer",
     "type": "date",
     "validators": [
@@ -12,23 +12,22 @@
         "message": "dateValidator"
       },
       {
-        "kind": "minAge",
-        "value": 17,
-        "message": "Jüngster Fahrer muss bei Vertragsbeginn mindestens 17 Jahre alt sein"
+        "kind": "maxDate",
+        "value": "insuranceBeginDate - 17 years",
+        "message": "Jüngster Fahrer muss bei Vertragsbeginn mindestens 17 Jahre alt sein."
       }
     ],
     "enumValues": null,
-    "humanRule": "Pflichtfeld: Geburtsdatum des jüngsten Fahrers; muss ein gültiges Datum sein und der Fahrer muss bei Versicherungsbeginn mindestens 17 Jahre alt sein.",
+    "humanRule": "Pflichtfeld; das Geburtsdatum des jüngsten Fahrers muss ein gültiges Datum sein und der Fahrer muss zum Versicherungsbeginn mindestens 17 Jahre alt sein.",
     "synonyms": [
       "Geburtsdatum jüngster Fahrer",
-      "youngestDriverDob",
       "DOB youngest driver",
-      "jüngster Fahrer Geburtstag",
-      "Geburtstag jüngster Fahrer"
+      "youngestDriverDob",
+      "Jüngster Fahrer Geburtstag"
     ]
   },
   {
-    "fieldPath": "customDriver.dob",
+    "fieldPath": "zurPerson.customDriver.dob",
     "label": "Geburtsdatum Fahrer",
     "type": "date",
     "validators": [
@@ -40,23 +39,22 @@
         "message": "dateValidator"
       },
       {
-        "kind": "minAge",
-        "value": 17,
-        "message": "Fahrer muss bei Vertragsbeginn mindestens 17 Jahre alt sein"
+        "kind": "maxDate",
+        "value": "insuranceBeginDate - 17 years",
+        "message": "Fahrer muss bei Vertragsbeginn mindestens 17 Jahre alt sein."
       }
     ],
     "enumValues": null,
-    "humanRule": "Pflichtfeld: Geburtsdatum des Fahrers; muss ein gültiges Datum sein und der Fahrer muss bei Versicherungsbeginn mindestens 17 Jahre alt sein.",
+    "humanRule": "Pflichtfeld; gültiges Geburtsdatum; der Fahrer muss zum Versicherungsbeginn mindestens 17 Jahre alt sein.",
     "synonyms": [
       "Geburtsdatum Fahrer",
-      "Fahrer DOB",
-      "driver dob",
-      "Fahrer Geburtstag",
-      "custom driver birthdate"
+      "Driver DOB",
+      "customDriverDob",
+      "Geburtstag Fahrer"
     ]
   },
   {
-    "fieldPath": "policyHolder.naturalPerson.dob",
+    "fieldPath": "zurPerson.policyHolder.naturalPerson.dob",
     "label": "Geburtsdatum Versicherungsnehmer",
     "type": "date",
     "validators": [
@@ -68,23 +66,23 @@
         "message": "dateValidator"
       },
       {
-        "kind": "minAge",
-        "value": 18,
-        "message": "Versicherungsnehmer muss bei Vertragsbeginn mindestens 18 Jahre alt sein"
+        "kind": "maxDate",
+        "value": "insuranceBeginDate - 18 years",
+        "message": "Versicherungsnehmer muss bei Vertragsbeginn mindestens 18 Jahre alt sein."
       }
     ],
     "enumValues": null,
-    "humanRule": "Pflichtfeld: Geburtsdatum des Versicherungsnehmers; muss gültig sein und der VN muss bei Versicherungsbeginn mindestens 18 Jahre alt sein.",
+    "humanRule": "Pflichtfeld; gültiges Geburtsdatum; der Versicherungsnehmer muss zum Versicherungsbeginn mindestens 18 Jahre alt sein.",
     "synonyms": [
       "Geburtsdatum VN",
-      "VN Geburtstag",
-      "policyholder DOB",
-      "Geburtstag Versicherungsnehmer",
-      "VN dob"
+      "DOB Versicherungsnehmer",
+      "Geburtstag",
+      "policyHolderDob",
+      "DOB"
     ]
   },
   {
-    "fieldPath": "additionalInsurance.dobYoungestDriver",
+    "fieldPath": "sfKlassen.additionalInsurance.dobYoungestDriver",
     "label": "Geburtsdatum jüngster Fahrer (Zusatzversicherung)",
     "type": "date",
     "validators": [
@@ -96,22 +94,21 @@
         "message": "dateValidator"
       },
       {
-        "kind": "minAge",
-        "value": 17,
-        "message": "Jüngster Fahrer muss bei Vertragsbeginn mindestens 17 Jahre alt sein"
+        "kind": "maxDate",
+        "value": "insuranceBeginDate - 17 years",
+        "message": "Jüngster Fahrer muss bei Vertragsbeginn mindestens 17 Jahre alt sein."
       }
     ],
     "enumValues": null,
-    "humanRule": "Pflichtfeld: Geburtsdatum des jüngsten Fahrers in der Zusatzversicherung; muss gültig sein und Fahrer muss bei Vertragsbeginn mindestens 17 Jahre alt sein.",
+    "humanRule": "Pflichtfeld; gültiges Geburtsdatum; jüngster Fahrer in der Zusatzversicherung muss zum Versicherungsbeginn mindestens 17 Jahre alt sein.",
     "synonyms": [
       "dobYoungestDriver",
-      "DOB youngest driver",
-      "Geburtsdatum jüngster Fahrer SF",
-      "jüngster Fahrer Vorversicherung"
+      "Geburtsdatum jüngster Fahrer",
+      "DOB youngest driver SF"
     ]
   },
   {
-    "fieldPath": "plates.part2",
+    "fieldPath": "fahrzeug.plates.part2",
     "label": "Kennzeichen Teil 2",
     "type": "string",
     "validators": [
@@ -121,20 +118,20 @@
       },
       {
         "kind": "required",
-        "message": "Pflicht, wenn keine Neuzulassung"
+        "message": "Nur erforderlich, wenn nicht Neuzulassung."
       }
     ],
     "enumValues": null,
-    "humanRule": "Kennzeichen Teil 2 muss aus 1–2 Buchstaben bestehen; ist Pflichtfeld, wenn es sich nicht um eine Neuzulassung handelt.",
+    "humanRule": "Kennzeichen Teil 2 muss aus 1–2 Buchstaben bestehen (a–z, ä, ö, ü); Pflichtfeld, wenn keine Neuzulassung vorliegt.",
     "synonyms": [
       "Kennzeichen Teil 2",
-      "plate part 2",
-      "Buchstabenteil",
-      "license plate letters"
+      "Plate part 2",
+      "KFZ-Kennzeichen Mitte",
+      "platesPart2"
     ]
   },
   {
-    "fieldPath": "plates.part3",
+    "fieldPath": "fahrzeug.plates.part3",
     "label": "Kennzeichen Teil 3",
     "type": "string",
     "validators": [
@@ -144,252 +141,20 @@
       },
       {
         "kind": "required",
-        "message": "Pflicht, wenn keine Neuzulassung"
+        "message": "Nur erforderlich, wenn nicht Neuzulassung."
       }
     ],
     "enumValues": null,
-    "humanRule": "Kennzeichen Teil 3 muss eine 1- bis 4-stellige Zahl ohne führende Null sein; Pflichtfeld, wenn es sich nicht um eine Neuzulassung handelt.",
+    "humanRule": "Kennzeichen Teil 3 muss eine 1- bis 4-stellige Zahl ohne führende Null sein; Pflichtfeld, wenn keine Neuzulassung vorliegt.",
     "synonyms": [
       "Kennzeichen Teil 3",
-      "plate part 3",
-      "Zahlenteil",
-      "license plate digits"
+      "Plate part 3",
+      "KFZ-Kennzeichen Nummer",
+      "platesPart3"
     ]
   },
   {
-    "fieldPath": "plates.part1",
-    "label": "Kennzeichen Teil 1",
-    "type": "string",
-    "validators": [
-      {
-        "kind": "custom",
-        "message": "kennzeichenTeil1Validator"
-      }
-    ],
-    "enumValues": null,
-    "humanRule": "Kennzeichen Teil 1 (Unterscheidungszeichen) muss 1–3 Buchstaben sein und in der Liste gültiger deutscher Kfz-Kennzeichen-Bezirke enthalten sein.",
-    "synonyms": [
-      "Kennzeichen Teil 1",
-      "Unterscheidungszeichen",
-      "plate part 1",
-      "city code",
-      "Bezirkscode"
-    ]
-  },
-  {
-    "fieldPath": "wvvKennzeichenTeil2",
-    "label": "Kennzeichen Teil 2 (Wechselversicherung)",
-    "type": "string",
-    "validators": [
-      {
-        "kind": "custom",
-        "message": "kennzeichenTeil2Validator"
-      },
-      {
-        "kind": "required",
-        "message": "Bedingt erforderlich"
-      }
-    ],
-    "enumValues": null,
-    "humanRule": "Kennzeichen Teil 2 (1–2 Buchstaben), Pflichtfeld bei vorhandener Vorversicherung oder wenn keine Neuzulassung vorliegt.",
-    "synonyms": [
-      "wvvKennzeichenTeil2",
-      "Wechsel-Kennzeichen Teil 2",
-      "plate2 wvv"
-    ]
-  },
-  {
-    "fieldPath": "wvvKennzeichenTeil3",
-    "label": "Kennzeichen Teil 3 (Wechselversicherung)",
-    "type": "string",
-    "validators": [
-      {
-        "kind": "custom",
-        "message": "kennzeichenTeil3Validator"
-      },
-      {
-        "kind": "required",
-        "message": "Bedingt erforderlich"
-      }
-    ],
-    "enumValues": null,
-    "humanRule": "Kennzeichen Teil 3 (Zahl 1–9999), Pflichtfeld bei vorhandener Vorversicherung oder wenn keine Neuzulassung vorliegt.",
-    "synonyms": [
-      "wvvKennzeichenTeil3",
-      "Wechsel-Kennzeichen Teil 3",
-      "plate3 wvv"
-    ]
-  },
-  {
-    "fieldPath": "nvLpKennzeichenTeil2",
-    "label": "Kennzeichen Teil 2 (Neuversicherung juristische Person)",
-    "type": "string",
-    "validators": [
-      {
-        "kind": "custom",
-        "message": "kennzeichenTeil2Validator"
-      },
-      {
-        "kind": "required",
-        "message": "Bedingt erforderlich"
-      }
-    ],
-    "enumValues": null,
-    "humanRule": "Kennzeichen Teil 2 (1–2 Buchstaben) für die Neuversicherung juristische Person; Pflichtfeld unter den entsprechenden SF/Neuzulassungsbedingungen.",
-    "synonyms": [
-      "nvLpKennzeichenTeil2",
-      "NV LP Kennzeichen Teil 2"
-    ]
-  },
-  {
-    "fieldPath": "nvLpKennzeichenTeil3",
-    "label": "Kennzeichen Teil 3 (Neuversicherung juristische Person)",
-    "type": "string",
-    "validators": [
-      {
-        "kind": "custom",
-        "message": "kennzeichenTeil3Validator"
-      },
-      {
-        "kind": "required",
-        "message": "Bedingt erforderlich"
-      }
-    ],
-    "enumValues": null,
-    "humanRule": "Kennzeichen Teil 3 (Zahl 1–9999) für die Neuversicherung juristische Person; Pflichtfeld unter den SF/Neuzulassungsbedingungen.",
-    "synonyms": [
-      "nvLpKennzeichenTeil3",
-      "NV LP Kennzeichen Teil 3"
-    ]
-  },
-  {
-    "fieldPath": "nvNpKennzeichenTeil2",
-    "label": "Kennzeichen Teil 2 (Neuversicherung natürliche Person)",
-    "type": "string",
-    "validators": [
-      {
-        "kind": "custom",
-        "message": "kennzeichenTeil2Validator"
-      },
-      {
-        "kind": "required",
-        "message": "Bedingt erforderlich"
-      }
-    ],
-    "enumValues": null,
-    "humanRule": "Kennzeichen Teil 2 (1–2 Buchstaben) für die Neuversicherung natürliche Person; Pflichtfeld unter den SF/Neuzulassungsbedingungen.",
-    "synonyms": [
-      "nvNpKennzeichenTeil2",
-      "NV NP Kennzeichen Teil 2"
-    ]
-  },
-  {
-    "fieldPath": "nvNpKennzeichenTeil3",
-    "label": "Kennzeichen Teil 3 (Neuversicherung natürliche Person)",
-    "type": "string",
-    "validators": [
-      {
-        "kind": "custom",
-        "message": "kennzeichenTeil3Validator"
-      },
-      {
-        "kind": "required",
-        "message": "Bedingt erforderlich"
-      }
-    ],
-    "enumValues": null,
-    "humanRule": "Kennzeichen Teil 3 (Zahl 1–9999) für die Neuversicherung natürliche Person; Pflichtfeld unter den SF/Neuzulassungsbedingungen.",
-    "synonyms": [
-      "nvNpKennzeichenTeil3",
-      "NV NP Kennzeichen Teil 3"
-    ]
-  },
-  {
-    "fieldPath": "vvLpKennzeichenTeil2",
-    "label": "Kennzeichen Teil 2 (Vorversicherung juristische Person)",
-    "type": "string",
-    "validators": [
-      {
-        "kind": "custom",
-        "message": "kennzeichenTeil2Validator"
-      },
-      {
-        "kind": "required",
-        "message": "Bedingt erforderlich"
-      }
-    ],
-    "enumValues": null,
-    "humanRule": "Kennzeichen Teil 2 (1–2 Buchstaben) der Vorversicherung juristische Person; Pflichtfeld unter den SF/Neuzulassungsbedingungen.",
-    "synonyms": [
-      "vvLpKennzeichenTeil2",
-      "VV LP Kennzeichen Teil 2"
-    ]
-  },
-  {
-    "fieldPath": "vvLpKennzeichenTeil3",
-    "label": "Kennzeichen Teil 3 (Vorversicherung juristische Person)",
-    "type": "string",
-    "validators": [
-      {
-        "kind": "custom",
-        "message": "kennzeichenTeil3Validator"
-      },
-      {
-        "kind": "required",
-        "message": "Bedingt erforderlich"
-      }
-    ],
-    "enumValues": null,
-    "humanRule": "Kennzeichen Teil 3 (Zahl 1–9999) der Vorversicherung juristische Person; Pflichtfeld unter den SF/Neuzulassungsbedingungen.",
-    "synonyms": [
-      "vvLpKennzeichenTeil3",
-      "VV LP Kennzeichen Teil 3"
-    ]
-  },
-  {
-    "fieldPath": "vvNpKennzeichenTeil2",
-    "label": "Kennzeichen Teil 2 (Vorversicherung natürliche Person)",
-    "type": "string",
-    "validators": [
-      {
-        "kind": "custom",
-        "message": "kennzeichenTeil2Validator"
-      },
-      {
-        "kind": "required",
-        "message": "Bedingt erforderlich"
-      }
-    ],
-    "enumValues": null,
-    "humanRule": "Kennzeichen Teil 2 (1–2 Buchstaben) der Vorversicherung natürliche Person; Pflichtfeld unter den SF/Neuzulassungsbedingungen.",
-    "synonyms": [
-      "vvNpKennzeichenTeil2",
-      "VV NP Kennzeichen Teil 2"
-    ]
-  },
-  {
-    "fieldPath": "vvNpKennzeichenTeil3",
-    "label": "Kennzeichen Teil 3 (Vorversicherung natürliche Person)",
-    "type": "string",
-    "validators": [
-      {
-        "kind": "custom",
-        "message": "kennzeichenTeil3Validator"
-      },
-      {
-        "kind": "required",
-        "message": "Bedingt erforderlich"
-      }
-    ],
-    "enumValues": null,
-    "humanRule": "Kennzeichen Teil 3 (Zahl 1–9999) der Vorversicherung natürliche Person; Pflichtfeld unter den SF/Neuzulassungsbedingungen.",
-    "synonyms": [
-      "vvNpKennzeichenTeil3",
-      "VV NP Kennzeichen Teil 3"
-    ]
-  },
-  {
-    "fieldPath": "kiNpGeburtsdatum",
+    "fieldPath": "antrag.kiNpGeburtsdatum",
     "label": "Geburtsdatum Kontoinhaber",
     "type": "date",
     "validators": [
@@ -401,47 +166,230 @@
         "message": "dateValidator"
       },
       {
-        "kind": "minAge",
-        "value": 18,
-        "message": "Kontoinhaber muss bei Vertragsbeginn mindestens 18 Jahre alt sein"
+        "kind": "maxDate",
+        "value": "insuranceBeginDate - 18 years",
+        "message": "Kontoinhaber muss bei Vertragsbeginn mindestens 18 Jahre alt sein."
       }
     ],
     "enumValues": null,
-    "humanRule": "Pflichtfeld: Geburtsdatum des Kontoinhaber (natürliche Person); muss gültig sein und Kontoinhaber muss bei Versicherungsbeginn mindestens 18 Jahre alt sein.",
+    "humanRule": "Pflichtfeld; gültiges Geburtsdatum; Kontoinhaber muss zum Versicherungsbeginn mindestens 18 Jahre alt sein.",
     "synonyms": [
+      "Geburtsdatum Kontoinhaber",
+      "DOB account holder",
       "kiNpGeburtsdatum",
-      "Kontoinhaber Geburtstag",
-      "account holder DOB",
-      "KI Geburtsdatum"
+      "Kontoinhaber Geburtstag"
     ]
   },
   {
-    "fieldPath": "fahrzeugidentnummer",
-    "label": "Fahrzeugidentnummer (FIN/VIN)",
+    "fieldPath": "antrag.wvvKennzeichenTeil2",
+    "label": "Kennzeichen Teil 2 (WVV)",
     "type": "string",
     "validators": [
       {
-        "kind": "pattern",
-        "value": "^[a-nA-Np-zP-Z0-9]+$",
-        "message": "Nur Buchstaben (außer I,O,Q) und Ziffern erlaubt"
+        "kind": "custom",
+        "message": "kennzeichenTeil2Validator"
       },
       {
-        "kind": "minLength",
-        "value": 8
-      },
-      {
-        "kind": "maxLength",
-        "value": 17
+        "kind": "required",
+        "message": "Nur erforderlich unter bestimmten SF/Neuzulassungs-Bedingungen."
       }
     ],
     "enumValues": null,
-    "humanRule": "Fahrzeugidentnummer (FIN/VIN) muss 8–17 Zeichen lang sein und nur Buchstaben (ohne I, O, Q) sowie Ziffern enthalten.",
+    "humanRule": "Kennzeichen Teil 2 muss aus 1–2 Buchstaben bestehen; Pflichtfeld, wenn keine Neuzulassung oder SF-Klassen-übernehmen-Konstellation gilt.",
     "synonyms": [
-      "Fahrgestellnummer",
-      "FIN",
-      "VIN",
-      "Vehicle Identification Number",
-      "Fahrzeugidentnummer"
+      "Kennzeichen Teil 2 WVV",
+      "Plate part 2",
+      "wvvKennzeichenTeil2"
+    ]
+  },
+  {
+    "fieldPath": "antrag.wvvKennzeichenTeil3",
+    "label": "Kennzeichen Teil 3 (WVV)",
+    "type": "string",
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "kennzeichenTeil3Validator"
+      },
+      {
+        "kind": "required",
+        "message": "Nur erforderlich unter bestimmten SF/Neuzulassungs-Bedingungen."
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "Kennzeichen Teil 3 muss eine 1- bis 4-stellige Zahl ohne führende Null sein; Pflichtfeld unter bestimmten Bedingungen.",
+    "synonyms": [
+      "Kennzeichen Teil 3 WVV",
+      "Plate part 3",
+      "wvvKennzeichenTeil3"
+    ]
+  },
+  {
+    "fieldPath": "antrag.nvLpKennzeichenTeil2",
+    "label": "Kennzeichen Teil 2 (Neuvertrag, juristische Person)",
+    "type": "string",
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "kennzeichenTeil2Validator"
+      },
+      {
+        "kind": "required",
+        "message": "Nur erforderlich unter bestimmten SF/Neuzulassungs-Bedingungen."
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "1–2 Buchstaben; Pflichtfeld unter bestimmten SF/Neuzulassungs-Bedingungen.",
+    "synonyms": [
+      "Kennzeichen Teil 2 NV LP",
+      "nvLpKennzeichenTeil2"
+    ]
+  },
+  {
+    "fieldPath": "antrag.nvLpKennzeichenTeil3",
+    "label": "Kennzeichen Teil 3 (Neuvertrag, juristische Person)",
+    "type": "string",
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "kennzeichenTeil3Validator"
+      },
+      {
+        "kind": "required",
+        "message": "Nur erforderlich unter bestimmten SF/Neuzulassungs-Bedingungen."
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "1- bis 4-stellige Zahl ohne führende Null; Pflichtfeld unter bestimmten Bedingungen.",
+    "synonyms": [
+      "Kennzeichen Teil 3 NV LP",
+      "nvLpKennzeichenTeil3"
+    ]
+  },
+  {
+    "fieldPath": "antrag.nvNpKennzeichenTeil2",
+    "label": "Kennzeichen Teil 2 (Neuvertrag, natürliche Person)",
+    "type": "string",
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "kennzeichenTeil2Validator"
+      },
+      {
+        "kind": "required",
+        "message": "Nur erforderlich unter bestimmten SF/Neuzulassungs-Bedingungen."
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "1–2 Buchstaben; Pflichtfeld unter bestimmten Bedingungen.",
+    "synonyms": [
+      "Kennzeichen Teil 2 NV NP",
+      "nvNpKennzeichenTeil2"
+    ]
+  },
+  {
+    "fieldPath": "antrag.nvNpKennzeichenTeil3",
+    "label": "Kennzeichen Teil 3 (Neuvertrag, natürliche Person)",
+    "type": "string",
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "kennzeichenTeil3Validator"
+      },
+      {
+        "kind": "required",
+        "message": "Nur erforderlich unter bestimmten SF/Neuzulassungs-Bedingungen."
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "1- bis 4-stellige Zahl ohne führende Null; Pflichtfeld unter bestimmten Bedingungen.",
+    "synonyms": [
+      "Kennzeichen Teil 3 NV NP",
+      "nvNpKennzeichenTeil3"
+    ]
+  },
+  {
+    "fieldPath": "antrag.vvLpKennzeichenTeil2",
+    "label": "Kennzeichen Teil 2 (Vorvertrag, juristische Person)",
+    "type": "string",
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "kennzeichenTeil2Validator"
+      },
+      {
+        "kind": "required",
+        "message": "Nur erforderlich unter bestimmten SF/Neuzulassungs-Bedingungen."
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "1–2 Buchstaben; Pflichtfeld unter bestimmten Bedingungen.",
+    "synonyms": [
+      "Kennzeichen Teil 2 VV LP",
+      "vvLpKennzeichenTeil2"
+    ]
+  },
+  {
+    "fieldPath": "antrag.vvLpKennzeichenTeil3",
+    "label": "Kennzeichen Teil 3 (Vorvertrag, juristische Person)",
+    "type": "string",
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "kennzeichenTeil3Validator"
+      },
+      {
+        "kind": "required",
+        "message": "Nur erforderlich unter bestimmten SF/Neuzulassungs-Bedingungen."
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "1- bis 4-stellige Zahl ohne führende Null; Pflichtfeld unter bestimmten Bedingungen.",
+    "synonyms": [
+      "Kennzeichen Teil 3 VV LP",
+      "vvLpKennzeichenTeil3"
+    ]
+  },
+  {
+    "fieldPath": "antrag.vvNpKennzeichenTeil2",
+    "label": "Kennzeichen Teil 2 (Vorvertrag, natürliche Person)",
+    "type": "string",
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "kennzeichenTeil2Validator"
+      },
+      {
+        "kind": "required",
+        "message": "Nur erforderlich unter bestimmten SF/Neuzulassungs-Bedingungen."
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "1–2 Buchstaben; Pflichtfeld unter bestimmten Bedingungen.",
+    "synonyms": [
+      "Kennzeichen Teil 2 VV NP",
+      "vvNpKennzeichenTeil2"
+    ]
+  },
+  {
+    "fieldPath": "antrag.vvNpKennzeichenTeil3",
+    "label": "Kennzeichen Teil 3 (Vorvertrag, natürliche Person)",
+    "type": "string",
+    "validators": [
+      {
+        "kind": "custom",
+        "message": "kennzeichenTeil3Validator"
+      },
+      {
+        "kind": "required",
+        "message": "Nur erforderlich unter bestimmten SF/Neuzulassungs-Bedingungen."
+      }
+    ],
+    "enumValues": null,
+    "humanRule": "1- bis 4-stellige Zahl ohne führende Null; Pflichtfeld unter bestimmten Bedingungen.",
+    "synonyms": [
+      "Kennzeichen Teil 3 VV NP",
+      "vvNpKennzeichenTeil3"
     ]
   }
 ]
