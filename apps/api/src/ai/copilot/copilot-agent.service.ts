@@ -6,6 +6,7 @@ import { bugReports, ticketsCache } from '../../db/schema';
 import { REPORT_SEVERITIES, SPARTEN } from '../../db/schema';
 import { findOrCreateReporter } from '../../users/find-or-create-reporter';
 import { PrefillService } from '../../prefill/prefill.service';
+import { ValidationRulesService } from '../../validation-rules/validation-rules.service';
 import { AnthropicService } from '../anthropic.service';
 import { CodeLocalizerService } from '../code-localizer.service';
 import { DedupService } from '../dedup.service';
@@ -43,7 +44,13 @@ function prefillAddendum(stage: 'live' | 'qa' | 'dev'): string {
 - Pass the pasted JSON verbatim as the \`json\` argument.
 - Pass \`stage: "${stage}"\` (this is the active session stage).
 - On result: write a conversational reply. Lead with missing required fields if any, then type errors. Cap the first reply at 5 issues; if there are more, end with "Want me to list the rest?".
-- If the result has \`schemaSource: "static"\`, mention "(offline schema; required-field check skipped)".`;
+- If the result has \`schemaSource: "static"\`, mention "(offline schema; required-field check skipped)".
+
+FIELD-RULE LOOKUP:
+- When the user asks about a Sparte field (German labels like Geburtsdatum, Versicherungssumme, Karenzzeit, etc.), call lookup_field_rule first.
+- If lookup returns 0 rows: say so and suggest 2–3 close alternatives based on the wording.
+- If lookup returns multiple rows (same field across Sparten): summarize per Sparte.
+- When the user says "remember/save/add 'X' as synonym for Y": call add_field_synonym after a fresh lookup_field_rule to get the rule id.`;
 }
 
 const COPILOT_TOOLS: Anthropic.Tool[] = [
@@ -188,6 +195,47 @@ const COPILOT_TOOLS: Anthropic.Tool[] = [
       additionalProperties: false,
     },
   },
+  {
+    name: 'lookup_field_rule',
+    description:
+      'Look up validation rules for a Sparte field. Use when the user asks "what are the rules for X?", "what is allowed for Y?", or asks about specific German field names like Geburtsdatum, Versicherungssumme, Beitragszahlung, etc. Matches by field name, dotted path, or synonym (case-insensitive).',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        query: {
+          type: 'string',
+          description: 'Field name or related term the user mentioned.',
+        },
+        sparte: {
+          type: 'string',
+          enum: ['Kfz', 'Bu', 'Rlv', 'Pr', 'Br', 'Gf', 'Hr', 'Wg', 'Kvv', 'Kvz', 'Phv'],
+          description: 'Optional. Restrict results to one Sparte.',
+        },
+      },
+      required: ['query'],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'add_field_synonym',
+    description:
+      'Add a synonym to an existing field rule. Use when the user explicitly asks to remember an alternate name for a field (e.g. "remember that DOB means Geburtsdatum").',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        ruleId: {
+          type: 'string',
+          description: 'The rule UUID returned by lookup_field_rule.',
+        },
+        synonym: {
+          type: 'string',
+          description: 'The new synonym to add.',
+        },
+      },
+      required: ['ruleId', 'synonym'],
+      additionalProperties: false,
+    },
+  },
 ];
 
 @Injectable()
@@ -203,6 +251,7 @@ export class CopilotAgentService {
     private readonly triageQueue: TriageQueueService,
     private readonly voyage: VoyageService,
     private readonly prefill: PrefillService,
+    private readonly validationRules: ValidationRulesService,
     @Optional() private readonly codeLocalizer?: CodeLocalizerService,
     @Optional() private readonly transcriptDecomposer?: TranscriptDecomposerService
   ) {}
@@ -562,6 +611,56 @@ export class CopilotAgentService {
                 typeErrorCount: result.typeErrors.length,
                 issues,
               }),
+              isError: false,
+            };
+          } catch (err) {
+            return {
+              nextState: state,
+              message: (err as Error).message,
+              isError: true,
+            };
+          }
+        }
+
+        case 'lookup_field_rule': {
+          const query = String(input['query'] ?? '');
+          const sparteFilter =
+            typeof input['sparte'] === 'string'
+              ? (input['sparte'] as string)
+              : undefined;
+          const rules = await this.validationRules.lookup(query, sparteFilter);
+          return {
+            nextState: state,
+            toolData: rules,
+            message: JSON.stringify({
+              count: rules.length,
+              rules: rules.slice(0, 10).map((r) => ({
+                id: r.id,
+                sparte: r.sparte,
+                fieldPath: r.fieldPath,
+                label: r.label,
+                type: r.type,
+                humanRule: r.humanRule,
+                enumValues: r.enumValues,
+                synonyms: r.synonyms,
+              })),
+            }),
+            isError: false,
+          };
+        }
+
+        case 'add_field_synonym': {
+          const ruleId = String(input['ruleId'] ?? '');
+          const synonym = String(input['synonym'] ?? '');
+          try {
+            const updated = await this.validationRules.addSynonym(
+              ruleId,
+              synonym,
+            );
+            return {
+              nextState: state,
+              toolData: { ruleId: updated.id, synonyms: updated.synonyms },
+              message: `Synonym "${synonym}" added to ${updated.label} (${updated.sparte}).`,
               isError: false,
             };
           } catch (err) {
