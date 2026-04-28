@@ -35,17 +35,13 @@ describe('AuthController.login', () => {
     expect(login).toHaveBeenCalledWith('a@b', 'pw');
   });
 
-  it('rejects missing email', async () => {
-    await expect(controller.login({ password: 'pw' })).rejects.toBeInstanceOf(
-      BadRequestException
-    );
+  it('rejects missing email', () => {
+    expect(() => controller.login({ password: 'pw' })).toThrow(BadRequestException);
     expect(login).not.toHaveBeenCalled();
   });
 
-  it('rejects missing password', async () => {
-    await expect(controller.login({ email: 'a@b' })).rejects.toBeInstanceOf(
-      BadRequestException
-    );
+  it('rejects missing password', () => {
+    expect(() => controller.login({ email: 'a@b' })).toThrow(BadRequestException);
     expect(login).not.toHaveBeenCalled();
   });
 
