@@ -69,13 +69,17 @@ export class IntakeAgentService {
     const fewShots = await this.buildFewShotMessages();
     const apiMessages = [...fewShots, ...this.toApiMessages(history)];
 
-    if (apiMessages.length === 0) {
+    // Claude requires the conversation to end with a user message. On
+    // /chat/start (no userText) and when the last persisted turn is an
+    // assistant turn (e.g. only few-shots loaded), synthesize a kickoff.
+    const last = apiMessages[apiMessages.length - 1];
+    if (!last || last.role !== 'user') {
       apiMessages.push({
         role: 'user',
         content: [
           {
             type: 'text',
-            text: '[system] New session — greet the user and ask the first question.',
+            text: '[system] Continue the intake — greet the user (if first turn) or ask the next focused question.',
           },
         ],
       });
@@ -90,7 +94,13 @@ export class IntakeAgentService {
     let lastInputTokens = 0;
     let lastOutputTokens = 0;
     let assistantText = '';
-    const assistantContentForStorage: Anthropic.ContentBlock[] = [];
+    type Turn = {
+      role: 'assistant' | 'user';
+      content:
+        | Anthropic.ContentBlock[]
+        | Anthropic.Messages.ToolResultBlockParam[];
+    };
+    const turnsToPersist: Turn[] = [];
 
     for (let loop = 0; loop < MAX_TOOL_LOOPS; loop++) {
       const response = await this.anthropic.client.messages.create({
@@ -106,11 +116,11 @@ export class IntakeAgentService {
       lastOutputTokens += response.usage?.output_tokens ?? 0;
 
       for (const block of response.content) {
-        assistantContentForStorage.push(block);
         if (block.type === 'text') {
           assistantText += block.text;
         }
       }
+      turnsToPersist.push({ role: 'assistant', content: response.content });
 
       if (response.stop_reason !== 'tool_use') break;
 
@@ -130,16 +140,29 @@ export class IntakeAgentService {
         });
       }
       apiMessages.push({ role: 'user', content: toolResults });
+      turnsToPersist.push({ role: 'user', content: toolResults });
     }
 
-    await this.sessions.appendMessage({
-      sessionId: input.sessionId,
-      role: 'assistant',
-      content: assistantContentForStorage,
-      stopReason,
-      inputTokens: lastInputTokens,
-      outputTokens: lastOutputTokens,
-    });
+    // Persist each iteration's assistant + tool-result-as-user messages in
+    // order so the next turn replays a valid tool_use → tool_result sequence.
+    let lastAssistantIdx = -1;
+    for (let i = turnsToPersist.length - 1; i >= 0; i--) {
+      if (turnsToPersist[i].role === 'assistant') {
+        lastAssistantIdx = i;
+        break;
+      }
+    }
+    for (let i = 0; i < turnsToPersist.length; i++) {
+      const turn = turnsToPersist[i];
+      await this.sessions.appendMessage({
+        sessionId: input.sessionId,
+        role: turn.role,
+        content: turn.content,
+        stopReason: i === lastAssistantIdx ? stopReason : null,
+        inputTokens: i === lastAssistantIdx ? lastInputTokens : undefined,
+        outputTokens: i === lastAssistantIdx ? lastOutputTokens : undefined,
+      });
+    }
 
     await this.sessions.setIntakeState(input.sessionId, intakeState);
 
@@ -186,13 +209,17 @@ export class IntakeAgentService {
     const fewShots = await this.buildFewShotMessages();
     const apiMessages = [...fewShots, ...this.toApiMessages(history)];
 
-    if (apiMessages.length === 0) {
+    // Claude requires the conversation to end with a user message. On
+    // /chat/start (no userText) and when the last persisted turn is an
+    // assistant turn (e.g. only few-shots loaded), synthesize a kickoff.
+    const last = apiMessages[apiMessages.length - 1];
+    if (!last || last.role !== 'user') {
       apiMessages.push({
         role: 'user',
         content: [
           {
             type: 'text',
-            text: '[system] New session — greet the user and ask the first question.',
+            text: '[system] Continue the intake — greet the user (if first turn) or ask the next focused question.',
           },
         ],
       });
@@ -206,7 +233,13 @@ export class IntakeAgentService {
     let stopReason: string | null = null;
     let lastInputTokens = 0;
     let lastOutputTokens = 0;
-    const assistantContentForStorage: Anthropic.ContentBlock[] = [];
+    type Turn = {
+      role: 'assistant' | 'user';
+      content:
+        | Anthropic.ContentBlock[]
+        | Anthropic.Messages.ToolResultBlockParam[];
+    };
+    const turnsToPersist: Turn[] = [];
 
     for (let loop = 0; loop < MAX_TOOL_LOOPS; loop++) {
       const stream = this.anthropic.client.messages.stream({
@@ -231,9 +264,7 @@ export class IntakeAgentService {
       lastInputTokens += finalMessage.usage?.input_tokens ?? 0;
       lastOutputTokens += finalMessage.usage?.output_tokens ?? 0;
 
-      for (const block of finalMessage.content) {
-        assistantContentForStorage.push(block);
-      }
+      turnsToPersist.push({ role: 'assistant', content: finalMessage.content });
 
       if (finalMessage.stop_reason !== 'tool_use') break;
 
@@ -252,16 +283,27 @@ export class IntakeAgentService {
         });
       }
       apiMessages.push({ role: 'user', content: toolResults });
+      turnsToPersist.push({ role: 'user', content: toolResults });
     }
 
-    await this.sessions.appendMessage({
-      sessionId: input.sessionId,
-      role: 'assistant',
-      content: assistantContentForStorage,
-      stopReason,
-      inputTokens: lastInputTokens,
-      outputTokens: lastOutputTokens,
-    });
+    let lastAssistantIdx = -1;
+    for (let i = turnsToPersist.length - 1; i >= 0; i--) {
+      if (turnsToPersist[i].role === 'assistant') {
+        lastAssistantIdx = i;
+        break;
+      }
+    }
+    for (let i = 0; i < turnsToPersist.length; i++) {
+      const turn = turnsToPersist[i];
+      await this.sessions.appendMessage({
+        sessionId: input.sessionId,
+        role: turn.role,
+        content: turn.content,
+        stopReason: i === lastAssistantIdx ? stopReason : null,
+        inputTokens: i === lastAssistantIdx ? lastInputTokens : undefined,
+        outputTokens: i === lastAssistantIdx ? lastOutputTokens : undefined,
+      });
+    }
 
     await this.sessions.setIntakeState(input.sessionId, intakeState);
 
@@ -328,12 +370,28 @@ export class IntakeAgentService {
   private toApiMessages(
     history: ChatMessage[]
   ): Anthropic.Messages.MessageParam[] {
-    return history
-      .filter((m) => m.role !== 'system')
-      .map((m) => ({
-        role: m.role === 'assistant' ? ('assistant' as const) : ('user' as const),
-        content: m.content as Anthropic.Messages.ContentBlockParam[],
-      }));
+    // Replay only the user-visible conversation (text + plain user input).
+    // Tool calls happen WITHIN a single turn's loop and their effect is
+    // captured in `intakeState` — replaying tool_use without paired tool_result
+    // (or vice versa) would 400 from Claude. Strip both kinds of blocks here.
+    const result: Anthropic.Messages.MessageParam[] = [];
+    for (const m of history) {
+      if (m.role === 'system') continue;
+      const role: 'assistant' | 'user' =
+        m.role === 'assistant' ? 'assistant' : 'user';
+      const blocks = m.content as Anthropic.Messages.ContentBlockParam[];
+      if (!Array.isArray(blocks)) continue;
+
+      const filtered = blocks.filter((b) => {
+        if (!b || typeof b !== 'object') return false;
+        const t = (b as { type?: string }).type;
+        return t !== 'tool_use' && t !== 'tool_result';
+      });
+      if (filtered.length === 0) continue;
+
+      result.push({ role, content: filtered });
+    }
+    return result;
   }
 
   private handleTool(
