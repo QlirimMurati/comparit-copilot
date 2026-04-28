@@ -86,7 +86,7 @@
         } @else if (!chatSubmitted()) {
           <form
             class="chat-input"
-            (ngSubmit)="sendMessage()"
+            (submit)="$event.preventDefault(); sendMessage()"
           >
             <input
               type="text"
