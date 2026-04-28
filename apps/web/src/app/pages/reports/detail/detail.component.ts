@@ -17,6 +17,8 @@ import {
   SPARTEN,
   SPARTE_LABELS,
   type BugReport,
+  type DuplicateCandidate,
+  type GeneratedTestStub,
   type ReportSeverity,
   type ReportStatus,
   type Sparte,
@@ -64,6 +66,19 @@ export class ReportDetailComponent {
   });
 
   protected readonly capturedContext = computed(() => this.report()?.capturedContext ?? null);
+
+  protected readonly aiProposed = computed(() => this.report()?.aiProposedTicket ?? null);
+
+  protected readonly polishing = signal(false);
+  protected readonly polishError = signal<string | null>(null);
+
+  protected readonly testStub = signal<GeneratedTestStub | null>(null);
+  protected readonly testStubGenerating = signal(false);
+  protected readonly testStubError = signal<string | null>(null);
+
+  protected readonly duplicates = signal<DuplicateCandidate[] | null>(null);
+  protected readonly duplicateChecking = signal(false);
+  protected readonly duplicateError = signal<string | null>(null);
 
   constructor() {
     effect(() => {
@@ -119,8 +134,79 @@ export class ReportDetailComponent {
     });
   }
 
+  protected runPolisher(): void {
+    const r = this.report();
+    if (!r) return;
+    this.polishing.set(true);
+    this.polishError.set(null);
+    this.api.polish(r.id).subscribe({
+      next: () => {
+        this.polishing.set(false);
+        this.api.getById(r.id).subscribe({
+          next: (updated) => this.state.set({ kind: 'ok', report: updated }),
+        });
+      },
+      error: (err) => {
+        this.polishing.set(false);
+        this.polishError.set(this.errorMessage(err, 'Polisher failed.'));
+      },
+    });
+  }
+
+  protected generateTestStub(): void {
+    const r = this.report();
+    if (!r) return;
+    this.testStubGenerating.set(true);
+    this.testStubError.set(null);
+    this.api.generateTestStub(r.id).subscribe({
+      next: (stub) => {
+        this.testStubGenerating.set(false);
+        this.testStub.set(stub);
+      },
+      error: (err) => {
+        this.testStubGenerating.set(false);
+        this.testStubError.set(this.errorMessage(err, 'Test stub generation failed.'));
+      },
+    });
+  }
+
+  protected checkDuplicates(): void {
+    const r = this.report();
+    if (!r) return;
+    this.duplicateChecking.set(true);
+    this.duplicateError.set(null);
+    this.api
+      .checkDuplicate({
+        title: r.title,
+        description: r.description,
+        sparte: r.sparte,
+        limit: 5,
+      })
+      .subscribe({
+        next: (res) => {
+          this.duplicateChecking.set(false);
+          this.duplicates.set(res.candidates.filter((c) => c.id !== r.id));
+        },
+        error: (err) => {
+          this.duplicateChecking.set(false);
+          this.duplicateError.set(
+            this.errorMessage(err, 'Duplicate check failed.')
+          );
+        },
+      });
+  }
+
   protected formatDate(iso: string): string {
     return new Date(iso).toLocaleString();
+  }
+
+  protected formatDistance(d: number): string {
+    return d.toFixed(3);
+  }
+
+  private errorMessage(err: unknown, fallback: string): string {
+    const e = err as { error?: { message?: string }; message?: string };
+    return e?.error?.message ?? e?.message ?? fallback;
   }
 
   protected statusTone(s: ReportStatus): string {

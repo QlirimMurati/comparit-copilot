@@ -42,6 +42,47 @@ export const SPARTE_LABELS: Record<Sparte, string> = {
   comparit: 'Comparit',
 };
 
+export const POLISHED_TICKET_TYPES = ['bug', 'task', 'story'] as const;
+export type PolishedTicketType = (typeof POLISHED_TICKET_TYPES)[number];
+
+export interface PolishedTicket {
+  title: string;
+  description: string;
+  proposedType: PolishedTicketType;
+  proposedLabels: string[];
+  repro_steps: string[];
+  expected: string;
+  actual: string;
+}
+
+export type TestFramework = 'cypress' | 'playwright';
+
+export interface GeneratedTestStub {
+  framework: TestFramework;
+  filename: string;
+  source: string;
+  notes?: string;
+}
+
+export interface DuplicateCandidate {
+  id: string;
+  title: string;
+  status: string;
+  severity: string;
+  sparte: string | null;
+  jiraIssueKey: string | null;
+  createdAt: string;
+  distance: number;
+}
+
+export interface CheckDuplicateInput {
+  title: string;
+  description: string;
+  sparte?: Sparte | null;
+  limit?: number;
+  maxDistance?: number;
+}
+
 export interface BugReport {
   id: string;
   reporterId: string;
@@ -51,6 +92,7 @@ export interface BugReport {
   severity: ReportSeverity;
   sparte: Sparte | null;
   capturedContext: unknown;
+  aiProposedTicket: PolishedTicket | null;
   jiraIssueKey: string | null;
   createdAt: string;
   updatedAt: string;

@@ -35,79 +35,91 @@ apps/web/src/app/pages/dashboards/   ← stats
 
 ## 2. Workstreams (10)
 
-### W1 — Bug report detail / edit page (Phase 1 leftover)
+### W1 — Bug report detail / edit page (Phase 1 leftover) — ✅ DONE 2026-04-28
 - Route `/reports/:id`.
 - Show: header (title, status, severity, sparte), reporter, created, captured context (collapsible), AI proposal (when present), Jira link.
 - Edit controls: status dropdown, severity dropdown, sparte select, jira_issue_key text input.
 - Saves via existing `PATCH /api/reports/:id`.
-- **Done when:** create-edit-list flow works end-to-end against the local API.
+- **Shipped:** [detail.component.ts](apps/web/src/app/pages/reports/detail/detail.component.ts) + view link from list.
 
-### W2 — Captured-context viewer (shared component)
-- Reusable component `<copilot-context-viewer>` in `libs/ui-kit/`.
-- Renders `captured_context` jsonb cleanly: route + IDs as a key-value table; breadcrumbs as a timeline; console errors with stack traces collapsed; store snapshot as a tree.
-- Used in W1 detail page; also imported by Donart for widget review-before-submit.
-- **Coordinate:** Donart imports from `libs/ui-kit/`.
+### W2 — Captured-context viewer (shared component) — ✅ DONE 2026-04-28
+- Reusable component `<lib-context-viewer>` in `libs/ui-kit/` (path alias `@comparit-copilot/ui-kit`).
+- Renders `captured_context` jsonb cleanly: route + IDs as a key-value table; meta (browser/locale/app) as a key-value table; collapsible "Other fields" raw JSON for unknown shapes.
+- Used in W1 detail page; available for Donart's widget review-before-submit.
+- **Shipped:** [context-viewer.component.ts](libs/ui-kit/src/lib/context-viewer/context-viewer.component.ts).
+- **Follow-up:** breadcrumbs timeline + store-snapshot tree once Donart's W2/W4 produce those fields.
 
-### W3 — AI proposal panel on report detail
-- Renders `bug_reports.ai_proposed_ticket` (Clirim W2 ticket polisher output).
-- "Re-run polisher" button (calls `POST /api/reports/:id/polish`).
-- "Push to Jira" button (calls `POST /api/reports/:id/push-to-jira` — Clirim W7).
-- Shows duplicates above a confidence threshold (Clirim W4).
-- **Coordinate:** depends on Clirim W2 + W4 + W7.
+### W3 — AI proposal panel on report detail — ✅ MOSTLY DONE 2026-04-28
+- Renders `bug_reports.ai_proposed_ticket` (Clirim W2 ticket polisher output) — title, type, labels, repro steps, expected/actual.
+- "Run / Re-run polisher" button (`POST /api/reports/:id/polish`).
+- "Generate test stub" button (`POST /api/reports/:id/generate-test-stub`) — shows Cypress/Playwright source.
+- "Check duplicates" button (`POST /api/reports/check-duplicate`) — lists similar reports with cosine distance.
+- "Push to Jira" button — **stubbed/disabled** with tooltip "pending Q7" until Clirim W7 lands.
+- **Shipped:** detail.component.html `AI proposal` / `Possible duplicates` / `Test stub` sections.
 
-### W4 — Prompt admin UI (`/admin/prompts`)
-- List active prompts per agent + per sparte.
-- Edit form (textarea, sparte selector, activate/deactivate toggle).
-- **Replay/test panel:** select past sessions, run candidate prompt, show side-by-side diff of model output.
-- Permission gate: `qa-lead` and `admin` only (existing JWT role claim).
-- **Coordinate:** depends on Clirim W6.
+### W4 — Prompt admin UI (`/admin/prompts`) — ✅ DONE 2026-04-28
+- List of DB overrides per agent (intake / ticket_polisher / transcript_decomposer / triage / qa_bot / code_localizer).
+- "Currently active prompt" panel showing whether DB override or repo default is active.
+- Create / edit form (textarea + note + active toggle).
+- Toggle active inline from row.
+- **Replay panel:** runs candidate prompt against last 5 intake sessions; side-by-side diff of original vs candidate assistant output.
+- Permission gate: `qa_lead` / `admin` via [roleGuard](apps/web/src/app/core/auth/role.guard.ts).
+- **Shipped:** [prompts.component.ts](apps/web/src/app/pages/admin/prompts/prompts.component.ts).
 
-### W5 — Few-shot management UI (`/admin/few-shots`)
-- List per agent + per sparte.
-- Add new (paste a conversation, score 1–5).
-- Activate/deactivate.
-- **Coordinate:** depends on Clirim W5.
+### W5 — Few-shot management UI (`/admin/few-shots`) — ✅ DONE 2026-04-28
+- List per agent (label, turn count, active badge, updated date).
+- Create form: label + structured turn editor (add/remove user/assistant turns, role toggle, text per turn) + active toggle.
+- Edit existing entry — same form pre-filled.
+- Toggle active inline from row.
+- Permission gate via [roleGuard](apps/web/src/app/core/auth/role.guard.ts).
+- **Shipped:** [few-shots.component.ts](apps/web/src/app/pages/admin/few-shots/few-shots.component.ts).
+- **Note:** scoring (1–5) deferred — backend doesn't carry a score field yet.
 
-### W6 — NL Jira search (`/jira/search`)
+### W6 — NL Jira search (`/jira/search`) — 🚫 BLOCKED on Clirim W7 (Q7)
 - Input box → `POST /api/jira/search` → results table (Jira key, title, status, assignee, sparte).
 - Show generated JQL (debug toggle).
 - Click-through to ticket detail (read-only) + "find similar resolved" companion.
-- **Coordinate:** depends on Clirim W7.
+- **Coordinate:** depends on Clirim W7. Q7 (Jira instance URL + API token) still unanswered.
 
-### W7 — Transcript decomposer UI (`/transcripts`)
-- Paste textarea → `POST /api/transcripts`.
-- Live tree view of Epic → Story → Subtask as decomposer fills it (consumes WebSocket channel `transcript:<id>` from Clirim W10).
-- Inline edit on any node, then "Push all to Jira" (atomic create via Clirim W7).
-- **Coordinate:** depends on Clirim W3 + W10 + W7.
+### W7 — Transcript decomposer UI (`/transcripts`) — ✅ MOSTLY DONE 2026-04-28
+- Paste textarea + optional title → `POST /api/transcripts` returns full Epic/Story/Subtask tree.
+- Tree view: nested cards by depth (epic → story → subtask), labels, hour estimate badges, assistant explanation.
+- Refine input: free-form instruction → `POST /api/transcripts/:id/refine` → re-rendered tree.
+- "Start over" resets state.
+- **Shipped:** [transcripts.component.ts](apps/web/src/app/pages/transcripts/transcripts.component.ts).
+- **Follow-up:** live tree-fill via Clirim W10 WebSocket channel `transcript:<id>` (currently REST-only — `socket.io-client` dep needs to be added). "Push all to Jira" deferred until Clirim W7 ships.
 
-### W8 — "Likely affected files" panel
+### W8 — "Likely affected files" panel — 🚫 BLOCKED on Clirim W8 + W9
 - Renders Clirim W9 output on report detail: top-K files with confidence label, recent commit + author, click-through to file at line.
 - "Find similar resolved tickets" companion (uses tickets_cache embeddings).
-- **Coordinate:** depends on Clirim W8 + W9.
+- **Coordinate:** depends on Clirim W8 (codebase indexing) + W9 (code-localizer agent). Neither shipped yet.
 
-### W9 — Dashboards (`/dashboards`)
-- Bugs per sparte (bar chart).
-- Time-to-resolution (trend line).
-- Deploy correlation (overlay deploys on bug-rate timeline — uses git SHA in captured context).
-- Use a small chart lib (Chart.js or ng2-charts).
-- **Coordinate:** read-only on existing tables; no backend dependency.
+### W9 — Dashboards (`/dashboards`) — 🟡 PARTIAL 2026-04-28
+- ✅ Total / Open / Resolved KPI cards.
+- ✅ Bugs-per-sparte horizontal bar chart (CSS bars off the existing `GET /api/reports` data — no chart lib needed yet).
+- ✅ Status breakdown chips.
+- ❌ Time-to-resolution trend line — needs aggregation endpoint (TODO: small read-only addition to `apps/api/src/bug-reports/`, coordinate with Clirim).
+- ❌ Deploy correlation overlay — needs git SHA aggregation from `captured_context`.
+- **Shipped:** [dashboards.component.ts](apps/web/src/app/pages/dashboards/dashboards.component.ts). Chart lib decision deferred until trend lines are needed.
 
-### W10 — Bilingual web UI + CI workflow
+### W10 — Bilingual web UI — ⏳ TODO (CI half dropped)
 - **Bilingual:** `@ngx-translate/core` or Angular's built-in `$localize`. English default, German parallel; language toggle in header. Extract all hardcoded strings.
-- **CI:** `.github/workflows/ci.yml` running `nx affected -t lint,test,build` for `api`, `web`, `widget-host`, `libs/widget`. Drizzle migration check (`pnpm drizzle-kit check`).
-- **Done when:** every page renders in both languages; CI green on a sample PR.
+- **Coordinate i18n choice with Donart's W8** (widget bilingual) before starting — both must use the same library.
+- **Note:** CI workflow scope dropped (local-only project — no `.github/workflows/`). Verification via local `nx run-many -t lint,test,build`.
+- **Done when:** every page renders in both languages.
 
 ---
 
 ## 3. Order of attack
 
-1. **W1 detail page + W2 context viewer** — independent, unblocks demo
-2. **W10 CI half** — set up before everyone's code piles up; bilingual half can come last
-3. **W4 + W5 admin UIs** — once Clirim W5/W6 endpoints land
-4. **W3 AI proposal panel** — once Clirim W2/W4 land
-5. **W6 Jira search** — once Clirim W7 lands
-6. **W7 transcript decomposer UI** — once Clirim W3 + W10 land
-7. **W8 + W9 dashboards/code panel**
+1. ✅ **W1 detail page + W2 context viewer** — shipped 2026-04-28
+2. ✅ **W4 + W5 admin UIs** — shipped 2026-04-28
+3. ✅ **W3 AI proposal panel** — shipped 2026-04-28 (Jira-push button stubbed)
+4. ✅ **W7 transcript decomposer UI** — shipped 2026-04-28 (REST-only; live tree-fill TODO)
+5. ✅ **W9 dashboards** — first tile shipped 2026-04-28; trend tiles need aggregation endpoint
+6. ⏳ **W10 bilingual** — pending i18n choice with Donart
+7. 🚫 **W6 Jira search** — blocked on Clirim W7 (Q7)
+8. 🚫 **W8 affected-files panel** — blocked on Clirim W8 + W9
 
 ---
 

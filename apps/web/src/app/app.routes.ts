@@ -1,5 +1,6 @@
 import { Route } from '@angular/router';
 import { authGuard, guestGuard } from './core/auth/auth.guard';
+import { roleGuard } from './core/auth/role.guard';
 
 export const appRoutes: Route[] = [
   {
@@ -39,6 +40,43 @@ export const appRoutes: Route[] = [
           import('./pages/reports/detail/detail.component').then(
             (m) => m.ReportDetailComponent
           ),
+      },
+      {
+        path: 'transcripts',
+        loadComponent: () =>
+          import('./pages/transcripts/transcripts.component').then(
+            (m) => m.TranscriptsComponent
+          ),
+      },
+      {
+        path: 'dashboards',
+        loadComponent: () =>
+          import('./pages/dashboards/dashboards.component').then(
+            (m) => m.DashboardsComponent
+          ),
+      },
+      {
+        path: 'admin',
+        canActivate: [roleGuard(['admin', 'qa_lead'])],
+        loadComponent: () =>
+          import('./pages/admin/admin.component').then((m) => m.AdminComponent),
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: 'prompts' },
+          {
+            path: 'prompts',
+            loadComponent: () =>
+              import('./pages/admin/prompts/prompts.component').then(
+                (m) => m.PromptsComponent
+              ),
+          },
+          {
+            path: 'few-shots',
+            loadComponent: () =>
+              import('./pages/admin/few-shots/few-shots.component').then(
+                (m) => m.FewShotsComponent
+              ),
+          },
+        ],
       },
     ],
   },

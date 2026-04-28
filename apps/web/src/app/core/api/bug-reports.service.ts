@@ -3,8 +3,12 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import type {
   BugReport,
+  CheckDuplicateInput,
   CreateBugReportInput,
+  DuplicateCandidate,
+  GeneratedTestStub,
   ListBugReportsFilter,
+  PolishedTicket,
   UpdateBugReportInput,
 } from './bug-reports.types';
 
@@ -31,5 +35,25 @@ export class BugReportsService {
 
   update(id: string, patch: UpdateBugReportInput): Observable<BugReport> {
     return this.http.patch<BugReport>(`/api/reports/${id}`, patch);
+  }
+
+  polish(id: string): Observable<PolishedTicket> {
+    return this.http.post<PolishedTicket>(`/api/reports/${id}/polish`, {});
+  }
+
+  generateTestStub(id: string): Observable<GeneratedTestStub> {
+    return this.http.post<GeneratedTestStub>(
+      `/api/reports/${id}/generate-test-stub`,
+      {}
+    );
+  }
+
+  checkDuplicate(
+    input: CheckDuplicateInput
+  ): Observable<{ candidates: DuplicateCandidate[] }> {
+    return this.http.post<{ candidates: DuplicateCandidate[] }>(
+      '/api/reports/check-duplicate',
+      input
+    );
   }
 }

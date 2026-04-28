@@ -7,7 +7,7 @@
 
 ## Current Focus
 
-- **Active workstream:** W9 (dashboards shell) next — W1 + W2 shipped 2026-04-28
+- **Active workstream:** W10 bilingual (after i18n decision); rest of W9 (trend tiles) needs aggregation endpoint
 - **Last updated:** 2026-04-28
 
 ---
@@ -18,14 +18,14 @@
 |---|---|---|---|
 | W1 | Bug report detail / edit page | Done | Shipped 2026-04-28 |
 | W2 | Captured-context viewer | Done | Shipped 2026-04-28 (`@comparit-copilot/ui-kit`) |
-| W3 | AI proposal panel | TODO | Depends on Clirim W2 + W4 + W7 |
-| W4 | Prompt admin UI | TODO | Depends on Clirim W6 |
-| W5 | Few-shot management UI | TODO | Depends on Clirim W5 |
-| W6 | NL Jira search UI | TODO | Depends on Clirim W7 |
-| W7 | Transcript decomposer UI | TODO | Depends on Clirim W3 + W10 |
-| W8 | "Likely affected files" panel | TODO | Depends on Clirim W8 + W9 |
-| W9 | Dashboards | TODO | |
-| W10 | Bilingual web UI | TODO | CI half dropped per scope decision; bilingual pending i18n choice |
+| W3 | AI proposal panel | Mostly done | Polish + dedup + test-stub wired; Jira-push stubbed (Q7) |
+| W4 | Prompt admin UI | Done | Shipped 2026-04-28 with replay panel |
+| W5 | Few-shot management UI | Done | Shipped 2026-04-28 |
+| W6 | NL Jira search UI | Blocked | Clirim W7 (Q7 unresolved) |
+| W7 | Transcript decomposer UI | Mostly done | REST-only; live WebSocket tree-fill TODO |
+| W8 | "Likely affected files" panel | Blocked | Clirim W8 + W9 not shipped |
+| W9 | Dashboards | Partial | First tile shipped; trend tiles need aggregation endpoint |
+| W10 | Bilingual web UI | TODO | Pending i18n choice with Donart |
 
 ---
 
@@ -39,6 +39,11 @@ _none_
 
 - 2026-04-28 — W1 Bug report detail/edit page — `nx build web` clean; route `/reports/:id` loads, edits status/severity/sparte/jiraIssueKey via existing `PATCH /api/reports/:id`.
 - 2026-04-28 — W2 Captured-context viewer — new `libs/ui-kit/` lib (path alias `@comparit-copilot/ui-kit`) with `<lib-context-viewer>`; `nx build ui-kit` + `nx test ui-kit` green; consumed by W1 detail page.
+- 2026-04-28 — W4 Prompt admin UI — `/admin/prompts` with create/edit/toggle + replay panel (last 5 intake sessions side-by-side diff); `roleGuard(['admin','qa_lead'])`. `nx build web` clean.
+- 2026-04-28 — W5 Few-shots admin UI — `/admin/few-shots` with structured turn editor (user/assistant), label, active toggle. Same role guard. `nx build web` clean.
+- 2026-04-28 — W3 AI proposal panel — detail page renders `aiProposedTicket` (title, type, labels, repro steps, expected/actual). "Run polisher" + "Generate test stub" + "Check duplicates" buttons live. "Push to Jira" stubbed/disabled (Q7).
+- 2026-04-28 — W7 Transcript decomposer UI — `/transcripts` paste-and-tree-render, refine input, status badges. REST-only (live WebSocket layer pending `socket.io-client` dep).
+- 2026-04-28 — W9 Dashboards (first tile) — `/dashboards` with KPI cards, bugs-per-sparte CSS bar chart, status breakdown chips. No chart lib needed yet.
 
 ---
 
