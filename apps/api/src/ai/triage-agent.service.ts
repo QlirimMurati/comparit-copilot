@@ -85,11 +85,20 @@ const TRIAGE_TOOL: Anthropic.Tool = {
   },
 };
 
-const TRIAGE_SYSTEM = `You are a senior triage engineer for the Comparit comparer-ui codebase. Given a freshly-submitted bug report and the most similar historical reports, you propose:
+const TRIAGE_SYSTEM = `You are a senior triage engineer for the Comparit comparer-ui codebase. Given a freshly-submitted ticket and the most similar historical reports, you propose:
 
 1. A severity level (blocker, high, medium, low). Calibrate against the impact described and the similarity profile of the historical reports.
 2. A sparte correction if the captured/declared sparte looks wrong.
 3. An optional reason for an assignee (the server picks the actual userId based on who fixed the similar reports).
+
+Severity reference (bugs):
+- blocker = production down, all users affected, or security/data-loss
+- high    = major feature broken, regression, or many users blocked
+- medium  = noticeable but workable, has a workaround
+- low     = cosmetic, minor, nitpick
+
+Severity reference (features — type='feature'):
+- Treat severity as priority. Default to "low" unless the ticket clearly states urgency (e.g. "blocker for the demo", "needed by Friday", "regulatory deadline"). Never propose "blocker" for features.
 
 Each proposal needs a confidence in [0, 1]. Use sub-0.6 confidence when unsure. Do not invent.
 

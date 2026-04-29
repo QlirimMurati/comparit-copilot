@@ -15,9 +15,13 @@ export const PolishedTicketSchema = z.object({
     .max(8000, 'description must be at most 8000 chars'),
   proposedType: z.enum(POLISHED_TICKET_TYPES),
   proposedLabels: z.array(z.string().min(1).max(50)).max(10),
-  repro_steps: z.array(z.string().min(1)).min(1).max(20),
-  expected: z.string().min(1),
-  actual: z.string().min(1),
+  // 0 to 20: bugs should have at least 1; feature/story tickets emit []
+  // (no repro for new capabilities). Strict-min was crashing the polisher
+  // on every feature. Description carries the "user goal / acceptance"
+  // narrative instead.
+  repro_steps: z.array(z.string().min(1)).max(20).default([]),
+  expected: z.string().min(1).default('—'),
+  actual: z.string().min(1).default('—'),
 });
 export type PolishedTicket = z.infer<typeof PolishedTicketSchema>;
 
@@ -32,9 +36,6 @@ export const TICKET_POLISHER_TOOL: Anthropic.Tool = {
       'description',
       'proposedType',
       'proposedLabels',
-      'repro_steps',
-      'expected',
-      'actual',
     ],
     properties: {
       title: {
@@ -66,22 +67,20 @@ export const TICKET_POLISHER_TOOL: Anthropic.Tool = {
       },
       repro_steps: {
         type: 'array',
-        minItems: 1,
         maxItems: 20,
         items: { type: 'string', minLength: 1 },
         description:
-          'Ordered steps the developer can follow to reproduce. Each step is one sentence. Include precondition setup as a step if non-obvious (login state, tariff selected, etc.). If the transcript does not contain enough detail, write the best-effort steps you have.',
+          'Ordered steps the developer can follow to reproduce. Each step is one sentence. Include precondition setup as a step if non-obvious (login state, tariff selected, etc.). REQUIRED for bug tickets — write the best-effort steps if the transcript is sparse. For feature/story tickets, emit an empty array — the description carries the user goal + acceptance criteria instead.',
       },
       expected: {
         type: 'string',
-        minLength: 1,
-        description: 'What the system should do when the steps are followed.',
+        description:
+          'For bugs: what the system should do when the steps are followed. For features: leave as a single dash "—" or describe the desired end-state once the feature ships.',
       },
       actual: {
         type: 'string',
-        minLength: 1,
         description:
-          'What the system actually does (the bug). Be specific: error message, wrong number, blank screen, etc.',
+          'For bugs: what the system actually does (the bug) — be specific: error message, wrong number, blank screen, etc. For features: leave as a single dash "—".',
       },
     },
     additionalProperties: false,
@@ -104,5 +103,8 @@ Rules:
 - Keep it concrete. No "I think", no apologies, no greetings.
 - The Markdown description must stand on its own without reference to the chat transcript.
 - Use the captured page context (URL, sparte, IDs) when relevant — do not omit them just because they were not literally typed by the reporter.
-- proposedType defaults to "bug" for reports unless the conversation clearly indicates a feature request or pure config task.
+- proposedType:
+    "bug"   — something is broken (default for reports). Description sections: short summary, ## Steps to reproduce, ## Expected, ## Actual, optional ## Environment / Notes. Fill repro_steps + expected + actual.
+    "story" — user-visible feature, change, or improvement. Description sections: short summary, ## User goal, ## Why / Motivation, ## Acceptance criteria. Emit repro_steps as []; expected/actual as "—". Skip "Steps to reproduce" in the body.
+    "task"  — config / follow-up / non-defect work. Mirror "story" structure (no repro_steps), but use ## What needs to happen + ## Notes.
 - Do not call any tool other than \`submit_polished_ticket\`. Do not produce text content alongside the tool call.`;
