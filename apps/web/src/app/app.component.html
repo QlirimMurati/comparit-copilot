@@ -139,10 +139,21 @@
         @for (g of groupedSessions(); track g.label) {
           <div class="sb-grouplabel">{{ g.label }}</div>
           @for (s of g.items; track s.id) {
-            <button type="button" class="sb-chat" (click)="openSession(s.id)" [title]="s.title ?? 'New conversation'">
-              <span class="sb-chat-title">{{ s.title ?? 'New conversation' }}</span>
-              <span class="chat-date">{{ s.updatedAt | date: 'MMM d' }}</span>
-            </button>
+            <div class="sb-chat-row">
+              <button type="button" class="sb-chat" (click)="openSession(s.id)" [title]="s.title ?? 'New conversation'">
+                <span class="sb-chat-title">{{ s.title ?? 'New conversation' }}</span>
+                <span class="chat-date">{{ s.updatedAt | date: 'MMM d' }}</span>
+              </button>
+              <button
+                type="button"
+                class="sb-chat-delete"
+                (click)="deleteSession(s.id, s.title); $event.stopPropagation()"
+                [title]="'Delete chat'"
+                [attr.aria-label]="'Delete chat'"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+              </button>
+            </div>
           }
         }
         @if (groupedSessions().length === 0 && !searchTerm()) {

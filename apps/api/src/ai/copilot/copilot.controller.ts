@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Logger,
@@ -51,6 +52,23 @@ export class CopilotController {
       createdAt: s.createdAt.toISOString(),
       updatedAt: s.updatedAt.toISOString(),
     }));
+  }
+
+  @ApiOperation({
+    summary: 'Delete a copilot session (and its messages)',
+    description:
+      'Hard-delete; cascades to copilot_messages via FK. Only the owning user can delete their own session.',
+  })
+  @Delete('sessions/:id')
+  async deleteSession(
+    @Param('id') id: string,
+    @Req() req: AuthRequest
+  ): Promise<{ id: string }> {
+    const session = await this.sessions.getById(id);
+    if (session.userId !== req.user.id) {
+      throw new BadRequestException('Session not found');
+    }
+    return this.sessions.remove(id);
   }
 
   @ApiOperation({ summary: 'Load message history for a session' })

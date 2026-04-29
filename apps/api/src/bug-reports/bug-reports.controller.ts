@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -113,6 +114,16 @@ export class BugReportsController {
     @Body() body: UpdateBugReportInput
   ): Promise<BugReport> {
     return this.reports.update(id, body);
+  }
+
+  @ApiOperation({
+    summary: 'Delete a bug report',
+    description:
+      'Hard-deletes the report row. Cascades to attachments, embeddings, and any dedup links via FK constraints.',
+  })
+  @Delete(':id')
+  remove(@Param('id') id: string): Promise<{ id: string }> {
+    return this.reports.remove(id);
   }
 
   @ApiOperation({ summary: 'Polish a bug report ticket' })

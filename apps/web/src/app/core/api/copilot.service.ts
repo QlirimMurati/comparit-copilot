@@ -26,6 +26,12 @@ export class CopilotService {
     return this.http.get<CopilotSessionSummary[]>('/api/copilot/sessions');
   }
 
+  deleteSession(sessionId: string): Observable<{ id: string }> {
+    return this.http.delete<{ id: string }>(
+      `/api/copilot/sessions/${sessionId}`
+    );
+  }
+
   getMessages(sessionId: string): Observable<CopilotMessageRecord[]> {
     return this.http.get<CopilotMessageRecord[]>(
       `/api/copilot/sessions/${sessionId}/messages`

@@ -425,6 +425,54 @@ body { overflow: hidden; }
 }
 .sb-chat .chat-date { font-size: 11px; color: var(--fg-4); font-weight: 400; flex-shrink: 0; }
 
+/* Hover-revealed delete next to a sidebar chat */
+.sb-chat-row {
+  display: flex; align-items: center; gap: 2px;
+  position: relative;
+}
+.sb-chat-row .sb-chat { flex: 1; padding-right: 28px; }
+.sb-chat-delete {
+  position: absolute;
+  right: 4px; top: 50%; transform: translateY(-50%);
+  width: 24px; height: 24px;
+  display: grid; place-items: center;
+  border: none; background: transparent;
+  border-radius: 6px;
+  color: var(--fg-3);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 120ms var(--ease-standard), background 120ms var(--ease-standard), color 120ms var(--ease-standard);
+}
+.sb-chat-row:hover .sb-chat-delete,
+.sb-chat-row:focus-within .sb-chat-delete { opacity: 1; }
+.sb-chat-delete:hover { background: rgba(220, 38, 38, 0.12); color: var(--danger, #dc2626); }
+.sb-chat-delete svg { width: 14px; height: 14px; }
+
+/* Danger variant for inline delete buttons (report detail, etc.) */
+.btn-danger {
+  color: var(--danger, #dc2626);
+}
+.btn-danger:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--danger, #dc2626);
+}
+
+/* Per-row trash icon in table cells */
+.row-delete {
+  width: 26px; height: 26px;
+  display: inline-grid; place-items: center;
+  border: none; background: transparent;
+  border-radius: 6px;
+  color: var(--fg-3);
+  cursor: pointer;
+  transition: background 120ms var(--ease-standard), color 120ms var(--ease-standard);
+}
+.row-delete:hover {
+  background: rgba(220, 38, 38, 0.12);
+  color: var(--danger, #dc2626);
+}
+.row-delete svg { width: 14px; height: 14px; }
+
 .sb-footer {
   padding: 10px 12px;
   border-top: 1px solid var(--border-1);

@@ -38,6 +38,10 @@ export class BugReportsService {
     return this.http.patch<BugReport>(`/api/reports/${id}`, patch);
   }
 
+  delete(id: string): Observable<{ id: string }> {
+    return this.http.delete<{ id: string }>(`/api/reports/${id}`);
+  }
+
   polish(id: string): Observable<PolishedTicket> {
     return this.http.post<PolishedTicket>(`/api/reports/${id}/polish`, {});
   }

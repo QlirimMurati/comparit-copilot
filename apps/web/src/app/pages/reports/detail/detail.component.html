@@ -102,12 +102,22 @@
               </div>
             }
 
-            <div style="margin-top: 16px; display: flex; gap: 8px;">
+            <div style="margin-top: 16px; display: flex; gap: 8px; align-items: center;">
               <button type="submit" class="btn btn-primary" [disabled]="form.invalid || saving()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 9.5 17 19 7"/></svg>
                 @if (saving()) { Saving… } @else { Save changes }
               </button>
+              <span style="flex: 1;"></span>
+              <button type="button" class="btn btn-ghost btn-danger" (click)="deleteReport()" [disabled]="deleting()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                @if (deleting()) { Deleting… } @else { Delete report }
+              </button>
             </div>
+            @if (deleteError(); as msg) {
+              <div class="alert alert-error" style="margin: 12px 0 0;">
+                <div class="content">{{ msg }}</div>
+              </div>
+            }
           </div>
         </form>
 

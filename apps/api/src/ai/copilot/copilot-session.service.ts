@@ -51,6 +51,15 @@ export class CopilotSessionService {
       .where(eq(copilotSessions.id, id));
   }
 
+  async remove(id: string): Promise<{ id: string }> {
+    const [row] = await this.db
+      .delete(copilotSessions)
+      .where(eq(copilotSessions.id, id))
+      .returning({ id: copilotSessions.id });
+    if (!row) throw new NotFoundException(`Copilot session ${id} not found`);
+    return row;
+  }
+
   async listMessages(sessionId: string): Promise<CopilotMessage[]> {
     return this.db
       .select()

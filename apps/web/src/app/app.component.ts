@@ -158,6 +158,28 @@ export class AppComponent {
     this.router.navigate(['/copilot'], { queryParams: { session: id } });
   }
 
+  protected deleteSession(id: string, title: string | null): void {
+    const label = title?.trim() || 'this chat';
+    if (!confirm(`Delete "${label}"? This cannot be undone.`)) return;
+    this.copilotApi.deleteSession(id).subscribe({
+      next: () => {
+        this.sessions.update((list) => list.filter((s) => s.id !== id));
+        // If the user was viewing this session, drop the param so the
+        // copilot page resets to "new chat" instead of trying to load a
+        // 404'd session.
+        const current = new URLSearchParams(window.location.search).get(
+          'session'
+        );
+        if (current === id) {
+          this.router.navigate(['/copilot']);
+        }
+      },
+      error: (err) => {
+        console.error('Failed to delete chat session', err);
+      },
+    });
+  }
+
   protected logout(): void {
     this.auth.logout();
   }

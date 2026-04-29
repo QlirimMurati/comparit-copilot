@@ -75,6 +75,34 @@ export class ReportsComponent {
     });
   }
 
+  protected deleteRow(report: BugReport, event: Event): void {
+    // Stop the row's [routerLink] click from navigating to the detail page.
+    event.stopPropagation();
+    event.preventDefault();
+    if (
+      !confirm(
+        `Delete report "${report.title.slice(0, 60)}"? This cannot be undone.`
+      )
+    ) {
+      return;
+    }
+    this.api.delete(report.id).subscribe({
+      next: () => {
+        this.state.update((s) =>
+          typeof s === 'object'
+            ? { rows: s.rows.filter((r) => r.id !== report.id) }
+            : s
+        );
+      },
+      error: (err) => {
+        console.error('Failed to delete report', err);
+        alert(
+          err?.error?.message ?? 'Failed to delete report — see console.'
+        );
+      },
+    });
+  }
+
   protected onStatusChange(value: string): void {
     this.filter.update((f) => ({
       ...f,

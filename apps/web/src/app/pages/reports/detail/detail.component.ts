@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ContextViewerComponent } from '@comparit-copilot/ui-kit';
 import {
   AttachmentsService,
@@ -70,6 +70,7 @@ export class ReportDetailComponent {
   private readonly copilotApi = inject(CopilotService);
   private readonly attachmentsApi = inject(AttachmentsService);
   private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
 
   protected readonly attachments = signal<AttachmentMetadata[]>([]);
   protected readonly attachmentUrl = (id: string) =>
@@ -89,6 +90,8 @@ export class ReportDetailComponent {
   protected readonly saving = signal(false);
   protected readonly saveError = signal<string | null>(null);
   protected readonly saved = signal(false);
+  protected readonly deleting = signal(false);
+  protected readonly deleteError = signal<string | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
     status: ['new' as ReportStatus, [Validators.required]],
@@ -180,6 +183,30 @@ export class ReportDetailComponent {
       error: (err) => {
         this.saving.set(false);
         this.saveError.set(err?.error?.message ?? 'Failed to save changes.');
+      },
+    });
+  }
+
+  protected deleteReport(): void {
+    const r = this.report();
+    if (!r || this.deleting()) return;
+    if (
+      !confirm(
+        `Delete report "${r.title.slice(0, 60)}"? This cannot be undone.`
+      )
+    ) {
+      return;
+    }
+    this.deleting.set(true);
+    this.deleteError.set(null);
+    this.api.delete(r.id).subscribe({
+      next: () => {
+        this.deleting.set(false);
+        void this.router.navigate(['/reports']);
+      },
+      error: (err) => {
+        this.deleting.set(false);
+        this.deleteError.set(err?.error?.message ?? 'Failed to delete report.');
       },
     });
   }

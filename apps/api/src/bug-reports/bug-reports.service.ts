@@ -151,6 +151,15 @@ export class BugReportsService {
     return row;
   }
 
+  async remove(id: string): Promise<{ id: string }> {
+    const [row] = await this.db
+      .delete(bugReports)
+      .where(eq(bugReports.id, id))
+      .returning({ id: bugReports.id });
+    if (!row) throw new NotFoundException(`Report ${id} not found`);
+    return row;
+  }
+
   private validateInput(input: CreateBugReportInput): void {
     if (!input.title || input.title.trim().length < 5) {
       throw new BadRequestException('title is required (min 5 chars)');
