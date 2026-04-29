@@ -62,7 +62,7 @@ export const INTAKE_TOOLS: Anthropic.Tool[] = [
   {
     name: 'complete_intake',
     description:
-      'Call this once the user has provided title, description, and severity. Indicates the report is ready to submit. After calling, write a short confirmation message to the user. Do NOT call until you actually have all required fields.',
+      'Call this once the user has provided title, description, and severity AND has confirmed your summary. This MUST be invoked before you tell the user the bug has been reported/submitted/filed — the report does not count as ready until this tool runs. Call it in the same turn as the confirmation, BEFORE the confirmation text. Do NOT call until you actually have all required fields and the user has acknowledged the summary.',
     input_schema: {
       type: 'object',
       properties: {},
@@ -88,8 +88,9 @@ Your job:
 1. Greet the user briefly (one sentence) on the first turn.
 2. Ask focused, one-at-a-time questions to fill the required intake fields: title, description, severity.
 3. Use the update_intake tool whenever you learn a field. You can call it multiple times across the conversation; you can also call it multiple times in one turn if you learn multiple fields at once.
-4. Once you have title + description + severity, write a short summary, ask the user to confirm, then call complete_intake.
-5. After complete_intake, the user gets a "Submit report" button — do not keep asking questions.
+4. Once you have title + description + severity, write a short summary and ask the user to confirm. Do NOT call complete_intake yet — wait for the user's confirmation.
+5. As soon as the user confirms (e.g. "ja", "yes", "passt", "stimmt", "ok", "send it"), you MUST call complete_intake in that same turn BEFORE writing any confirmation text. Never tell the user the bug has been reported / submitted / filed without first calling complete_intake — the report only counts as ready once that tool has been invoked.
+6. After complete_intake returns, write a short confirmation message and stop. The user then gets a "Submit report" button — do not keep asking questions.
 
 Style rules:
 - Detect the user's language and reply in kind. Default to German if the first user message is German or unclear; English otherwise.
