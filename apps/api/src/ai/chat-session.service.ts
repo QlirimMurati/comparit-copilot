@@ -92,6 +92,36 @@ export class ChatSessionService {
     return row;
   }
 
+  /**
+   * Replace the session's captured context with a fresh snapshot from the
+   * widget. Called on every chat message so console errors / network errors
+   * / active-form values that occurred AFTER session start are visible to
+   * the agent. Preserves session-only fields (isFromCompare, reporter
+   * names) that the widget doesn't re-send.
+   */
+  async setCapturedContext(
+    sessionId: string,
+    incoming: Record<string, unknown>
+  ): Promise<ChatSession> {
+    const session = await this.getById(sessionId);
+    const prev = (session.capturedContext as Record<string, unknown> | null) ?? {};
+    const merged = {
+      ...incoming,
+      // Preserve session-only fields that /chat/message doesn't re-send.
+      isFromCompare: prev['isFromCompare'] ?? incoming['isFromCompare'] ?? false,
+      reporterFirstName:
+        prev['reporterFirstName'] ?? incoming['reporterFirstName'] ?? null,
+      reporterLastName:
+        prev['reporterLastName'] ?? incoming['reporterLastName'] ?? null,
+    };
+    const [row] = await this.db
+      .update(chatSessions)
+      .set({ capturedContext: merged, updatedAt: new Date() })
+      .where(eq(chatSessions.id, sessionId))
+      .returning();
+    return row;
+  }
+
   async markSubmitted(
     sessionId: string,
     bugReportId: string
