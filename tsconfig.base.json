@@ -15,8 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@comparit-copilot/ui-kit": ["libs/ui-kit/src/index.ts"],
-      "@comparit-copilot/widget": ["libs/widget/src/index.ts"]
+      "@comparit-copilot/ui-kit": ["libs/ui-kit/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

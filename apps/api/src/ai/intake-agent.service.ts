@@ -394,6 +394,63 @@ export class IntakeAgentService {
       });
     }
 
+    // Surface recent console + network errors as a dedicated block so the
+    // model doesn't have to dig through the JSON dump above. The widget
+    // refreshes these on every chat message.
+    const ctx = capturedContext as
+      | {
+          consoleErrors?: Array<{
+            level?: string;
+            message?: string;
+            stack?: string;
+            timestamp?: string;
+          }>;
+          networkErrors?: Array<{
+            url?: string;
+            method?: string;
+            status?: number;
+            statusText?: string;
+            timestamp?: string;
+          }>;
+        }
+      | null
+      | undefined;
+    const consoleErrors = (ctx?.consoleErrors ?? []).slice(-15);
+    const networkErrors = (ctx?.networkErrors ?? []).slice(-15);
+    if (consoleErrors.length > 0 || networkErrors.length > 0) {
+      const lines: string[] = [
+        '## RECENT BROWSER ERRORS — authoritative',
+        '',
+        'These came from the user\'s open page just now. Treat them as facts',
+        'about what is broken — do not ask the user to repeat them.',
+        '',
+      ];
+      if (consoleErrors.length > 0) {
+        lines.push('### Console errors');
+        for (const e of consoleErrors) {
+          const ts = e.timestamp ? ` @ ${e.timestamp}` : '';
+          const lvl = e.level ?? 'error';
+          lines.push(`- [${lvl}]${ts}  ${e.message ?? '(no message)'}`);
+          if (e.stack) {
+            const firstFrame = e.stack.split('\n').slice(0, 2).join(' | ');
+            lines.push(`    at: ${firstFrame}`);
+          }
+        }
+        lines.push('');
+      }
+      if (networkErrors.length > 0) {
+        lines.push('### Network errors');
+        for (const n of networkErrors) {
+          const ts = n.timestamp ? ` @ ${n.timestamp}` : '';
+          lines.push(
+            `- ${n.method ?? 'GET'} ${n.url ?? '?'} → ${n.status ?? '?'} ${n.statusText ?? ''}${ts}`,
+          );
+        }
+        lines.push('');
+      }
+      blocks.push({ type: 'text', text: lines.join('\n') });
+    }
+
     const isFromCompare =
       (capturedContext as { isFromCompare?: boolean } | null)?.isFromCompare ===
       true;
