@@ -388,9 +388,19 @@ export class IntakeAgentService {
     // feature" / "Ask me something". The first two are intake flows; "ask"
     // is free Q&A — the agent must NOT push toward ticket creation unless
     // the user clearly describes something to file.
-    const widgetMode = (
-      capturedContext as { widgetMode?: 'bug' | 'feature' | 'ask' | null } | null
-    )?.widgetMode;
+    //
+    // Backwards compat: older widget bundles only send `ticketType` (no
+    // widgetMode). If widgetMode is absent, infer from ticketType so a
+    // feature-type session still gets the feature greeting+flow.
+    const ctxForMode = capturedContext as
+      | {
+          widgetMode?: 'bug' | 'feature' | 'ask' | null;
+          ticketType?: 'bug' | 'feature' | null;
+        }
+      | null;
+    const widgetMode: 'bug' | 'feature' | 'ask' | null =
+      ctxForMode?.widgetMode ??
+      (ctxForMode?.ticketType === 'feature' ? 'feature' : null);
     if (widgetMode === 'ask') {
       blocks.push({
         type: 'text',
