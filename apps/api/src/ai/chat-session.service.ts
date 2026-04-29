@@ -19,6 +19,7 @@ export class ChatSessionService {
   async create(input: {
     reporterEmail: string | null;
     capturedContext: unknown;
+    taskId?: string | null;
   }): Promise<ChatSession> {
     const [row] = await this.db
       .insert(chatSessions)
@@ -28,6 +29,7 @@ export class ChatSessionService {
         capturedContext: input.capturedContext ?? null,
         intakeState: EMPTY_INTAKE_STATE,
         status: 'active',
+        taskId: input.taskId ?? null,
       })
       .returning();
     return row;

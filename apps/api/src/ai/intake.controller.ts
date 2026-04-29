@@ -58,6 +58,7 @@ export class IntakeController {
     const session = await this.sessions.create({
       reporterEmail: body.reporterEmail,
       capturedContext: body.capturedContext ?? null,
+      taskId: body.taskId ?? null,
     });
     const result = await this.runTurnSafely({ sessionId: session.id });
     return {
@@ -174,6 +175,8 @@ export class IntakeController {
         ? (capturedContext['sparte'] as string)
         : null;
 
+    const taskId = body.taskId ?? session.taskId ?? null;
+
     const [row] = await this.db
       .insert(bugReports)
       .values({
@@ -185,6 +188,7 @@ export class IntakeController {
           | (typeof bugReports)['sparte']['_']['data']
           | null,
         capturedContext: reportContext,
+        taskId,
       })
       .returning({
         id: bugReports.id,

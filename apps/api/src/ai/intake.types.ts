@@ -3,6 +3,7 @@ import type { IntakeState } from './intake-schema';
 export interface ChatStartInput {
   reporterEmail: string;
   capturedContext: unknown;
+  taskId?: string | null;
 }
 
 export interface ChatStartResult {
@@ -25,6 +26,7 @@ export interface ChatMessageResult {
 
 export interface ChatSubmitInput {
   sessionId: string;
+  taskId?: string | null;
 }
 
 export interface ChatSubmitResult {

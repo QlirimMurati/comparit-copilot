@@ -63,6 +63,7 @@ export const bugReports = pgTable(
     clusterId: uuid('cluster_id'),
     embedding: vector('embedding', { dimensions: EMBEDDING_DIMENSIONS }),
     jiraIssueKey: text('jira_issue_key'),
+    taskId: text('task_id'),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -86,6 +87,7 @@ export const bugReports = pgTable(
     reporterIdx: index('bug_reports_reporter_idx').on(table.reporterId),
     statusIdx: index('bug_reports_status_idx').on(table.status),
     createdAtIdx: index('bug_reports_created_at_idx').on(table.createdAt),
+    taskIdIdx: index('bug_reports_task_id_idx').on(table.taskId),
   })
 );
 

@@ -28,6 +28,7 @@ export const chatSessions = pgTable(
     bugReportId: uuid('bug_report_id').references(() => bugReports.id, {
       onDelete: 'set null',
     }),
+    taskId: text('task_id'),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -46,6 +47,7 @@ export const chatSessions = pgTable(
     ),
     statusIdx: index('chat_sessions_status_idx').on(table.status),
     createdAtIdx: index('chat_sessions_created_at_idx').on(table.createdAt),
+    taskIdIdx: index('chat_sessions_task_id_idx').on(table.taskId),
   })
 );
 
