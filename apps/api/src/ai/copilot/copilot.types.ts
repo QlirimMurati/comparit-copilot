@@ -4,6 +4,16 @@ export interface CopilotBugDraft {
   severity?: 'blocker' | 'high' | 'medium' | 'low';
   sparte?: string;
   type?: 'bug' | 'feature';
+  /**
+   * Optional metadata gathered together at the end of the conversation
+   * before submission (one batched ask, not field-by-field).
+   * antragId is required when the bug is in the Antrag flow.
+   */
+  kundeId?: string;
+  antragId?: string;
+  taskId?: string;
+  /** True once the agent has run the consolidated optional-metadata ask. */
+  optionalMetadataAsked?: boolean;
 }
 
 export interface CopilotState {

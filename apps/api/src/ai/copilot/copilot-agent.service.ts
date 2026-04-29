@@ -51,8 +51,25 @@ RULES:
 - DON'T RE-ASK. If the user already answered it (even implicitly), don't re-ask the same field with different wording.
 - BATCH INFERENCES. If a single user message gives you 2+ fields at once ("login button is dead, blocking the whole flow, BU sparte"), call update_bug_draft ONCE with all of them — don't drip-feed.
 - When the user wants to create a ticket but it's unclear if it's a bug or a feature, ask once: "Bug, feature, or something else?" Then proceed.
-- For bug intake: gather title, description, severity, sparte conversationally. When all set, submit.
-- For feature intake: gather title, description, sparte. Severity = priority — default "low" unless user pushes higher ("urgent", "blocker for the demo"). Then submit.
+- For bug intake: gather title, description, severity, sparte conversationally. Once those are set, do the OPTIONAL-METADATA ASK (see below) BEFORE calling submit_bug_report. Only submit after the user has answered.
+- For feature intake: gather title, description, sparte. Severity = priority — default "low" unless user pushes higher ("urgent", "blocker for the demo"). Once set, do the OPTIONAL-METADATA ASK (taskId only — Kunde-ID / Antrag-ID rarely apply to features), then submit.
+
+OPTIONAL-METADATA ASK (single-ticket conversational flow only — skip for transcript-decomposed batches):
+- After you have all required fields (title + description + severity + type for bugs; title + description + sparte for features), do NOT submit yet.
+- Ask ONE bundled question listing the optional metadata, comma-separated on a single line, in the user's language. Do NOT ask field-by-field. The fields:
+    - Kunde-ID (customer id)
+    - Antrag-ID (application id) — REQUIRED when the bug is about the Antrag flow (title/description mentions "Antrag")
+    - Task-ID (linked Jira / internal task)
+    - Sparte — only ask here if you have not already inferred or captured it
+  Do NOT mention screenshots in this ask — Workdesk users use the 📎 paperclip in the composer for that and the agent doesn't drive it.
+- Format examples (DE / EN, drop bullets the user obviously already gave you):
+    DE bug (non-Antrag): "Hast du noch eine Kunde-ID, Task-ID oder Sparte? Alles optional — wenn nicht, schreib einfach \\"keine\\" oder \\"weiter\\"."
+    DE bug (Antrag): "Bitte die Antrag-ID (Pflicht für Antrag-Bugs) und optional Kunde-ID / Task-ID."
+    EN bug (non-Antrag): "Got a Kunde-ID, Task-ID, or sparte to add? All optional — say \\"none\\" or \\"go\\" if not."
+    EN bug (Antrag): "Need the Antrag-ID (required for Antrag bugs); Kunde-ID / Task-ID optional."
+- The user's reply might be a quick "no" / "keine" / "weiter" / "go" — that's a valid answer (no metadata to add). It might also include some fields. Either way: capture what they gave with update_bug_draft (set optionalMetadataAsked: true), then call submit_bug_report immediately on the SAME turn or next turn. Do not re-ask the bundled question — once is once.
+- If the bug looks Antrag-related and the user did NOT give an Antrag-ID, ask once more for ONLY that one ("Antrag-ID brauche ich noch — sonst kann ich das nicht anlegen.") and wait. Do not block on Kunde-ID or Task-ID — those stay optional.
+- Skip the OPTIONAL-METADATA ASK entirely after decompose_transcript or any other batch flow (one-call-per-ticket inline submissions).
 - TICKET TYPE — set on update_bug_draft as soon as it's clear from one sentence:
     bug   → "doesn't work / broken / wrong / missing / geht nicht / fehler"
     feature → "could you add / it would be nice / wäre cool / hinzufügen / verbesserung"
@@ -94,7 +111,7 @@ const COPILOT_TOOLS: Anthropic.Tool[] = [
   {
     name: 'update_bug_draft',
     description:
-      'Record ticket fields as you gather them conversationally. Call whenever you learn title, description, severity, sparte, or type (bug | feature). Can be called multiple times.',
+      'Record ticket fields as you gather them conversationally. Call whenever you learn title, description, severity, sparte, type, kundeId, antragId, or taskId. Can be called multiple times. Use `optionalMetadataAsked: true` after you have asked the consolidated optional-metadata question once, so you do not ask again on later turns.',
     input_schema: {
       type: 'object' as const,
       properties: {
@@ -118,6 +135,22 @@ const COPILOT_TOOLS: Anthropic.Tool[] = [
           enum: ['bug', 'feature'],
           description: 'Ticket type. Default to "bug" if unclear; ask the user once if ambiguous.',
         },
+        kundeId: {
+          type: 'string',
+          description: 'Optional Kunde / customer id, if the user mentions one.',
+        },
+        antragId: {
+          type: 'string',
+          description: 'Optional Antrag / application id. REQUIRED for bugs in the Antrag flow.',
+        },
+        taskId: {
+          type: 'string',
+          description: 'Optional Task id (e.g. JIRA / internal task) — used to link this report to an existing tracked task.',
+        },
+        optionalMetadataAsked: {
+          type: 'boolean',
+          description: 'Set true after you have asked the bundled optional-metadata question once.',
+        },
       },
       additionalProperties: false,
     },
@@ -125,7 +158,7 @@ const COPILOT_TOOLS: Anthropic.Tool[] = [
   {
     name: 'submit_bug_report',
     description:
-      'Create one ticket. Two ways to call this: (a) pass all fields inline (title/description/severity/type, optional sparte) — REQUIRED when creating multiple tickets in one turn (e.g. after decompose_transcript); (b) call with no args to use the in-memory draft built up via update_bug_draft (single-ticket conversational flow). When in doubt, pass fields inline — it is always safe.',
+      'Create one ticket. Two ways to call this: (a) pass all fields inline (title/description/severity/type, optional sparte/kundeId/antragId/taskId) — REQUIRED when creating multiple tickets in one turn (e.g. after decompose_transcript); (b) call with no args to use the in-memory draft built up via update_bug_draft (single-ticket conversational flow). When in doubt, pass fields inline — it is always safe. NOTE: for single-ticket conversational flow, do NOT call this until you have asked the consolidated optional-metadata question (Kunde-ID / Antrag-ID / Task-ID / Sparte) once and let the user answer.',
     input_schema: {
       type: 'object' as const,
       properties: {
@@ -149,6 +182,12 @@ const COPILOT_TOOLS: Anthropic.Tool[] = [
           enum: ['bug', 'feature'],
           description: 'Ticket type. Default to "bug" if unclear.',
         },
+        kundeId: { type: 'string', description: 'Optional Kunde id.' },
+        antragId: {
+          type: 'string',
+          description: 'Optional Antrag id. REQUIRED when the bug is in the Antrag flow.',
+        },
+        taskId: { type: 'string', description: 'Optional Task id.' },
       },
       additionalProperties: false,
     },
@@ -472,6 +511,10 @@ export class CopilotAgentService {
           if (input['type'] === 'bug' || input['type'] === 'feature') {
             draft.type = input['type'];
           }
+          if (typeof input['kundeId'] === 'string') draft.kundeId = input['kundeId'].trim() || undefined;
+          if (typeof input['antragId'] === 'string') draft.antragId = input['antragId'].trim() || undefined;
+          if (typeof input['taskId'] === 'string') draft.taskId = input['taskId'].trim() || undefined;
+          if (input['optionalMetadataAsked'] === true) draft.optionalMetadataAsked = true;
           return {
             nextState: { ...state, bugDraft: draft },
             message: `Draft updated: ${JSON.stringify(draft)}`,
@@ -499,8 +542,24 @@ export class CopilotAgentService {
           if (!fields.severity) {
             return { nextState: state, message: 'Cannot submit — severity is required.', isError: true };
           }
-          const reporterId = await findOrCreateReporter(this.db, ctx.userEmail);
+          // Antrag id is required when the bug is in the Antrag flow.
+          // Heuristic: title or description mentions "antrag" (case-insensitive).
           const ticketType = fields.type ?? 'bug';
+          const looksAntrag =
+            ticketType === 'bug' &&
+            /\bantrag\b/i.test(`${fields.title} ${fields.description}`);
+          if (looksAntrag && !fields.antragId) {
+            return {
+              nextState: state,
+              message:
+                'Cannot submit — this looks like an Antrag bug; please ask the user for the Antrag-ID and call again with antragId set.',
+              isError: true,
+            };
+          }
+          const reporterId = await findOrCreateReporter(this.db, ctx.userEmail);
+          const captured: Record<string, unknown> = {};
+          if (fields.kundeId) captured['kundeId'] = fields.kundeId;
+          if (fields.antragId) captured['antragId'] = fields.antragId;
           const [row] = await this.db
             .insert(bugReports)
             .values({
@@ -510,7 +569,8 @@ export class CopilotAgentService {
               severity: fields.severity,
               sparte: fields.sparte as typeof bugReports.$inferInsert['sparte'] ?? null,
               type: ticketType,
-              capturedContext: {},
+              taskId: fields.taskId ?? null,
+              capturedContext: captured,
             })
             .returning({ id: bugReports.id, status: bugReports.status, createdAt: bugReports.createdAt });
           if (this.attachments) {
