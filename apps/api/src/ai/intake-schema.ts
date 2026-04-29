@@ -7,6 +7,12 @@ export const IntakeStateSchema = z.object({
   description: z.string().min(10).optional(),
   severity: z.enum(REPORT_SEVERITIES).optional(),
   sparte: z.enum(SPARTEN).optional(),
+  /**
+   * Ticket type — set by the agent based on the conversation context, not the
+   * widget's home picker. "bug" if the user describes broken behaviour;
+   * "feature" if it's a new request, change, or improvement. Defaults bug.
+   */
+  type: z.enum(['bug', 'feature']).optional(),
   isComplete: z.boolean().default(false),
 });
 export type IntakeState = z.infer<typeof IntakeStateSchema>;
@@ -55,6 +61,12 @@ export const INTAKE_TOOLS: Anthropic.Tool[] = [
           description:
             'Insurance product family. Usually inferable from captured page context (current sparte attribute) — only set if user corrects it or context is missing.',
         },
+        type: {
+          type: 'string',
+          enum: ['bug', 'feature'],
+          description:
+            'Ticket type. "bug" when the user describes broken / unexpected behaviour; "feature" when they request a new capability, change, or improvement. Set this based on the conversation, not what the user pre-selected on the widget home screen.',
+        },
       },
       additionalProperties: false,
     },
@@ -62,10 +74,18 @@ export const INTAKE_TOOLS: Anthropic.Tool[] = [
   {
     name: 'complete_intake',
     description:
-      'Call this once the user has provided title, description, and severity AND has confirmed your summary. This MUST be invoked before you tell the user the bug has been reported/submitted/filed — the report does not count as ready until this tool runs. Call it in the same turn as the confirmation, BEFORE the confirmation text. Do NOT call until you actually have all required fields and the user has acknowledged the summary.',
+      'Call this once the user has provided title, description, severity AND has confirmed your summary AND you have classified the ticket as "bug" or "feature". You MUST pass `type` — there is no auto-default. This MUST be invoked before you tell the user the bug/feature has been reported/submitted/filed — the report does not count as ready until this tool runs. Call it in the same turn as the confirmation, BEFORE the confirmation text. Do NOT call until you actually have all required fields, the user has acknowledged the summary, and you have decided the type.',
     input_schema: {
       type: 'object',
-      properties: {},
+      properties: {
+        type: {
+          type: 'string',
+          enum: ['bug', 'feature'],
+          description:
+            'REQUIRED. Final classification: "bug" if the user described broken/unexpected behaviour; "feature" if they asked for a new capability, change, or improvement. If you are not yet sure, do NOT call this tool — ask one short clarifying question first.',
+        },
+      },
+      required: ['type'],
       additionalProperties: false,
     },
   },
@@ -88,9 +108,29 @@ Your job:
 1. Greet the user briefly (one sentence) on the first turn.
 2. Ask focused, one-at-a-time questions to fill the required intake fields: title, description, severity.
 3. Use the update_intake tool whenever you learn a field. You can call it multiple times across the conversation; you can also call it multiple times in one turn if you learn multiple fields at once.
-4. Once you have title + description + severity, write a short summary and ask the user to confirm. Do NOT call complete_intake yet — wait for the user's confirmation.
-5. As soon as the user confirms (e.g. "ja", "yes", "passt", "stimmt", "ok", "send it"), you MUST call complete_intake in that same turn BEFORE writing any confirmation text. Never tell the user the bug has been reported / submitted / filed without first calling complete_intake — the report only counts as ready once that tool has been invoked.
-6. After complete_intake returns, write a short confirmation message and stop. The user then gets a "Submit report" button — do not keep asking questions.
+4. **CLASSIFY ticket type from the conversation — do not trust the widget home picker.** This is a hard requirement: you MUST pass \`type\` to \`complete_intake\` (no default). Decide as soon as the user's first substantive sentence makes the intent clear:
+
+   **"bug"** — something is broken, wrong, or missing that should be there.
+   Cues (any language): "doesn't work", "broken", "crash", "error", "wrong value", "shows X instead of Y", "missing", "should display", "regression", "geht nicht", "funktioniert nicht", "fehler", "wird nicht angezeigt".
+   Examples → bug:
+     - "The login button does nothing when I click it"
+     - "BU prefill returns 500"
+     - "Beratungsdokument fehlt im Antrag"
+     - "Sparte falsch berechnet — sollte 100 sein, ist 80"
+
+   **"feature"** — user wants a new capability, an addition, a change to current correct behaviour, or an improvement.
+   Cues (any language): "I'd like to be able to", "can you add", "it would be nice", "please make it possible", "could we", "I want", "wäre cool wenn", "könnten wir", "hinzufügen", "ergänzen", "erweitern", "verbesserung", "wunsch".
+   Examples → feature:
+     - "Could you add an optional phone number field to BU Grunddaten?"
+     - "It would be great if we could export the comparison as PDF"
+     - "Bitte fügt Sortierung im Reports-Tab hinzu"
+     - "Change the default Sparte from BU to KFZ"
+
+   **Classification rule of thumb:** if the user is reporting that something *should* work and *doesn't* → bug. If they're asking for something *new* or *different* → feature. If a single message could go either way ("the UI feels slow" — could be a bug or a feature request to improve), ask ONE short clarifying question: "Is this something that's clearly broken, or more of an improvement you'd like?"
+
+5. Once you have title + description + severity AND you've decided the type, write a short summary and ask the user to confirm. Do NOT call complete_intake yet — wait for the user's confirmation.
+6. As soon as the user confirms (e.g. "ja", "yes", "passt", "stimmt", "ok", "send it"), you MUST call complete_intake in that same turn BEFORE writing any confirmation text — passing \`type: 'bug' | 'feature'\`. Never tell the user the report has been submitted/filed without first calling complete_intake — the report only counts as ready once that tool has been invoked.
+7. After complete_intake returns, write a short confirmation message and stop. The user then gets a "Submit report" button — do not keep asking questions.
 
 Style rules:
 - Detect the user's language and reply in kind. Default to German if the first user message is German or unclear; English otherwise.

@@ -15,7 +15,11 @@ import { PromptRegistryService } from './prompt-registry.service';
 import type { ChatMessage } from '../db/schema';
 import type { IntakeStreamEvent } from './intake.types';
 
-const MODEL = 'claude-opus-4-7';
+// Haiku 4.5 — much faster first-token + turn time than Opus, plenty for the
+// intake task (gather title/description/severity, classify bug-vs-feature,
+// detect language). Quality gate is the prompt + the strict tool schema.
+// Bump back to claude-opus-4-7 if classification quality regresses.
+const MODEL = 'claude-haiku-4-5';
 const MAX_TOOL_LOOPS = 4;
 
 export interface ActiveCalc {
@@ -565,9 +569,24 @@ export class IntakeAgentService {
           isError: true,
         };
       }
+      // type is required on complete_intake — gate submission so the agent
+      // can't skip classification. If it didn't pass one, fall back to the
+      // type already set via update_intake; otherwise reject so the agent
+      // re-tries with a classification.
+      const inputType = (block.input as { type?: unknown } | undefined)?.type;
+      const finalType =
+        inputType === 'feature' ? 'feature' : inputType === 'bug' ? 'bug' : state.type;
+      if (!finalType) {
+        return {
+          nextState: state,
+          message:
+            'Cannot complete intake — you must classify as "bug" or "feature". Re-call complete_intake with `type` set, OR call update_intake with type first if you need to ask the user a clarifying question.',
+          isError: true,
+        };
+      }
       return {
-        nextState: { ...state, isComplete: true },
-        message: 'Intake marked complete. The user can now submit.',
+        nextState: { ...state, isComplete: true, type: finalType },
+        message: `Intake marked complete (type=${finalType}). The user can now submit.`,
         isError: false,
       };
     }
@@ -590,6 +609,8 @@ export class IntakeAgentService {
       out.severity = obj['severity'] as IntakeState['severity'];
     if (typeof obj['sparte'] === 'string')
       out.sparte = obj['sparte'] as IntakeState['sparte'];
+    if (obj['type'] === 'bug' || obj['type'] === 'feature')
+      out.type = obj['type'];
     return out;
   }
 }

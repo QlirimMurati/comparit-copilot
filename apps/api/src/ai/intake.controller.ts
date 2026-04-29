@@ -199,8 +199,17 @@ export class IntakeController {
         ? (capturedContext['sparte'] as string)
         : null;
 
+    // Type is decided by the intake agent from the conversation. Fall back to
+    // the home-picker hint (capturedContext.ticketType) only if the agent
+    // never set it; default 'bug'.
     const ticketType =
-      capturedContext['ticketType'] === 'feature' ? 'feature' : 'bug';
+      intake.type === 'feature'
+        ? 'feature'
+        : intake.type === 'bug'
+          ? 'bug'
+          : capturedContext['ticketType'] === 'feature'
+            ? 'feature'
+            : 'bug';
 
     const taskId = body.taskId ?? session.taskId ?? null;
 

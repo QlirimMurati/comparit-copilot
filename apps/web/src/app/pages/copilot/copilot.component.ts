@@ -238,6 +238,12 @@ export class CopilotComponent implements OnInit {
     const text = this.inputText.trim();
     if (!text || this.streaming()) return;
     this.inputText = '';
+    // ngModel just clears the value — autosize set inline height earlier, so
+    // a long-pasted textarea would stay tall after submit. Reset height here.
+    queueMicrotask(() => {
+      const el = this.composerInput?.nativeElement;
+      if (el) el.style.height = 'auto';
+    });
     this.error.set(null);
 
     let sessionId = this.activeSessionId();

@@ -41,6 +41,7 @@ RULES:
 - For a feature request, gather the same fields conversationally (title, description, severity used as priority). Default severity to "low" if the user doesn't push for higher priority. Then call submit_bug_report (the backend records it in the same table; the Jira push step tags it as a feature on Task area).
 - After submitting, offer to check for duplicates and find affected code in one short line — don't restate what was submitted.
 - When a user pastes a long text that looks like a meeting transcript, call decompose_transcript immediately.
+- After decompose_transcript, when the user asks to create the tickets, call submit_bug_report ONCE PER TICKET with all fields inline (title, description, severity, type, optional sparte). Do NOT call update_bug_draft for each — the draft buffer is single-slot and gets overwritten. Inline args produce one distinct ticket per call.
 - When severity is unclear (bug only), ask: "How critical is this? (blocker / high / medium / low)"
 - Do not ask for the user's email or identity.
 - Reply in the user's language (German if the first message is German).`;
@@ -99,10 +100,31 @@ const COPILOT_TOOLS: Anthropic.Tool[] = [
   {
     name: 'submit_bug_report',
     description:
-      'Create the ticket once title, description, severity, and type are all set. Call only when you have all required fields. Works for both bugs and features.',
+      'Create one ticket. Two ways to call this: (a) pass all fields inline (title/description/severity/type, optional sparte) — REQUIRED when creating multiple tickets in one turn (e.g. after decompose_transcript); (b) call with no args to use the in-memory draft built up via update_bug_draft (single-ticket conversational flow). When in doubt, pass fields inline — it is always safe.',
     input_schema: {
       type: 'object' as const,
-      properties: {},
+      properties: {
+        title: { type: 'string', description: 'One-line summary (min 5 chars).' },
+        description: {
+          type: 'string',
+          description: 'Steps to reproduce + expected vs actual for bugs; user goal + motivation for features (min 10 chars).',
+        },
+        severity: {
+          type: 'string',
+          enum: [...REPORT_SEVERITIES],
+          description: 'blocker / high / medium / low. For features default to "low" unless user pushes higher.',
+        },
+        sparte: {
+          type: 'string',
+          enum: [...SPARTEN],
+          description: 'Insurance product family if known.',
+        },
+        type: {
+          type: 'string',
+          enum: ['bug', 'feature'],
+          description: 'Ticket type. Default to "bug" if unclear.',
+        },
+      },
       additionalProperties: false,
     },
   },
@@ -432,35 +454,48 @@ export class CopilotAgentService {
         }
 
         case 'submit_bug_report': {
-          const draft = state.bugDraft ?? {};
-          if (!draft.title || draft.title.length < 5) {
+          // Inline-args path takes precedence over the draft buffer so the
+          // agent can create multiple tickets in one turn with distinct
+          // fields per call (e.g. after decompose_transcript).
+          const inline = input as Partial<CopilotBugDraft>;
+          const usingInline =
+            typeof inline.title === 'string' || typeof inline.description === 'string';
+          const fields: CopilotBugDraft = usingInline
+            ? { ...(state.bugDraft ?? {}), ...inline }
+            : { ...(state.bugDraft ?? {}) };
+
+          if (!fields.title || fields.title.length < 5) {
             return { nextState: state, message: 'Cannot submit — title is missing or too short.', isError: true };
           }
-          if (!draft.description || draft.description.length < 10) {
+          if (!fields.description || fields.description.length < 10) {
             return { nextState: state, message: 'Cannot submit — description is missing or too short.', isError: true };
           }
-          if (!draft.severity) {
+          if (!fields.severity) {
             return { nextState: state, message: 'Cannot submit — severity is required.', isError: true };
           }
           const reporterId = await findOrCreateReporter(this.db, ctx.userEmail);
-          const ticketType = draft.type ?? 'bug';
+          const ticketType = fields.type ?? 'bug';
           const [row] = await this.db
             .insert(bugReports)
             .values({
               reporterId,
-              title: draft.title.trim(),
-              description: draft.description.trim(),
-              severity: draft.severity,
-              sparte: draft.sparte as typeof bugReports.$inferInsert['sparte'] ?? null,
+              title: fields.title.trim(),
+              description: fields.description.trim(),
+              severity: fields.severity,
+              sparte: fields.sparte as typeof bugReports.$inferInsert['sparte'] ?? null,
               type: ticketType,
               capturedContext: { copilotSessionId: ctx.sessionId },
             })
             .returning({ id: bugReports.id, status: bugReports.status, createdAt: bugReports.createdAt });
           await this.embedQueue.enqueueReportEmbedding(row.id);
           await this.triageQueue.enqueueReportTriage(row.id);
-          const data = { reportId: row.id, title: draft.title, status: row.status, type: ticketType };
+          const data = { reportId: row.id, title: fields.title, status: row.status, type: ticketType };
+          // Only clear the draft buffer when it was actually used (no inline
+          // args). Inline submissions don't touch the buffer so a parallel
+          // single-ticket conversational flow stays intact.
+          const nextDraft = usingInline ? state.bugDraft : undefined;
           return {
-            nextState: { ...state, bugDraft: undefined, lastBugReportId: row.id },
+            nextState: { ...state, bugDraft: nextDraft, lastBugReportId: row.id },
             message: `Bug report created: ${row.id}`,
             toolData: data,
             isError: false,
