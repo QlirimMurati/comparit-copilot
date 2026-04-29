@@ -16,9 +16,11 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../core/auth/auth.service';
+import { AttachmentsService as AttachmentsApiService } from '../../core/api/attachments.service';
 import { CopilotService } from '../../core/api/copilot.service';
 import type {
   BugSubmitData,
+  ChatAttachment,
   ChatMessage,
   CodeLocalizationData,
   CopilotSessionSummary,
@@ -28,6 +30,19 @@ import type {
   JiraSearchData,
   TranscriptData,
 } from '../../core/api/copilot.types';
+
+interface PendingAttachment {
+  localId: string;
+  file: File;
+  previewUrl: string;
+  width: number | null;
+  height: number | null;
+  status: 'pending' | 'uploading' | 'error';
+  error?: string;
+}
+
+const MAX_ATTACHMENTS = 4;
+const MAX_BYTES = 5 * 1024 * 1024;
 
 type JiraPushFlowState =
   | { stage: 'idle' }
@@ -49,8 +64,10 @@ type JiraPushFlowState =
 export class CopilotComponent implements OnInit {
   @ViewChild('messagesEnd') private messagesEnd!: ElementRef<HTMLDivElement>;
   @ViewChild('composerInput') private composerInput?: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('fileInput') private fileInput?: ElementRef<HTMLInputElement>;
 
   private readonly api = inject(CopilotService);
+  private readonly attachmentsApi = inject(AttachmentsApiService);
   private readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly zone = inject(NgZone);
@@ -65,6 +82,8 @@ export class CopilotComponent implements OnInit {
   protected readonly error = signal<string | null>(null);
   protected readonly loadingHistory = signal(false);
   protected readonly jiraPush = signal<Record<string, JiraPushFlowState>>({});
+  protected readonly pendingAttachments = signal<PendingAttachment[]>([]);
+  protected readonly attachmentLimit = MAX_ATTACHMENTS;
   protected inputText = '';
 
   protected readonly showSuggestions = computed(
@@ -162,6 +181,7 @@ export class CopilotComponent implements OnInit {
     this.messages.set([]);
     this.streamingText.set('');
     this.error.set(null);
+    this.clearPendingAttachments();
     setTimeout(() => this.composerInput?.nativeElement.focus(), 0);
   }
 
@@ -169,6 +189,7 @@ export class CopilotComponent implements OnInit {
     if (id === this.activeSessionId()) return;
     this.activeSessionId.set(id);
     this.messages.set([]);
+    this.clearPendingAttachments();
     this.loadingHistory.set(true);
     this.error.set(null);
     this.api.getMessages(id).subscribe({
@@ -200,10 +221,115 @@ export class CopilotComponent implements OnInit {
 
   protected onDrop(event: DragEvent): void {
     event.preventDefault();
+    const files = Array.from(event.dataTransfer?.files ?? []).filter((f) =>
+      f.type.startsWith('image/')
+    );
+    if (files.length > 0) {
+      this.addAttachmentFiles(files);
+      return;
+    }
     const text = event.dataTransfer?.getData('text/plain');
     if (text) {
       this.inputText = text;
     }
+  }
+
+  protected openAttachmentPicker(): void {
+    this.fileInput?.nativeElement?.click();
+  }
+
+  protected onAttachmentSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files ?? []);
+    if (files.length > 0) this.addAttachmentFiles(files);
+    // reset so re-picking the same file re-fires change
+    input.value = '';
+  }
+
+  protected removeAttachment(localId: string): void {
+    this.pendingAttachments.update((list) => {
+      const removed = list.find((p) => p.localId === localId);
+      if (removed) URL.revokeObjectURL(removed.previewUrl);
+      return list.filter((p) => p.localId !== localId);
+    });
+  }
+
+  private addAttachmentFiles(files: File[]): void {
+    const current = this.pendingAttachments();
+    const remaining = MAX_ATTACHMENTS - current.length;
+    if (remaining <= 0) {
+      this.error.set(`At most ${MAX_ATTACHMENTS} attachments per message.`);
+      return;
+    }
+    const accepted: PendingAttachment[] = [];
+    for (const file of files.slice(0, remaining)) {
+      if (!file.type.startsWith('image/')) {
+        this.error.set('Only image files are supported for now.');
+        continue;
+      }
+      if (file.size > MAX_BYTES) {
+        this.error.set(`"${file.name}" is over the 5MB limit.`);
+        continue;
+      }
+      accepted.push({
+        localId: crypto.randomUUID(),
+        file,
+        previewUrl: URL.createObjectURL(file),
+        width: null,
+        height: null,
+        status: 'pending',
+      });
+    }
+    if (accepted.length > 0) {
+      this.pendingAttachments.update((list) => [...list, ...accepted]);
+    }
+  }
+
+  private clearPendingAttachments(): void {
+    for (const p of this.pendingAttachments()) {
+      URL.revokeObjectURL(p.previewUrl);
+    }
+    this.pendingAttachments.set([]);
+  }
+
+  private async uploadPendingAttachments(
+    sessionId: string
+  ): Promise<ChatAttachment[]> {
+    const pending = this.pendingAttachments();
+    if (pending.length === 0) return [];
+    const out: ChatAttachment[] = [];
+    for (const p of pending) {
+      try {
+        const { base64, width, height } =
+          await AttachmentsApiService.readAsBase64(p.file);
+        const meta = await this.attachmentsApi
+          .uploadForCopilot(sessionId, {
+            kind: 'upload',
+            contentType: p.file.type || 'image/png',
+            base64Data: base64,
+            filename: p.file.name,
+            width,
+            height,
+          })
+          .toPromise();
+        if (!meta) continue;
+        out.push({
+          id: meta.id,
+          previewUrl: p.previewUrl,
+          filename: meta.filename,
+          contentType: meta.contentType,
+          width: meta.width,
+          height: meta.height,
+        });
+      } catch (err) {
+        this.error.set(
+          `Failed to upload "${p.file.name}": ${(err as Error).message}`
+        );
+        // bail — the user message will still send without this attachment
+      }
+    }
+    this.pendingAttachments.set([]);
+    return out;
   }
 
   private autosize(ta: HTMLTextAreaElement): void {
@@ -263,9 +389,17 @@ export class CopilotComponent implements OnInit {
       }
     }
 
+    const uploaded = await this.uploadPendingAttachments(sessionId);
     this.messages.update((msgs) => [
       ...msgs,
-      { id: crypto.randomUUID(), role: 'user', text, toolResults: [], createdAt: new Date() },
+      {
+        id: crypto.randomUUID(),
+        role: 'user',
+        text,
+        toolResults: [],
+        createdAt: new Date(),
+        attachments: uploaded.length > 0 ? uploaded : undefined,
+      },
     ]);
     this.scrollBottom();
 

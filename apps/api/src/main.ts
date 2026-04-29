@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app/app.module';
 import { bootstrapAdmin } from './db/bootstrap-admin';
@@ -9,7 +10,13 @@ async function bootstrap() {
   await runMigrations();
   await bootstrapAdmin();
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bodyParser: false,
+  });
+  // Attachment uploads use base64 in JSON; 5MB binary ≈ ~6.7MB encoded.
+  // Bump the default body limit so the upload endpoint isn't rejected.
+  app.useBodyParser('json', { limit: '8mb' });
+  app.useBodyParser('urlencoded', { limit: '8mb', extended: true });
   app.setGlobalPrefix('api');
   app.enableCors({
     origin: true,

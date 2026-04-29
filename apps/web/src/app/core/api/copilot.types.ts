@@ -104,4 +104,16 @@ export interface ChatMessage {
   text: string;
   toolResults: Array<{ toolName: string; data: unknown }>;
   createdAt: Date;
+  attachments?: ChatAttachment[];
+}
+
+/** A single image already uploaded to the server, displayed inline. */
+export interface ChatAttachment {
+  id: string;
+  /** Browser-local blob URL (cheap to render); falls back to the API URL after page reload. */
+  previewUrl: string;
+  filename: string | null;
+  contentType: string;
+  width: number | null;
+  height: number | null;
 }

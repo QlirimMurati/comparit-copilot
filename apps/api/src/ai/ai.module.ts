@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AttachmentsModule } from '../attachments/attachments.module';
 import { AuthModule } from '../auth/auth.module';
 import { RealtimeModule } from '../realtime/realtime.module';
 import { AdminDigestsController } from './admin-digests.controller';
@@ -26,7 +27,7 @@ import { TranscriptsController } from './transcript-decomposer/transcripts.contr
 import { VoyageService } from './voyage.service';
 
 @Module({
-  imports: [AuthModule, RealtimeModule],
+  imports: [AuthModule, RealtimeModule, AttachmentsModule],
   controllers: [
     IntakeController,
     AdminFewShotsController,

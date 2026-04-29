@@ -125,6 +125,15 @@
               <div class="msg-body">
                 <div class="msg-name">You <span class="time">{{ msg.createdAt | date: 'shortTime' }}</span></div>
                 <div class="msg-text">{{ msg.text }}</div>
+                @if (msg.attachments?.length) {
+                  <div class="msg-attachments">
+                    @for (a of msg.attachments; track a.id) {
+                      <a class="msg-attachment" [href]="a.previewUrl" target="_blank" rel="noopener" [title]="a.filename ?? ''">
+                        <img [src]="a.previewUrl" [alt]="a.filename ?? 'attachment'" />
+                      </a>
+                    }
+                  </div>
+                }
               </div>
             </div>
           } @else {
@@ -190,6 +199,27 @@
 
   <!-- Composer -->
   <div class="composer-wrap">
+    @if (pendingAttachments().length > 0) {
+      <div class="composer-attachments">
+        @for (a of pendingAttachments(); track a.localId) {
+          <div class="composer-attachment-pill">
+            <img [src]="a.previewUrl" [alt]="a.file.name" />
+            <span class="name">{{ a.file.name }}</span>
+            <button type="button" class="remove" (click)="removeAttachment(a.localId)" aria-label="Remove attachment">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        }
+      </div>
+    }
+    <input
+      #fileInput
+      type="file"
+      accept="image/*"
+      multiple
+      hidden
+      (change)="onAttachmentSelected($event)"
+    />
     <div class="composer">
       <textarea
         #composerInput
@@ -203,7 +233,14 @@
         [disabled]="streaming()"
       ></textarea>
       <div class="composer-bar">
-        <button type="button" class="composer-tool" title="Attach" aria-label="Attach">
+        <button
+          type="button"
+          class="composer-tool"
+          title="Attach image"
+          aria-label="Attach image"
+          (click)="openAttachmentPicker()"
+          [disabled]="streaming() || pendingAttachments().length >= attachmentLimit"
+        >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="m21 11-9 9a5 5 0 0 1-7-7l9.5-9.5a3.5 3.5 0 1 1 5 5L10 18a2 2 0 0 1-3-3l8.5-8.5"/>
           </svg>

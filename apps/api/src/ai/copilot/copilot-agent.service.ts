@@ -1,6 +1,7 @@
 import type Anthropic from '@anthropic-ai/sdk';
 import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { and, cosineDistance, eq, ilike, isNotNull, or, sql, type SQL } from 'drizzle-orm';
+import { AttachmentsService } from '../../attachments/attachments.service';
 import { DRIZZLE, type Database } from '../../db/db.module';
 import { bugReports, ticketsCache } from '../../db/schema';
 import { REPORT_SEVERITIES, SPARTEN } from '../../db/schema';
@@ -329,7 +330,8 @@ export class CopilotAgentService {
     private readonly prefill: PrefillService,
     private readonly validationRules: ValidationRulesService,
     @Optional() private readonly codeLocalizer?: CodeLocalizerService,
-    @Optional() private readonly transcriptDecomposer?: TranscriptDecomposerService
+    @Optional() private readonly transcriptDecomposer?: TranscriptDecomposerService,
+    @Optional() private readonly attachments?: AttachmentsService
   ) {}
 
   async *runStream(input: {
@@ -511,6 +513,12 @@ export class CopilotAgentService {
               capturedContext: {},
             })
             .returning({ id: bugReports.id, status: bugReports.status, createdAt: bugReports.createdAt });
+          if (this.attachments) {
+            await this.attachments.linkSessionToReport({
+              copilotSessionId: ctx.sessionId,
+              bugReportId: row.id,
+            });
+          }
           await this.embedQueue.enqueueReportEmbedding(row.id);
           await this.triageQueue.enqueueReportTriage(row.id);
           const data = { reportId: row.id, title: fields.title, status: row.status, type: ticketType };

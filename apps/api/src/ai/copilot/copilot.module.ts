@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AiModule } from '../ai.module';
+import { AttachmentsModule } from '../../attachments/attachments.module';
 import { AuthModule } from '../../auth/auth.module';
 import { IndexModule } from '../../index/index.module';
 import { JiraModule } from '../../jira/jira.module';
@@ -13,6 +14,7 @@ import { CopilotSessionService } from './copilot-session.service';
   imports: [
     AuthModule,
     AiModule,
+    AttachmentsModule,
     IndexModule,
     JiraModule,
     PrefillModule,

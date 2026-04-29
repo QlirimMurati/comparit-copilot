@@ -10,8 +10,13 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ContextViewerComponent } from '@comparit-copilot/ui-kit';
+import {
+  AttachmentsService,
+  type AttachmentMetadata,
+} from '../../../core/api/attachments.service';
 import { BugReportsService } from '../../../core/api/bug-reports.service';
 import { CopilotService } from '../../../core/api/copilot.service';
+import { AuthImageDirective } from '../../../shared/auth-image.directive';
 import type {
   JiraPushPreview,
   JiraPushResult,
@@ -51,14 +56,24 @@ type LoadState =
 @Component({
   selector: 'app-report-detail',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, ContextViewerComponent],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    ContextViewerComponent,
+    AuthImageDirective,
+  ],
   templateUrl: './detail.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportDetailComponent {
   private readonly api = inject(BugReportsService);
   private readonly copilotApi = inject(CopilotService);
+  private readonly attachmentsApi = inject(AttachmentsService);
   private readonly fb = inject(FormBuilder);
+
+  protected readonly attachments = signal<AttachmentMetadata[]>([]);
+  protected readonly attachmentUrl = (id: string) =>
+    this.attachmentsApi.bytesUrl(id);
 
   readonly id = input.required<string>();
 
@@ -115,6 +130,7 @@ export class ReportDetailComponent {
       const reportId = this.id();
       if (!reportId) return;
       this.state.set({ kind: 'loading' });
+      this.attachments.set([]);
       this.api.getById(reportId).subscribe({
         next: (report) => {
           this.state.set({ kind: 'ok', report });
@@ -123,6 +139,10 @@ export class ReportDetailComponent {
             severity: report.severity,
             sparte: report.sparte,
             type: report.type ?? 'bug',
+          });
+          this.attachmentsApi.listForReport(reportId).subscribe({
+            next: (list) => this.attachments.set(list),
+            error: () => this.attachments.set([]),
           });
         },
         error: (err) => {

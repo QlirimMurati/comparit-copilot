@@ -11,3 +11,4 @@ export * from './tickets-cache';
 export * from './copilot-sessions';
 export * from './copilot-messages';
 export * from './validation-rules';
+export * from './attachments';

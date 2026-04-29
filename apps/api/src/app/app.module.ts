@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AiModule } from '../ai/ai.module';
+import { AttachmentsModule } from '../attachments/attachments.module';
 import { AuthModule } from '../auth/auth.module';
 import { BugReportsModule } from '../bug-reports/bug-reports.module';
 import { CopilotModule } from '../ai/copilot/copilot.module';
@@ -26,6 +27,7 @@ import { AppService } from './app.service';
     CopilotModule,
     PrefillModule,
     ValidationRulesModule,
+    AttachmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

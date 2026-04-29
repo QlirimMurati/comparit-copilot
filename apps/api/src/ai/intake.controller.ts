@@ -15,6 +15,7 @@ import { DRIZZLE, type Database } from '../db/db.module';
 import { bugReports } from '../db/schema';
 import { findOrCreateReporter } from '../users/find-or-create-reporter';
 import { RealtimeGateway } from '../realtime/realtime.gateway';
+import { AttachmentsService } from '../attachments/attachments.service';
 import { ChatSessionService } from './chat-session.service';
 import { EmbedQueueService } from './embed.queue';
 import { IntakeAgentService } from './intake-agent.service';
@@ -42,7 +43,8 @@ export class IntakeController {
     private readonly agent: IntakeAgentService,
     private readonly embedQueue: EmbedQueueService,
     private readonly triageQueue: TriageQueueService,
-    private readonly realtime: RealtimeGateway
+    private readonly realtime: RealtimeGateway,
+    private readonly attachments: AttachmentsService
   ) {}
 
   @ApiOperation({
@@ -240,6 +242,10 @@ export class IntakeController {
       });
 
     await this.sessions.markSubmitted(session.id, row.id);
+    await this.attachments.linkSessionToReport({
+      chatSessionId: session.id,
+      bugReportId: row.id,
+    });
     await this.embedQueue.enqueueReportEmbedding(row.id);
     await this.triageQueue.enqueueReportTriage(row.id);
     this.realtime.emitBugReportCreated({
