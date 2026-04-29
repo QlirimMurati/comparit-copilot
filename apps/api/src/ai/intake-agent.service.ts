@@ -18,6 +18,36 @@ import type { IntakeStreamEvent } from './intake.types';
 const MODEL = 'claude-opus-4-7';
 const MAX_TOOL_LOOPS = 4;
 
+export interface ActiveCalc {
+  sparte: string | null;
+  values: Record<string, unknown>;
+  errors: { controlPath: string; errors: Record<string, unknown> }[];
+  capturedAt: string;
+}
+
+export function buildActiveCalcBlock(active: ActiveCalc): string {
+  const errorLines = active.errors.length
+    ? active.errors
+        .map((e) => `  - ${e.controlPath}: ${Object.keys(e.errors).join(', ')}`)
+        .join('\n')
+    : '  (none)';
+
+  return [
+    `## ACTIVE-CALCULATION CONTEXT`,
+    `The user is currently looking at this calculation. These are AUTHORITATIVE values — quote them back when answering. Do NOT say "ich habe darauf keinen Zugriff".`,
+    ``,
+    `Sparte: ${active.sparte ?? 'unknown'}`,
+    ``,
+    `Form values (JSON):`,
+    '```json',
+    JSON.stringify(active.values, null, 2),
+    '```',
+    ``,
+    `Validation errors visible to the user:`,
+    errorLines,
+  ].join('\n');
+}
+
 export interface AgentTurnInput {
   sessionId: string;
   /** When undefined, we generate the initial assistant greeting (no user input yet). */
@@ -348,6 +378,21 @@ export class IntakeAgentService {
         `## Captured page context\n\`\`\`json\n${JSON.stringify(capturedContext, null, 2)}\n\`\`\`\n\n` +
         `## Current intake state\n\`\`\`json\n${JSON.stringify(intakeState, null, 2)}\n\`\`\``,
     });
+
+    const active = (
+      capturedContext as { activeCalculation?: ActiveCalc | null } | null
+    )?.activeCalculation;
+    if (
+      active &&
+      (active.sparte ||
+        Object.keys(active.values ?? {}).length > 0 ||
+        (active.errors ?? []).length > 0)
+    ) {
+      blocks.push({
+        type: 'text',
+        text: buildActiveCalcBlock(active),
+      });
+    }
 
     return blocks;
   }
