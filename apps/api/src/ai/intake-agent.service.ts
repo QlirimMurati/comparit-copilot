@@ -102,8 +102,15 @@ export class IntakeAgentService {
     }
 
     const history = await this.sessions.listMessages(input.sessionId);
-    const fewShots = await this.buildFewShotMessages();
-    const apiMessages = [...fewShots, ...this.toApiMessages(history)];
+    const apiHistory = this.toApiMessages(history);
+    // Skip few-shots on the kickoff turn (no real user message yet). The
+    // few-shot conversation ends with an assistant reply, so prepending it
+    // to an empty history makes the model think the user already said the
+    // few-shot's user line — which leaks bug-intake phrasing into the
+    // greeting regardless of mode.
+    const hasRealUser = apiHistory.some((m) => m.role === 'user');
+    const fewShots = hasRealUser ? await this.buildFewShotMessages() : [];
+    const apiMessages = [...fewShots, ...apiHistory];
 
     // Claude requires the conversation to end with a user message. On
     // /chat/start (no userText) and when the last persisted turn is an
@@ -115,7 +122,7 @@ export class IntakeAgentService {
         content: [
           {
             type: 'text',
-            text: '[system] Continue the intake — greet the user (if first turn) or ask the next focused question.',
+            text: '[system] Begin the conversation now. Follow the MODE block in the system prompt for the appropriate first-turn greeting (ASK = free Q&A invitation, FEATURE = anchor + change-vs-new question, BUG = anchor + report prompt). Do NOT default to bug-intake phrasing.',
           },
         ],
       });
@@ -242,8 +249,10 @@ export class IntakeAgentService {
     }
 
     const history = await this.sessions.listMessages(input.sessionId);
-    const fewShots = await this.buildFewShotMessages();
-    const apiMessages = [...fewShots, ...this.toApiMessages(history)];
+    const apiHistory = this.toApiMessages(history);
+    const hasRealUser = apiHistory.some((m) => m.role === 'user');
+    const fewShots = hasRealUser ? await this.buildFewShotMessages() : [];
+    const apiMessages = [...fewShots, ...apiHistory];
 
     // Claude requires the conversation to end with a user message. On
     // /chat/start (no userText) and when the last persisted turn is an
@@ -255,7 +264,7 @@ export class IntakeAgentService {
         content: [
           {
             type: 'text',
-            text: '[system] Continue the intake — greet the user (if first turn) or ask the next focused question.',
+            text: '[system] Begin the conversation now. Follow the MODE block in the system prompt for the appropriate first-turn greeting (ASK = free Q&A invitation, FEATURE = anchor + change-vs-new question, BUG = anchor + report prompt). Do NOT default to bug-intake phrasing.',
           },
         ],
       });
