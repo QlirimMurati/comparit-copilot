@@ -10,6 +10,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
+import { AttachmentsService } from '../attachments/attachments.service';
 import { DRIZZLE, type Database } from '../db/db.module';
 import { bugReports, type BugReport } from '../db/schema';
 import { JiraClient } from './jira.client';
@@ -122,7 +123,8 @@ export class PushToJiraService {
     @Inject(DRIZZLE) private readonly db: Database,
     private readonly jira: JiraClient,
     private readonly jql: JqlBuilderService,
-    private readonly cache: TicketsCacheService
+    private readonly cache: TicketsCacheService,
+    private readonly attachments: AttachmentsService
   ) {}
 
   /**
@@ -280,6 +282,35 @@ export class PushToJiraService {
     const jiraIssueUrl = baseUrl
       ? `${baseUrl}/browse/${created.key}`
       : created.self;
+
+    // Upload any attachments the user added during chat. Failure here
+    // shouldn't roll back the Jira issue — the ticket exists, surface the
+    // attachment error in logs and let the user re-attach manually if
+    // needed.
+    try {
+      const attachmentMetas = await this.attachments.listForReport(reportId);
+      if (attachmentMetas.length > 0) {
+        const files = await Promise.all(
+          attachmentMetas.map(async (m) => {
+            const { bytes, contentType, filename } =
+              await this.attachments.getBytes(m.id);
+            const safeName =
+              filename ??
+              (m.kind === 'screenshot'
+                ? `screenshot-${m.id.slice(0, 8)}.png`
+                : `attachment-${m.id.slice(0, 8)}`);
+            return { filename: safeName, contentType, bytes };
+          })
+        );
+        await this.jira.addAttachments(created.key, files);
+      }
+    } catch (err) {
+      this.logger.warn(
+        `Jira attachments failed for ${created.key} (report ${reportId}): ${
+          (err as Error).message
+        } — issue itself was created successfully`
+      );
+    }
 
     await this.db
       .update(bugReports)

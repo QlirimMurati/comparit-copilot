@@ -169,6 +169,48 @@ export class JiraClient implements OnModuleInit {
     return this.post<{ id: string; key: string; self: string }>('/issue', body);
   }
 
+  /**
+   * Upload one or more file attachments to an existing Jira issue.
+   * Jira requires the `X-Atlassian-Token: no-check` header on this endpoint.
+   * Returns the array of attachment metadata Jira sends back.
+   */
+  async addAttachments(
+    issueKey: string,
+    files: Array<{ filename: string; contentType: string; bytes: Buffer }>
+  ): Promise<Array<{ id: string; filename: string }>> {
+    this.requireConfigured();
+    if (files.length === 0) return [];
+    const form = new FormData();
+    for (const f of files) {
+      // Buffer → Uint8Array → Blob avoids a Node-vs-DOM Blob mismatch
+      // and ensures the byte payload is sent verbatim.
+      const blob = new Blob([new Uint8Array(f.bytes)], { type: f.contentType });
+      form.append('file', blob, f.filename);
+    }
+    const url = `${this.baseUrl}${ATLASSIAN_API}/issue/${encodeURIComponent(
+      issueKey
+    )}/attachments`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: this.authHeader!,
+        Accept: 'application/json',
+        'X-Atlassian-Token': 'no-check',
+      },
+      body: form,
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '<no body>');
+      throw new Error(
+        `Jira POST /issue/${issueKey}/attachments failed: ${res.status} ${text.slice(
+          0,
+          500
+        )}`
+      );
+    }
+    return (await res.json()) as Array<{ id: string; filename: string }>;
+  }
+
   // ---- internals --------------------------------------------------------
 
   private requireConfigured(): void {
