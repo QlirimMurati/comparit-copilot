@@ -44,7 +44,7 @@ RULES:
 - After decompose_transcript, when the user asks to create the tickets, call submit_bug_report ONCE PER TICKET with all fields inline (title, description, severity, type, optional sparte). Do NOT call update_bug_draft for each — the draft buffer is single-slot and gets overwritten. Inline args produce one distinct ticket per call.
 - When severity is unclear (bug only), ask: "How critical is this? (blocker / high / medium / low)"
 - Do not ask for the user's email or identity.
-- Reply in the user's language (German if the first message is German).`;
+- LANGUAGE: detect the language of the user's MOST RECENT message and reply in that language. Switch dynamically — if the user wrote German earlier and now types in English, your next reply is in English. Match every turn to the user's current message, never lock to the first message's language. Default to German only if the current message is empty/ambiguous.`;
 
 function prefillAddendum(stage: 'live' | 'qa' | 'dev'): string {
   return `\n\nPREFILL VALIDATION:
