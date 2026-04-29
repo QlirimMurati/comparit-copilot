@@ -28,9 +28,9 @@ describe('AuthService', () => {
     const db = dbReturning([
       {
         id: 'u-1',
-        email: 'admin@comparit.de',
+        email: 'cm@comparit.de',
         passwordHash,
-        name: 'Admin',
+        name: 'Clirim',
         role: 'admin',
       },
     ]);
@@ -43,15 +43,15 @@ describe('AuthService', () => {
     }).compile();
     const svc = module.get(AuthService);
 
-    const out = await svc.login('admin@comparit.de', 'hunter2');
+    const out = await svc.login('cm@comparit.de', 'hunter2');
 
     expect(out.token).toEqual(expect.any(String));
     const payload = await jwt.verifyAsync(out.token);
-    expect(payload).toMatchObject({ sub: 'u-1', email: 'admin@comparit.de' });
+    expect(payload).toMatchObject({ sub: 'u-1', email: 'cm@comparit.de' });
     expect(out.user).toEqual({
       id: 'u-1',
-      email: 'admin@comparit.de',
-      name: 'Admin',
+      email: 'cm@comparit.de',
+      name: 'Clirim',
       role: 'admin',
     });
   });
@@ -76,9 +76,9 @@ describe('AuthService', () => {
     const db = dbReturning([
       {
         id: 'u-1',
-        email: 'admin@comparit.de',
+        email: 'cm@comparit.de',
         passwordHash,
-        name: 'Admin',
+        name: 'Clirim',
         role: 'admin',
       },
     ]);
@@ -90,7 +90,7 @@ describe('AuthService', () => {
       ],
     }).compile();
     const svc = module.get(AuthService);
-    await expect(svc.login('admin@comparit.de', 'wrong')).rejects.toBeInstanceOf(
+    await expect(svc.login('cm@comparit.de', 'wrong')).rejects.toBeInstanceOf(
       UnauthorizedException
     );
   });

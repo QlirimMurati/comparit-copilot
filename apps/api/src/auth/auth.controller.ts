@@ -31,7 +31,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Login with email + password, returns JWT' })
   @ApiBody({
     schema: {
-      example: { email: 'admin@comparit.de', password: 'admin' },
+      example: { email: 'cm@comparit.de', password: 'admin' },
       required: ['email', 'password'],
       properties: {
         email: { type: 'string', format: 'email' },
@@ -46,8 +46,8 @@ export class AuthController {
         token: 'eyJhbGciOi...',
         user: {
           id: 'uuid',
-          email: 'admin@comparit.de',
-          name: 'Admin',
+          email: 'cm@comparit.de',
+          name: 'Clirim',
           role: 'admin',
         },
       },

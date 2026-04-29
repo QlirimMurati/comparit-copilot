@@ -33,7 +33,7 @@ export async function bootstrapAdmin(): Promise<void> {
     }
 
     const password = process.env.BOOTSTRAP_ADMIN_PASSWORD ?? 'admin';
-    const name = process.env.BOOTSTRAP_ADMIN_NAME ?? 'Admin';
+    const name = process.env.BOOTSTRAP_ADMIN_NAME ?? 'Clirim';
     const passwordHash = await hash(password, 10);
 
     await db.insert(users).values({

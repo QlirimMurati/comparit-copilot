@@ -1333,7 +1333,7 @@ Wait until log shows `Application is running on: http://[::1]:3000/api`.
 Run (from another terminal): `cd /Users/dp/Sources/comparit-copilot && pnpm start:web`
 Wait until log shows `Application bundle generation complete.`.
 
-- [ ] **Step 3: Open http://localhost:4240 in a browser, log in as `admin@comparit.de` / `admin`**
+- [ ] **Step 3: Open http://localhost:4240 in a browser, log in as `cm@comparit.de` / `admin`**
 
 Expected: After login, the top nav shows: Copilot · Reports · Dashboards · **Prefill** · (Admin if admin).
 

@@ -256,7 +256,7 @@ pnpm nx build api && pnpm nx build web
 
 ### Manual smoke test
 
-1. `pnpm start:api` + `pnpm start:web`. Log in as `admin@comparit.de` / `admin`.
+1. `pnpm start:api` + `pnpm start:web`. Log in as `cm@comparit.de` / `admin`.
 2. Click **Prefill**. Paste a known Kfz prefill, validate against LIVE → expect "All prefill data is valid" with the LIVE badge.
 3. Toggle to DEV, validate the same payload → expect a DEV-tagged result.
 4. Block `pool.cpit.app` (e.g. via `/etc/hosts`), validate again → expect the amber "offline schema (fallback)" chip and a result driven by the static schema.

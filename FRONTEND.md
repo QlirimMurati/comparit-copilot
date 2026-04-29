@@ -32,7 +32,7 @@ pnpm nx serve widget-host       # widget demo on http://localhost:4241
 | `pages/home/` | Landing |
 | `pages/reports/` | Bug-report list + `/reports/new` create form |
 
-Login as `admin@comparit.de` / `admin`.
+Login as `cm@comparit.de` / `admin`.
 
 ## Widget — `libs/widget` + `apps/widget`
 

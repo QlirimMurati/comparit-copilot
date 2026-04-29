@@ -1383,7 +1383,7 @@ Expected: `Seeded N validation rules from JSON` where N is the total entries acr
 
 - [ ] **Step 3: Verify via REST**
 
-Run: `cd /Users/dp/Sources/comparit-copilot && TOKEN=$(curl -sS -X POST http://localhost:3000/api/auth/login -H "Content-Type: application/json" -d '{"email":"admin@comparit.de","password":"admin"}' | python3 -c "import json,sys;print(json.load(sys.stdin)['token'])"); curl -sS -H "Authorization: Bearer $TOKEN" "http://localhost:3000/api/validation-rules?sparte=Kfz" | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'Got {len(d)} Kfz rules; first label: {d[0][\"label\"] if d else \"NONE\"}')"`
+Run: `cd /Users/dp/Sources/comparit-copilot && TOKEN=$(curl -sS -X POST http://localhost:3000/api/auth/login -H "Content-Type: application/json" -d '{"email":"cm@comparit.de","password":"admin"}' | python3 -c "import json,sys;print(json.load(sys.stdin)['token'])"); curl -sS -H "Authorization: Bearer $TOKEN" "http://localhost:3000/api/validation-rules?sparte=Kfz" | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'Got {len(d)} Kfz rules; first label: {d[0][\"label\"] if d else \"NONE\"}')"`
 Expected: At least 5 Kfz rules; first label is a plausible German field name.
 
 - [ ] **Step 4: Stop api**
@@ -1675,7 +1675,7 @@ Run: `until curl -sf http://localhost:3000/api/health > /dev/null && curl -sf ht
 
 - [ ] **Step 5: Manual smoke (browser)**
 
-Open http://localhost:4240/copilot, log in as `admin@comparit.de` / `admin`, start a new session. Test each:
+Open http://localhost:4240/copilot, log in as `cm@comparit.de` / `admin`, start a new session. Test each:
 
 1. Ask: *"What are the rules for Geburtsdatum in Kfz?"* → expect `Looking up field rule…` chip and a conversational reply naming validators (e.g. "must be in the past", min age).
 2. Ask: *"What does DOB mean?"* → expect `Looking up field rule…` to return 0; agent suggests "Geburtsdatum".

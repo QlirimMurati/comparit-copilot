@@ -15,7 +15,7 @@ export class LoginComponent {
   private readonly router = inject(Router);
 
   protected readonly form = this.fb.nonNullable.group({
-    email: ['admin@comparit.de', [Validators.required, Validators.email]],
+    email: ['cm@comparit.de', [Validators.required, Validators.email]],
     password: ['admin', [Validators.required]],
   });
   protected readonly submitting = signal(false);

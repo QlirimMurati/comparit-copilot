@@ -18,7 +18,7 @@ cp .env.example .env                               # once; set ANTHROPIC_API_KEY
 pnpm start:api                                     # http://localhost:3000/api
 ```
 
-Migrations auto-apply on boot. Bootstrap admin `admin@comparit.de` / `admin`.
+Migrations auto-apply on boot. Bootstrap admin `cm@comparit.de` / `admin`.
 
 ## Health
 

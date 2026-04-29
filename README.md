@@ -33,7 +33,7 @@ pnpm start:api                                    # runs migrations on boot
 pnpm start:web                                    # http://localhost:4240
 ```
 
-The API auto-applies migrations and bootstraps an admin user (`admin@comparit.de` / `admin` from `.env`) on startup.
+The API auto-applies migrations and bootstraps an admin user (`cm@comparit.de` / `admin` from `.env`) on startup.
 
 Stop infra:
 ```bash
@@ -110,7 +110,7 @@ few-shots/                   # AI example conversations (Phase 3)
 3. `pnpm install` (once)
 4. `pnpm start:api` — applies migrations, bootstraps admin user, listens on :3000
 5. `pnpm start:web` — http://localhost:4240
-6. Sign in with `admin@comparit.de` / `admin`
+6. Sign in with `cm@comparit.de` / `admin`
 7. Create a bug report at `/reports/new`
 
 ### Try the embedded widget
