@@ -97,7 +97,7 @@
               <td><span class="badge" [class]="statusBadgeClass(r.status)">{{ r.status }}</span></td>
               <td><span class="badge" [class]="severityBadgeClass(r.severity)">{{ r.severity }}</span></td>
               <td>{{ sparteLabel(r.sparte) }}</td>
-              <td>{{ r.reporter?.name ?? '—' }}</td>
+              <td>{{ reporterName(r) }}</td>
               <td class="mono">{{ formatDate(r.createdAt) }}</td>
               <td class="action-cell">View →</td>
             </tr>

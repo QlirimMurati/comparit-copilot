@@ -41,11 +41,14 @@
         </div>
         <h1 class="detail-h">{{ r.title }}</h1>
         <div class="detail-meta">
-          Reported by {{ r.reporter?.name ?? '—' }}
+          Reported by {{ reporterName(r) }}
           @if (r.reporter?.email) { · {{ r.reporter?.email }} }
           · created {{ formatDate(r.createdAt) }}
           @if (r.updatedAt && r.updatedAt !== r.createdAt) {
             · updated {{ formatDate(r.updatedAt) }}
+          }
+          @if (r.taskId) {
+            · task <span class="mono" [title]="r.taskId">{{ r.taskId }}</span>
           }
         </div>
 

@@ -245,6 +245,16 @@ export class ReportDetailComponent {
     return new Date(iso).toLocaleString();
   }
 
+  protected reporterName(r: BugReport): string {
+    const reporter = r.reporter;
+    if (!reporter) return '—';
+    const full = [reporter.firstName, reporter.lastName]
+      .map((s) => (s ?? '').trim())
+      .filter((s) => s.length > 0)
+      .join(' ');
+    return full || reporter.name || '—';
+  }
+
   protected formatDistance(d: number): string {
     return d.toFixed(3);
   }

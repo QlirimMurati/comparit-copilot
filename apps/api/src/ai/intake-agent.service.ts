@@ -394,6 +394,22 @@ export class IntakeAgentService {
       });
     }
 
+    const isFromCompare =
+      (capturedContext as { isFromCompare?: boolean } | null)?.isFromCompare ===
+      true;
+    if (isFromCompare) {
+      blocks.push({
+        type: 'text',
+        text: [
+          `## ORIGIN: comparer-ui (broker product)`,
+          `This conversation is with a busy insurance broker, not a developer or QA.`,
+          `- Do NOT ask Berechnung-specific questions (input values, calculation math, validation errors, sparte field internals).`,
+          `- Treat any active-calculation context as silent background — do not quiz the user about it.`,
+          `- Keep it short: gather title, description, and severity in plain language, then wrap up in 2–3 turns.`,
+        ].join('\n'),
+      });
+    }
+
     return blocks;
   }
 

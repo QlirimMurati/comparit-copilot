@@ -99,6 +99,13 @@
       "when": 1777832000000,
       "tag": "0013_add_task_id",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1777832500000,
+      "tag": "0014_add_user_first_last_name",
+      "breakpoints": true
     }
   ]
 }

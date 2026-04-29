@@ -11,6 +11,8 @@ export const users = pgTable(
     email: text('email').notNull().unique(),
     passwordHash: text('password_hash').notNull(),
     name: text('name').notNull(),
+    firstName: text('first_name'),
+    lastName: text('last_name'),
     role: text('role').$type<UserRole>().notNull().default('dev'),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()

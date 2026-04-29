@@ -55,9 +55,19 @@ export class IntakeController {
     if (!body.reporterEmail) {
       throw new BadRequestException('reporterEmail required');
     }
+    const baseContext =
+      body.capturedContext && typeof body.capturedContext === 'object'
+        ? (body.capturedContext as Record<string, unknown>)
+        : {};
+    const capturedContext = {
+      ...baseContext,
+      isFromCompare: body.isFromCompare === true,
+      reporterFirstName: body.firstName ?? null,
+      reporterLastName: body.lastName ?? null,
+    };
     const session = await this.sessions.create({
       reporterEmail: body.reporterEmail,
-      capturedContext: body.capturedContext ?? null,
+      capturedContext,
       taskId: body.taskId ?? null,
     });
     const result = await this.runTurnSafely({ sessionId: session.id });
@@ -157,13 +167,25 @@ export class IntakeController {
       throw new BadRequestException('session has no reporterEmail');
     }
 
+    const sessionContext =
+      (session.capturedContext as Record<string, unknown> | null) ?? {};
+    const reporterFirstName =
+      typeof sessionContext['reporterFirstName'] === 'string'
+        ? (sessionContext['reporterFirstName'] as string)
+        : null;
+    const reporterLastName =
+      typeof sessionContext['reporterLastName'] === 'string'
+        ? (sessionContext['reporterLastName'] as string)
+        : null;
+
     const reporterId = await findOrCreateReporter(
       this.db,
-      session.reporterEmail
+      session.reporterEmail,
+      { firstName: reporterFirstName, lastName: reporterLastName }
     );
 
     const transcript = await this.sessions.listMessages(session.id);
-    const capturedContext = (session.capturedContext as Record<string, unknown> | null) ?? {};
+    const capturedContext = sessionContext;
     const reportContext = {
       ...capturedContext,
       chatSessionId: session.id,

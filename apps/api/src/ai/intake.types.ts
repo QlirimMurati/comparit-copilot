@@ -4,6 +4,9 @@ export interface ChatStartInput {
   reporterEmail: string;
   capturedContext: unknown;
   taskId?: string | null;
+  isFromCompare?: boolean;
+  firstName?: string | null;
+  lastName?: string | null;
 }
 
 export interface ChatStartResult {

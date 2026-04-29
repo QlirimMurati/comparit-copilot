@@ -33,6 +33,8 @@ export type BugReportRecord = BugReport & {
   reporter?: {
     id: string;
     name: string;
+    firstName: string | null;
+    lastName: string | null;
     email: string;
   };
 };

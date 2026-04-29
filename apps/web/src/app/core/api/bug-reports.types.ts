@@ -126,9 +126,16 @@ export interface BugReport {
   aiProposedTriage: TriageProposal | null;
   clusterId: string | null;
   jiraIssueKey: string | null;
+  taskId: string | null;
   createdAt: string;
   updatedAt: string;
-  reporter?: { id: string; name: string; email: string };
+  reporter?: {
+    id: string;
+    name: string;
+    firstName: string | null;
+    lastName: string | null;
+    email: string;
+  };
 }
 
 export interface CreateBugReportInput {
