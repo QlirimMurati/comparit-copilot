@@ -59,6 +59,11 @@ export interface JiraCreateIssueInput {
   /** Plain text — converted to ADF (Atlassian Document Format) at request time. */
   description?: string;
   labels?: string[];
+  /**
+   * Extra Jira fields (e.g. customfield_NNNNN) merged into `fields` verbatim.
+   * Used for the LV project's required custom fields (Product, Sparte, Task area, etc).
+   */
+  customFields?: Record<string, unknown>;
 }
 
 @Injectable()
@@ -154,6 +159,7 @@ export class JiraClient implements OnModuleInit {
         ...(input.labels && input.labels.length > 0
           ? { labels: input.labels }
           : {}),
+        ...(input.customFields ?? {}),
       },
     };
     return this.post<{ id: string; key: string; self: string }>('/issue', body);

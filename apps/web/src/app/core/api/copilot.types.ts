@@ -83,6 +83,8 @@ export interface JiraPushPreview {
   summary: string;
   description: string;
   labels: string[];
+  /** LV-required custom fields (Product, Sparte, Task area, Account, Project billing). */
+  customFieldsDisplay: { name: string; value: string }[];
   previewHash: string;
   warning: string;
 }

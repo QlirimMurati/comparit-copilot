@@ -1,8 +1,11 @@
 import { createHash } from 'node:crypto';
 import {
+  BadGatewayException,
   BadRequestException,
+  HttpException,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
@@ -13,6 +16,64 @@ import { JiraClient } from './jira.client';
 import { JqlBuilderService } from './jql-builder.service';
 import { TicketsCacheService } from './tickets-cache.service';
 
+/**
+ * LV-project required custom fields. Discovered from
+ * GET /rest/api/3/issue/createmeta/LV/issuetypes/10004 on 2026-04-29.
+ * Field/option ids are stable as long as the Jira admin doesn't recreate them.
+ */
+const LV_FIELD = {
+  PRODUCT: 'customfield_10133',
+  SPARTE: 'customfield_10203',
+  TASK_AREA: 'customfield_10124',
+  ACCOUNT: 'customfield_10120',
+  BILLING: 'customfield_10126',
+} as const;
+
+const LV_OPTION = {
+  PRODUCT_CPIT_APP: '10670',
+  TASK_AREA_BUG: '10454', // Fehlerbehebung / Troubleshooting
+  TASK_AREA_FEATURE: '10394', // Weiterentwicklung / Feature Development
+  ACCOUNT_INTERN: '3',
+  BILLING_KEINS: '10548',
+  // Sparte options
+  SPARTE_INTERN: '11173',
+  SPARTE_KFZ: '11179',
+  SPARTE_LV: '11174',
+  SPARTE_LV_AV: '11178',
+  SPARTE_LV_BU: '11177',
+  SPARTE_LV_DD: '11777',
+  SPARTE_LV_GF: '11175',
+  SPARTE_LV_RLV: '11176',
+} as const;
+
+function sparteLabelFromOptionId(optionId: string): string {
+  switch (optionId) {
+    case LV_OPTION.SPARTE_INTERN: return 'Intern';
+    case LV_OPTION.SPARTE_KFZ:    return 'KFZ';
+    case LV_OPTION.SPARTE_LV:     return 'LV';
+    case LV_OPTION.SPARTE_LV_AV:  return 'LV AV';
+    case LV_OPTION.SPARTE_LV_BU:  return 'LV BU';
+    case LV_OPTION.SPARTE_LV_DD:  return 'LV DD';
+    case LV_OPTION.SPARTE_LV_GF:  return 'LV GF';
+    case LV_OPTION.SPARTE_LV_RLV: return 'LV RLV';
+    default: return 'Intern';
+  }
+}
+
+/** Map our internal sparte enum → Jira's LV "Sparte" option id. */
+function mapSparteToLvOption(sparte: string | null): string {
+  switch (sparte) {
+    case 'bu': return LV_OPTION.SPARTE_LV_BU;
+    case 'gf': return LV_OPTION.SPARTE_LV_GF;
+    case 'risikoleben': return LV_OPTION.SPARTE_LV_RLV;
+    case 'kfz': return LV_OPTION.SPARTE_KFZ;
+    case 'comparit': return LV_OPTION.SPARTE_INTERN;
+    // kvv, kvz, hausrat, phv, wohngebaeude, basis_rente, private_rente — no
+    // 1:1 LV option, fall back to Intern. Override via Jira UI if needed.
+    default: return LV_OPTION.SPARTE_INTERN;
+  }
+}
+
 export interface JiraPushPreview {
   reportId: string;
   projectKey: string;
@@ -20,6 +81,11 @@ export interface JiraPushPreview {
   summary: string;
   description: string;
   labels: string[];
+  /**
+   * Display-only summary of the LV-required custom fields filled by defaults.
+   * Frontend renders these so the user sees exactly what will be created.
+   */
+  customFieldsDisplay: { name: string; value: string }[];
   /** SHA-256 of the canonicalised payload — confirm endpoint requires it. */
   previewHash: string;
   /** Plain-language warning for the user-facing UI. */
@@ -37,6 +103,8 @@ export interface JiraPushResult {
 
 @Injectable()
 export class PushToJiraService {
+  private readonly logger = new Logger('PushToJiraService');
+
   constructor(
     @Inject(DRIZZLE) private readonly db: Database,
     private readonly jira: JiraClient,
@@ -95,6 +163,10 @@ export class PushToJiraService {
     }
     const labels = [...labelSet];
 
+    // LV-required custom fields (discovered via Jira's createmeta endpoint).
+    // Sparte is derived from the bug report; everything else uses safe defaults.
+    const { customFields, customFieldsDisplay } = this.buildLvBugFields(report.sparte);
+
     const previewHash = canonicalHash({
       reportId,
       projectKey,
@@ -102,6 +174,7 @@ export class PushToJiraService {
       summary,
       description,
       labels,
+      customFields,
     });
 
     return {
@@ -111,10 +184,34 @@ export class PushToJiraService {
       summary,
       description,
       labels,
+      customFieldsDisplay,
       previewHash,
       warning:
         'Confirm to create a real ticket in Jira. This action cannot be undone from copilot — only the issue creator can delete in Jira.',
     };
+  }
+
+  private buildLvBugFields(sparte: string | null): {
+    customFields: Record<string, unknown>;
+    customFieldsDisplay: { name: string; value: string }[];
+  } {
+    const sparteOptionId = mapSparteToLvOption(sparte);
+    const customFields = {
+      [LV_FIELD.PRODUCT]:    { id: LV_OPTION.PRODUCT_CPIT_APP },
+      [LV_FIELD.SPARTE]:     { id: sparteOptionId },
+      [LV_FIELD.TASK_AREA]:  { id: LV_OPTION.TASK_AREA_BUG },
+      // Account is a Tempo "option2" field — expects a Long, not {id: ...}.
+      [LV_FIELD.ACCOUNT]:    Number(LV_OPTION.ACCOUNT_INTERN),
+      [LV_FIELD.BILLING]:    { id: LV_OPTION.BILLING_KEINS },
+    };
+    const customFieldsDisplay = [
+      { name: 'Product',           value: 'Cpit.App' },
+      { name: 'Sparte',            value: sparteLabelFromOptionId(sparteOptionId) },
+      { name: 'Task area',         value: 'Fehlerbehebung / Troubleshooting' },
+      { name: 'Account',           value: 'Intern' },
+      { name: 'Project (billing)', value: 'Keins' },
+    ];
+    return { customFields, customFieldsDisplay };
   }
 
   /**
@@ -136,13 +233,31 @@ export class PushToJiraService {
       );
     }
 
-    const created = await this.jira.createIssue({
-      projectKey: preview.projectKey,
-      issueType: preview.issueType,
-      summary: preview.summary,
-      description: preview.description,
-      labels: preview.labels,
-    });
+    // Re-build customFields the same way preview() did. Hash check above
+    // guarantees the bug report's sparte hasn't drifted between preview & confirm.
+    const report = await this.loadReport(reportId);
+    const { customFields } = this.buildLvBugFields(report.sparte);
+
+    let created;
+    try {
+      created = await this.jira.createIssue({
+        projectKey: preview.projectKey,
+        issueType: preview.issueType,
+        summary: preview.summary,
+        description: preview.description,
+        labels: preview.labels,
+        customFields,
+      });
+    } catch (err) {
+      // JiraClient throws plain Error with the real Jira response in the
+      // message; surface that to the user instead of a generic 500.
+      if (err instanceof HttpException) throw err;
+      const raw = err instanceof Error ? err.message : String(err);
+      this.logger.error(`Jira createIssue failed for report ${reportId}: ${raw}`);
+      throw new BadGatewayException(
+        this.summariseJiraError(raw) || 'Jira create failed'
+      );
+    }
 
     const baseUrl = (process.env.JIRA_BASE_URL ?? '').replace(/\/+$/, '');
     const jiraIssueUrl = baseUrl
@@ -176,6 +291,35 @@ export class PushToJiraService {
       throw new NotFoundException(`Report ${id} not found`);
     }
     return rows[0];
+  }
+
+  /**
+   * Pull a useful message out of "Jira POST /issue failed: 400 {…json…}".
+   * Jira returns errors as either {errorMessages: string[]} or {errors: {field: msg}}.
+   */
+  private summariseJiraError(raw: string): string {
+    const m = raw.match(/Jira [^:]+: (\d+) ([\s\S]*)$/);
+    const status = m?.[1];
+    const body = m?.[2]?.trim() ?? raw;
+    try {
+      const parsed = JSON.parse(body) as {
+        errorMessages?: string[];
+        errors?: Record<string, string>;
+      };
+      const msgs: string[] = [];
+      if (parsed.errorMessages?.length) msgs.push(...parsed.errorMessages);
+      if (parsed.errors) {
+        for (const [field, msg] of Object.entries(parsed.errors)) {
+          msgs.push(`${field}: ${msg}`);
+        }
+      }
+      if (msgs.length) {
+        return `Jira ${status ?? ''} — ${msgs.join('; ')}`.trim();
+      }
+    } catch {
+      // not JSON — fall through
+    }
+    return raw;
   }
 
   private resolveProject(): string {

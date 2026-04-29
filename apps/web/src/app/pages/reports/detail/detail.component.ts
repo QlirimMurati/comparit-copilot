@@ -11,6 +11,11 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ContextViewerComponent } from '@comparit-copilot/ui-kit';
 import { BugReportsService } from '../../../core/api/bug-reports.service';
+import { CopilotService } from '../../../core/api/copilot.service';
+import type {
+  JiraPushPreview,
+  JiraPushResult,
+} from '../../../core/api/copilot.types';
 import {
   REPORT_SEVERITIES,
   REPORT_STATUSES,
@@ -26,6 +31,14 @@ import {
   type UpdateBugReportInput,
 } from '../../../core/api/bug-reports.types';
 
+type JiraPushFlowState =
+  | { stage: 'idle' }
+  | { stage: 'previewing' }
+  | { stage: 'preview'; preview: JiraPushPreview }
+  | { stage: 'confirming'; preview: JiraPushPreview }
+  | { stage: 'pushed'; result: JiraPushResult }
+  | { stage: 'error'; message: string };
+
 type LoadState =
   | { kind: 'loading' }
   | { kind: 'error'; message: string }
@@ -40,6 +53,7 @@ type LoadState =
 })
 export class ReportDetailComponent {
   private readonly api = inject(BugReportsService);
+  private readonly copilotApi = inject(CopilotService);
   private readonly fb = inject(FormBuilder);
 
   readonly id = input.required<string>();
@@ -86,6 +100,8 @@ export class ReportDetailComponent {
   protected readonly duplicates = signal<DuplicateCandidate[] | null>(null);
   protected readonly duplicateChecking = signal(false);
   protected readonly duplicateError = signal<string | null>(null);
+
+  protected readonly jiraPush = signal<JiraPushFlowState>({ stage: 'idle' });
 
   constructor() {
     effect(() => {
@@ -231,6 +247,44 @@ export class ReportDetailComponent {
 
   protected formatDistance(d: number): string {
     return d.toFixed(3);
+  }
+
+  protected startJiraPush(): void {
+    const r = this.report();
+    if (!r) return;
+    this.jiraPush.set({ stage: 'previewing' });
+    this.copilotApi.previewJiraPush(r.id).subscribe({
+      next: (preview) => this.jiraPush.set({ stage: 'preview', preview }),
+      error: (err) =>
+        this.jiraPush.set({
+          stage: 'error',
+          message: this.errorMessage(err, 'Preview failed.'),
+        }),
+    });
+  }
+
+  protected confirmJiraPush(preview: JiraPushPreview): void {
+    const r = this.report();
+    if (!r) return;
+    this.jiraPush.set({ stage: 'confirming', preview });
+    this.copilotApi.confirmJiraPush(r.id, preview.previewHash).subscribe({
+      next: (result) => {
+        this.jiraPush.set({ stage: 'pushed', result });
+        // Refresh the report so jiraIssueKey shows on the page
+        this.api.getById(r.id).subscribe({
+          next: (updated) => this.state.set({ kind: 'ok', report: updated }),
+        });
+      },
+      error: (err) =>
+        this.jiraPush.set({
+          stage: 'error',
+          message: this.errorMessage(err, 'Confirm failed.'),
+        }),
+    });
+  }
+
+  protected cancelJiraPush(): void {
+    this.jiraPush.set({ stage: 'idle' });
   }
 
   private errorMessage(err: unknown, fallback: string): string {

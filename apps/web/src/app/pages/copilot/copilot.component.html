@@ -306,6 +306,9 @@
                     </span>
                   </div>
                 }
+                @for (cf of push.preview.customFieldsDisplay; track cf.name) {
+                  <div class="kv"><span>{{ cf.name }}</span><span>{{ cf.value }}</span></div>
+                }
                 <details class="preview-desc">
                   <summary>Description preview</summary>
                   <pre>{{ push.preview.description }}</pre>

@@ -1530,3 +1530,15 @@ body { overflow: hidden; }
 /* Severity-flavoured stat tone */
 .stat[data-tone='warning'] .stat-value { color: var(--warning); }
 
+/* Spinner — used in inline async states (Jira push, polish, localizer) */
+.spinner {
+  width: 14px; height: 14px;
+  border: 2px solid var(--border-2);
+  border-top-color: var(--secondary-100);
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+  flex-shrink: 0;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+

@@ -115,15 +115,100 @@
                 </svg>
                 @if (polishing()) { Polishing… } @else if (aiProposed()) { Re-run polisher } @else { Run polisher }
               </button>
-              <button type="button" class="btn btn-ghost btn-sm" disabled title="Push to Jira is blocked on Q7">
-                Push to Jira (pending Q7)
-              </button>
+              @if (r.jiraIssueKey) {
+                <a class="btn btn-ghost btn-sm" [href]="'https://comparit.atlassian.net/browse/' + r.jiraIssueKey" target="_blank" rel="noopener" style="text-decoration: none;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 3 3 11l5 5"/><path d="M13 21 21 13l-5-5"/>
+                  </svg>
+                  Linked: {{ r.jiraIssueKey }} ↗
+                </a>
+              } @else {
+                @switch (jiraPush().stage) {
+                  @case ('idle') {
+                    <button type="button" class="btn btn-primary btn-sm" (click)="startJiraPush()">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 3 3 11l5 5"/><path d="M13 21 21 13l-5-5"/>
+                      </svg>
+                      Create Jira ticket
+                    </button>
+                  }
+                  @case ('previewing') {
+                    <button type="button" class="btn btn-ghost btn-sm" disabled>
+                      <span class="spinner"></span>
+                      Building preview…
+                    </button>
+                  }
+                  @case ('confirming') {
+                    <button type="button" class="btn btn-ghost btn-sm" disabled>
+                      <span class="spinner"></span>
+                      Pushing…
+                    </button>
+                  }
+                  @case ('error') {
+                    <button type="button" class="btn btn-ghost btn-sm" (click)="startJiraPush()">Retry</button>
+                  }
+                }
+              }
             </div>
           </div>
           <div class="section-body">
             @if (polishError(); as msg) {
               <div class="alert alert-error" style="margin: 0 0 12px;"><div class="content">{{ msg }}</div></div>
             }
+
+            @let push = jiraPush();
+            @switch (push.stage) {
+              @case ('preview') {
+                <div class="jira-preview" style="margin: 0 0 16px;">
+                  <div class="kv"><span>Project</span><span>{{ push.preview.projectKey }}</span></div>
+                  <div class="kv"><span>Type</span><span>{{ push.preview.issueType }}</span></div>
+                  <div class="kv"><span>Summary</span><span>{{ push.preview.summary }}</span></div>
+                  @if (push.preview.labels.length) {
+                    <div class="kv">
+                      <span>Labels</span>
+                      <span class="labels">
+                        @for (l of push.preview.labels; track l) {
+                          <span class="badge badge-bu">{{ l }}</span>
+                        }
+                      </span>
+                    </div>
+                  }
+                  @for (cf of push.preview.customFieldsDisplay; track cf.name) {
+                    <div class="kv"><span>{{ cf.name }}</span><span>{{ cf.value }}</span></div>
+                  }
+                  <details class="preview-desc">
+                    <summary>Description preview</summary>
+                    <pre>{{ push.preview.description }}</pre>
+                  </details>
+                  @if (push.preview.warning) {
+                    <div class="preview-warning">⚠ {{ push.preview.warning }}</div>
+                  }
+                  <div class="action-row">
+                    <button type="button" class="btn btn-brand btn-sm" (click)="confirmJiraPush(push.preview)">
+                      Confirm and push
+                    </button>
+                    <button type="button" class="btn btn-ghost btn-sm" (click)="cancelJiraPush()">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              }
+              @case ('pushed') {
+                <div class="action-success" style="margin: 0 0 16px;">
+                  ✓ Pushed to Jira:
+                  <a [href]="push.result.jiraIssueUrl" target="_blank" rel="noopener">
+                    {{ push.result.jiraIssueKey }} ↗
+                  </a>
+                </div>
+              }
+              @case ('error') {
+                <div class="action-error" style="margin: 0 0 16px;">
+                  ✗ {{ push.message }}
+                  <button type="button" class="btn btn-ghost btn-sm" (click)="cancelJiraPush()">Dismiss</button>
+                </div>
+              }
+            }
+
             @if (aiProposed(); as p) {
               <div class="eyebrow">Proposed title</div>
               <div style="font-weight: 700; font-size: 15px; margin-bottom: 12px; color: var(--fg-1);">{{ p.title }}</div>
