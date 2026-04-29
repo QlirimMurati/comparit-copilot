@@ -17,16 +17,16 @@
         </p>
 
         <div class="quick-grid">
-          <button type="button" class="quick-card" data-tone="warning" (click)="sendSuggestion('I want to report a bug')">
+          <button type="button" class="quick-card" data-tone="warning" (click)="sendSuggestion('I want to create a ticket')">
             <div class="quick-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M8 6V4a4 4 0 0 1 8 0v2"/><rect x="6" y="7" width="12" height="14" rx="6"/>
-                <path d="M6 13H3M21 13h-3M6 17H3M21 17h-3M6 9 4 7M18 9l2-2"/>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4z"/>
+                <path d="M13 5v2M13 11v2M13 17v2"/>
               </svg>
             </div>
             <div class="quick-text">
-              <div class="quick-title">Report a bug</div>
-              <div class="quick-desc">Capture context, describe the issue, push to Jira.</div>
+              <div class="quick-title">Create a ticket</div>
+              <div class="quick-desc">Bug, feature request, or anything in between — we'll capture context and push to Jira.</div>
             </div>
             <div class="quick-arrow">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
@@ -64,21 +64,6 @@
             </div>
           </button>
 
-          <button type="button" class="quick-card" (click)="sendSuggestion('Find duplicates for: ')">
-            <div class="quick-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4"/>
-              </svg>
-            </div>
-            <div class="quick-text">
-              <div class="quick-title">Check duplicates</div>
-              <div class="quick-desc">Compare a new report to the last 30 days.</div>
-            </div>
-            <div class="quick-arrow">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-            </div>
-          </button>
-
           <button type="button" class="quick-card" data-tone="indigo" (click)="sendSuggestion('Find affected files for ')">
             <div class="quick-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -94,20 +79,6 @@
             </div>
           </button>
 
-          <button type="button" class="quick-card" (click)="prefillSuggestion('Check this in application: ')">
-            <div class="quick-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M5 12.5 9.5 17 19 7"/>
-              </svg>
-            </div>
-            <div class="quick-text">
-              <div class="quick-title">Check application rules</div>
-              <div class="quick-desc">Validate a quote against current rule set.</div>
-            </div>
-            <div class="quick-arrow">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-            </div>
-          </button>
         </div>
 
         <div class="tips">
