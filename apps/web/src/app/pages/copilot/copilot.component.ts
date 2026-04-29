@@ -1,11 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   NgZone,
   OnInit,
   ViewChild,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -85,9 +87,54 @@ export class CopilotComponent implements OnInit {
     return `Hello, ${name}.`;
   });
 
-  ngOnInit(): void {
-    this.loadSessions();
+  /**
+   * Per-tool rotating status phrases shown while the tool is running.
+   * Frontend-only — purely cosmetic to give the agent a sense of activity.
+   */
+  private readonly statusPhrases: Record<string, string[]> = {
+    update_bug_draft: ['Saving draft…'],
+    submit_bug_report: ['Saving the report…', 'Building Jira preview…', 'Linking back to copilot…'],
+    check_duplicates: ['Looking at recent reports…', 'Cross-checking Jira…', 'Comparing similarity scores…'],
+    search_jira: ['Building query…', 'Searching tickets…', 'Ranking matches…'],
+    find_affected_code: ['Indexing files…', 'Searching by symbol…', 'Reading line ranges…'],
+    decompose_transcript: ['Reading transcript…', 'Splitting into stories…', 'Drafting subtasks…'],
+    validate_prefill: ['Loading schema…', 'Walking JSON…', 'Listing errors…'],
+    lookup_field_rule: ['Looking up rule…', 'Matching synonyms…', 'Reading allowed values…'],
+    add_field_synonym: ['Saving synonym…'],
+  };
+  protected readonly statusIdx = signal(0);
+  private statusTimer: ReturnType<typeof setInterval> | null = null;
 
+  protected readonly currentToolStatus = computed(() => {
+    const tn = this.activeToolName();
+    if (!tn) return null;
+    const list = this.statusPhrases[tn] ?? [this.toolLabel(tn)];
+    return list[this.statusIdx() % list.length];
+  });
+
+  constructor() {
+    // Rotate status phrases every 700ms while a tool is running.
+    effect(() => {
+      const tn = this.activeToolName();
+      if (this.statusTimer) {
+        clearInterval(this.statusTimer);
+        this.statusTimer = null;
+      }
+      this.statusIdx.set(0);
+      if (tn) {
+        this.statusTimer = setInterval(() => {
+          this.zone.run(() => this.statusIdx.update((i) => i + 1));
+        }, 700);
+      }
+    });
+
+    inject(DestroyRef).onDestroy(() => {
+      if (this.statusTimer) clearInterval(this.statusTimer);
+    });
+
+    // Subscribed in constructor (injection context) so takeUntilDestroyed works.
+    // This fires whenever ?session= or ?new= changes — driving session load
+    // from the sidebar's chat-history clicks.
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       const sessionId = params.get('session');
       const isNew = params.get('new');
@@ -97,6 +144,10 @@ export class CopilotComponent implements OnInit {
         this.loadSession(sessionId);
       }
     });
+  }
+
+  ngOnInit(): void {
+    this.loadSessions();
   }
 
   private loadSessions(): void {
@@ -290,6 +341,11 @@ export class CopilotComponent implements OnInit {
   protected asJiraSearch(data: unknown): JiraSearchData { return data as JiraSearchData; }
   protected asTranscript(data: unknown): TranscriptData { return data as TranscriptData; }
   protected asCodeLocalization(data: unknown): CodeLocalizationData { return data as CodeLocalizationData; }
+
+  protected asFixVersionNames(versions: Array<{ id?: string; name?: string }> | null | undefined): string {
+    if (!versions || versions.length === 0) return '';
+    return versions.map((v) => v.name ?? v.id ?? '').filter(Boolean).join(', ');
+  }
 
   protected jiraPushFor(reportId: string): JiraPushFlowState {
     return this.jiraPush()[reportId] ?? { stage: 'idle' };

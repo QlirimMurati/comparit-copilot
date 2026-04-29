@@ -17,25 +17,30 @@ import { VoyageService } from '../voyage.service';
 import { CopilotSessionService } from './copilot-session.service';
 import type { CopilotBugDraft, CopilotState, CopilotStreamEvent } from './copilot.types';
 
-const MODEL = 'claude-opus-4-7';
+// Haiku 4.5 — much faster first-token + turn time than Opus, plenty for the
+// agent's task (gather fields, route tool calls, summarise results). Bump back
+// to claude-opus-4-7 if quality regresses on edge cases.
+const MODEL = 'claude-haiku-4-5';
 const MAX_TOOL_LOOPS = 8;
 
 const SYSTEM_PROMPT = `You are the Comparit Copilot — an internal AI assistant for developers, QAs, and POs at Comparit.
 
 You have these capabilities via tools:
-1. **Bug reporting** — gather bug details conversationally, then submit
+1. **Ticket creation** — gather details for a bug OR a feature request conversationally, then submit
 2. **Duplicate detection** — find similar existing reports and Jira tickets
 3. **Jira search** — full-text search in the Jira cache
-4. **Code analysis** — locate source files for a bug (needs a submitted report ID)
+4. **Code analysis** — locate source files from a free-form description (no saved report needed) or from a submitted reportId
 5. **Transcript decomposition** — break meeting transcripts into Epic → Story → Subtask
 
 RULES:
-- When a user wants to "create a ticket" or it's not clear if it's a bug or a feature: ask first — "Is this a bug, a feature request, or something else? Briefly describe what you'd like." Wait for the answer before drafting.
+- NO PREAMBLE. Skip pleasantries ("I'd be happy to help", "Sure, let me…"). Lead with the actual question or action.
+- One focused question per turn — never stack two.
+- Max 1 sentence of context before the question, usually zero.
+- When a user wants to "create a ticket" or it's not clear if it's a bug or a feature: ask first — "Bug, feature request, or something else?" Wait for the answer before drafting.
 - When a user wants to report a bug: ask one focused question at a time. Call update_bug_draft as you learn each field. When title + description + severity are set, call submit_bug_report.
 - For a feature request, gather the same fields conversationally (title, description, severity used as priority). Default severity to "low" if the user doesn't push for higher priority. Then call submit_bug_report (the backend records it in the same table; the Jira push step tags it as a feature on Task area).
-- After submitting, offer to check for duplicates and find affected code.
+- After submitting, offer to check for duplicates and find affected code in one short line — don't restate what was submitted.
 - When a user pastes a long text that looks like a meeting transcript, call decompose_transcript immediately.
-- Be concise — 1–2 sentences per turn.
 - When severity is unclear (bug only), ask: "How critical is this? (blocker / high / medium / low)"
 - Do not ask for the user's email or identity.
 - Reply in the user's language (German if the first message is German).`;
@@ -63,24 +68,29 @@ const COPILOT_TOOLS: Anthropic.Tool[] = [
   {
     name: 'update_bug_draft',
     description:
-      'Record bug report fields as you gather them conversationally. Call whenever you learn title, description, severity, or sparte. Can be called multiple times.',
+      'Record ticket fields as you gather them conversationally. Call whenever you learn title, description, severity, sparte, or type (bug | feature). Can be called multiple times.',
     input_schema: {
       type: 'object' as const,
       properties: {
-        title: { type: 'string', description: 'One-line bug summary (min 5 chars).' },
+        title: { type: 'string', description: 'One-line summary (min 5 chars).' },
         description: {
           type: 'string',
-          description: 'Steps to reproduce + expected vs actual (min 10 chars).',
+          description: 'Steps to reproduce + expected vs actual for bugs; user goal + motivation for features (min 10 chars).',
         },
         severity: {
           type: 'string',
           enum: [...REPORT_SEVERITIES],
-          description: 'blocker=prod down; high=major feature broken; medium=noticeable; low=minor.',
+          description: 'blocker=prod down; high=major feature broken; medium=noticeable; low=minor. For features, treat as priority and default to "low" unless user pushes higher.',
         },
         sparte: {
           type: 'string',
           enum: [...SPARTEN],
           description: 'Insurance product family if known.',
+        },
+        type: {
+          type: 'string',
+          enum: ['bug', 'feature'],
+          description: 'Ticket type. Default to "bug" if unclear; ask the user once if ambiguous.',
         },
       },
       additionalProperties: false,
@@ -89,7 +99,7 @@ const COPILOT_TOOLS: Anthropic.Tool[] = [
   {
     name: 'submit_bug_report',
     description:
-      'Create the bug report once title, description, and severity are all set. Call only when you have all three required fields.',
+      'Create the ticket once title, description, severity, and type are all set. Call only when you have all required fields. Works for both bugs and features.',
     input_schema: {
       type: 'object' as const,
       properties: {},
@@ -112,7 +122,7 @@ const COPILOT_TOOLS: Anthropic.Tool[] = [
   {
     name: 'search_jira',
     description:
-      'Search the Jira ticket cache. Combines semantic similarity (when `query` is given) with optional filters (assignee, status, issueType, label, project). Returns up to `limit` results sorted by relevance. All filters are AND-ed.',
+      'Search the Jira ticket cache. Combines semantic similarity (when `query` is given) with optional filters (assignee, status, issueType, label, project, fixVersion). Returns up to `limit` results sorted by relevance. All filters are AND-ed.',
     input_schema: {
       type: 'object' as const,
       properties: {
@@ -140,6 +150,10 @@ const COPILOT_TOOLS: Anthropic.Tool[] = [
           type: 'string',
           description: 'Label that must be attached to the ticket.',
         },
+        fixVersion: {
+          type: 'string',
+          description: 'Fix version name to filter by (e.g. "Sprint 12", "1.4.0"). Substring match against any fix version on the ticket.',
+        },
         limit: {
           type: 'number',
           description: 'Max results to return (1–25, default 10).',
@@ -151,13 +165,23 @@ const COPILOT_TOOLS: Anthropic.Tool[] = [
   {
     name: 'find_affected_code',
     description:
-      'Locate source files most likely related to a bug. Requires a submitted bug report ID.',
+      'Locate source files most likely related to a bug or feature description. Pass either a free-form query (preferred — works without a saved report) or a submitted reportId.',
     input_schema: {
       type: 'object' as const,
       properties: {
-        reportId: { type: 'string', description: 'UUID of the bug report to localize.' },
+        query: {
+          type: 'string',
+          description: 'Free-form description (title + reproduction text) of what to localize. Use this when no reportId exists yet.',
+        },
+        sparte: {
+          type: 'string',
+          description: 'Optional sparte to scope the search.',
+        },
+        reportId: {
+          type: 'string',
+          description: 'UUID of a submitted bug report. If provided, takes precedence over query.',
+        },
       },
-      required: ['reportId'],
       additionalProperties: false,
     },
   },
@@ -397,6 +421,9 @@ export class CopilotAgentService {
           if (typeof input['description'] === 'string') draft.description = input['description'];
           if (typeof input['severity'] === 'string') draft.severity = input['severity'] as CopilotBugDraft['severity'];
           if (typeof input['sparte'] === 'string') draft.sparte = input['sparte'];
+          if (input['type'] === 'bug' || input['type'] === 'feature') {
+            draft.type = input['type'];
+          }
           return {
             nextState: { ...state, bugDraft: draft },
             message: `Draft updated: ${JSON.stringify(draft)}`,
@@ -416,6 +443,7 @@ export class CopilotAgentService {
             return { nextState: state, message: 'Cannot submit — severity is required.', isError: true };
           }
           const reporterId = await findOrCreateReporter(this.db, ctx.userEmail);
+          const ticketType = draft.type ?? 'bug';
           const [row] = await this.db
             .insert(bugReports)
             .values({
@@ -424,12 +452,13 @@ export class CopilotAgentService {
               description: draft.description.trim(),
               severity: draft.severity,
               sparte: draft.sparte as typeof bugReports.$inferInsert['sparte'] ?? null,
+              type: ticketType,
               capturedContext: { copilotSessionId: ctx.sessionId },
             })
             .returning({ id: bugReports.id, status: bugReports.status, createdAt: bugReports.createdAt });
           await this.embedQueue.enqueueReportEmbedding(row.id);
           await this.triageQueue.enqueueReportTriage(row.id);
-          const data = { reportId: row.id, title: draft.title, status: row.status };
+          const data = { reportId: row.id, title: draft.title, status: row.status, type: ticketType };
           return {
             nextState: { ...state, bugDraft: undefined, lastBugReportId: row.id },
             message: `Bug report created: ${row.id}`,
@@ -460,13 +489,14 @@ export class CopilotAgentService {
           const issueType = typeof input['issueType'] === 'string' ? input['issueType'].trim() : '';
           const project = typeof input['project'] === 'string' ? input['project'].trim().toUpperCase() : '';
           const label = typeof input['label'] === 'string' ? input['label'].trim() : '';
+          const fixVersion = typeof input['fixVersion'] === 'string' ? input['fixVersion'].trim() : '';
           const rawLimit = typeof input['limit'] === 'number' ? input['limit'] : 10;
           const limit = Math.min(25, Math.max(1, Math.floor(rawLimit)));
 
-          if (!query && !status && !assignee && !issueType && !project && !label) {
+          if (!query && !status && !assignee && !issueType && !project && !label && !fixVersion) {
             return {
               nextState: state,
-              message: 'Provide at least one of: query, status, assignee, issueType, project, label.',
+              message: 'Provide at least one of: query, status, assignee, issueType, project, label, fixVersion.',
               isError: true,
             };
           }
@@ -487,6 +517,14 @@ export class CopilotAgentService {
             // labels is a jsonb array; ? operator checks "contains key/element"
             conditions.push(sql`${ticketsCache.labels} ?? ${label}`);
           }
+          if (fixVersion) {
+            // fix_versions is a jsonb array of {id, name}; check any element's
+            // name field contains the substring (case-insensitive).
+            conditions.push(sql`EXISTS (
+              SELECT 1 FROM jsonb_array_elements(${ticketsCache.fixVersions}) AS fv
+              WHERE fv->>'name' ILIKE ${'%' + fixVersion + '%'}
+            )`);
+          }
 
           const baseSelect = {
             jiraIssueKey: ticketsCache.jiraIssueKey,
@@ -498,6 +536,7 @@ export class CopilotAgentService {
             assigneeName: ticketsCache.assigneeName,
             assigneeEmail: ticketsCache.assigneeEmail,
             labels: ticketsCache.labels,
+            fixVersions: ticketsCache.fixVersions,
             jiraUpdated: ticketsCache.jiraUpdated,
           };
 
@@ -550,12 +589,21 @@ export class CopilotAgentService {
         }
 
         case 'find_affected_code': {
-          const reportId = String(input['reportId'] ?? '');
-          if (!reportId) return { nextState: state, message: 'reportId is required', isError: true };
           if (!this.codeLocalizer) {
             return { nextState: state, message: 'Code localizer not available.', isError: true };
           }
-          const result = await this.codeLocalizer.localize(reportId);
+          const reportId = String(input['reportId'] ?? '').trim();
+          const query = String(input['query'] ?? '').trim();
+          const sparte = (String(input['sparte'] ?? '').trim() || null) as
+            | 'bu' | 'gf' | 'risikoleben' | 'kvv' | 'kvz' | 'hausrat'
+            | 'phv' | 'wohngebaeude' | 'kfz' | 'basis_rente' | 'private_rente' | 'comparit'
+            | null;
+          if (!reportId && !query) {
+            return { nextState: state, message: 'Provide either query or reportId', isError: true };
+          }
+          const result = reportId
+            ? await this.codeLocalizer.localize(reportId)
+            : await this.codeLocalizer.localizeFromText({ query, sparte });
           return {
             nextState: state,
             message: JSON.stringify(result),

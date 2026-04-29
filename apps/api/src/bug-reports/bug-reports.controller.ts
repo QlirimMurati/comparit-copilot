@@ -76,6 +76,7 @@ export class BugReportsController {
     @Query('status') status?: string,
     @Query('severity') severity?: string,
     @Query('sparte') sparte?: string,
+    @Query('type') type?: string,
     @Query('mine') mine?: string,
     @CurrentUser() user?: PublicUser
   ): Promise<BugReportRecord[]> {
@@ -84,6 +85,7 @@ export class BugReportsController {
     if (severity && this.reports.isValidSeverity(severity))
       filter.severity = severity;
     if (sparte && this.reports.isValidSparte(sparte)) filter.sparte = sparte;
+    if (type === 'bug' || type === 'feature') filter.type = type;
     if (mine === 'true' && user) filter.reporterId = user.id;
     return this.reports.list(filter);
   }

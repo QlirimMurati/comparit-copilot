@@ -35,6 +35,13 @@ export const appRoutes: Route[] = [
           ),
       },
       {
+        path: 'reports/new',
+        loadComponent: () =>
+          import('./pages/reports/new/new-report.component').then(
+            (m) => m.NewReportComponent
+          ),
+      },
+      {
         path: 'reports/:id',
         loadComponent: () =>
           import('./pages/reports/detail/detail.component').then(

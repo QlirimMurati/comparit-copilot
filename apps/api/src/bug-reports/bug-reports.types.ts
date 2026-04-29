@@ -1,5 +1,6 @@
 import type {
   BugReport,
+  BugReportType,
   ReportSeverity,
   ReportStatus,
   Sparte,
@@ -10,6 +11,7 @@ export interface CreateBugReportInput {
   description: string;
   severity?: ReportSeverity;
   sparte?: Sparte | null;
+  type?: BugReportType;
   capturedContext?: unknown;
 }
 
@@ -19,6 +21,7 @@ export interface UpdateBugReportInput {
   status?: ReportStatus;
   severity?: ReportSeverity;
   sparte?: Sparte | null;
+  type?: BugReportType;
   jiraIssueKey?: string | null;
 }
 
@@ -26,6 +29,7 @@ export interface ListBugReportsFilter {
   status?: ReportStatus;
   severity?: ReportSeverity;
   sparte?: Sparte;
+  type?: BugReportType;
   reporterId?: string;
 }
 

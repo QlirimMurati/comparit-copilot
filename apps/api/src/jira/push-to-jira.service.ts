@@ -81,6 +81,8 @@ export interface JiraPushPreview {
   summary: string;
   description: string;
   labels: string[];
+  /** Jira priority name derived from the report's severity. */
+  priority: string;
   /**
    * Display-only summary of the LV-required custom fields filled by defaults.
    * Frontend renders these so the user sees exactly what will be created.
@@ -90,6 +92,17 @@ export interface JiraPushPreview {
   previewHash: string;
   /** Plain-language warning for the user-facing UI. */
   warning: string;
+}
+
+/** Map our internal severity → Jira priority name. */
+function severityToJiraPriority(severity: string | null): string {
+  switch (severity) {
+    case 'blocker': return 'Highest';
+    case 'high':    return 'High';
+    case 'medium':  return 'Medium';
+    case 'low':     return 'Low';
+    default:        return 'Medium';
+  }
 }
 
 export interface JiraPushConfirmInput {
@@ -167,6 +180,9 @@ export class PushToJiraService {
     // Sparte is derived from the bug report; everything else uses safe defaults.
     const { customFields, customFieldsDisplay } = this.buildLvBugFields(report.sparte);
 
+    // Severity → Jira priority. Default Medium when missing.
+    const priority = severityToJiraPriority(report.severity);
+
     const previewHash = canonicalHash({
       reportId,
       projectKey,
@@ -174,6 +190,7 @@ export class PushToJiraService {
       summary,
       description,
       labels,
+      priority,
       customFields,
     });
 
@@ -184,6 +201,7 @@ export class PushToJiraService {
       summary,
       description,
       labels,
+      priority,
       customFieldsDisplay,
       previewHash,
       warning:
@@ -246,6 +264,7 @@ export class PushToJiraService {
         summary: preview.summary,
         description: preview.description,
         labels: preview.labels,
+        priority: preview.priority,
         customFields,
       });
     } catch (err) {
@@ -266,7 +285,11 @@ export class PushToJiraService {
 
     await this.db
       .update(bugReports)
-      .set({ jiraIssueKey: created.key, updatedAt: new Date() })
+      .set({
+        jiraIssueKey: created.key,
+        status: 'ticket_created',
+        updatedAt: new Date(),
+      })
       .where(eq(bugReports.id, reportId));
 
     // Best-effort cache mirror — fetch the freshly-created issue so the

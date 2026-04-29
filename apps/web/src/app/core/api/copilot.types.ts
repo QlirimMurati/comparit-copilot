@@ -39,6 +39,7 @@ export interface JiraSearchData {
     issueType: string | null; assigneeName: string | null;
     assigneeEmail: string | null;
     labels: string[] | null;
+    fixVersions: Array<{ id?: string; name?: string }> | null;
     jiraUpdated: string | null;
     distance?: number;
   }>;
@@ -83,6 +84,8 @@ export interface JiraPushPreview {
   summary: string;
   description: string;
   labels: string[];
+  /** Jira priority name derived from the report's severity. */
+  priority: string;
   /** LV-required custom fields (Product, Sparte, Task area, Account, Project billing). */
   customFieldsDisplay: { name: string; value: string }[];
   previewHash: string;

@@ -1,12 +1,25 @@
 export const REPORT_STATUSES = [
   'new',
-  'triaged',
-  'in_progress',
-  'resolved',
-  'wontfix',
+  'ticket_created',
   'duplicate',
+  'declined',
 ] as const;
 export type ReportStatus = (typeof REPORT_STATUSES)[number];
+
+export const BUG_REPORT_TYPES = ['bug', 'feature'] as const;
+export type BugReportType = (typeof BUG_REPORT_TYPES)[number];
+
+export const BUG_REPORT_TYPE_LABELS: Record<BugReportType, string> = {
+  bug: 'Bug',
+  feature: 'Feature',
+};
+
+export const REPORT_STATUS_LABELS: Record<ReportStatus, string> = {
+  new: 'New',
+  ticket_created: 'Ticket created',
+  duplicate: 'Duplicate',
+  declined: 'Declined',
+};
 
 export const REPORT_SEVERITIES = ['blocker', 'high', 'medium', 'low'] as const;
 export type ReportSeverity = (typeof REPORT_SEVERITIES)[number];
@@ -119,6 +132,7 @@ export interface BugReport {
   status: ReportStatus;
   severity: ReportSeverity;
   sparte: Sparte | null;
+  type: BugReportType;
   capturedContext: unknown;
   aiProposedTicket:
     | (PolishedTicket & { localization?: LocalizationResult })
@@ -143,6 +157,7 @@ export interface CreateBugReportInput {
   description: string;
   severity?: ReportSeverity;
   sparte?: Sparte | null;
+  type?: BugReportType;
 }
 
 export interface UpdateBugReportInput {
@@ -151,6 +166,7 @@ export interface UpdateBugReportInput {
   status?: ReportStatus;
   severity?: ReportSeverity;
   sparte?: Sparte | null;
+  type?: BugReportType;
   jiraIssueKey?: string | null;
 }
 
@@ -158,5 +174,6 @@ export interface ListBugReportsFilter {
   status?: ReportStatus;
   severity?: ReportSeverity;
   sparte?: Sparte;
+  type?: BugReportType;
   mine?: boolean;
 }

@@ -21,6 +21,7 @@ export class BugReportsService {
     if (filter.status) params = params.set('status', filter.status);
     if (filter.severity) params = params.set('severity', filter.severity);
     if (filter.sparte) params = params.set('sparte', filter.sparte);
+    if (filter.type) params = params.set('type', filter.type);
     if (filter.mine) params = params.set('mine', 'true');
     return this.http.get<BugReport[]>('/api/reports', { params });
   }

@@ -41,6 +41,7 @@ export class BugReportsService {
     if (filter.status) conds.push(eq(bugReports.status, filter.status));
     if (filter.severity) conds.push(eq(bugReports.severity, filter.severity));
     if (filter.sparte) conds.push(eq(bugReports.sparte, filter.sparte));
+    if (filter.type) conds.push(eq(bugReports.type, filter.type));
     if (filter.reporterId)
       conds.push(eq(bugReports.reporterId, filter.reporterId));
 
@@ -99,6 +100,7 @@ export class BugReportsService {
         description: input.description.trim(),
         severity: input.severity ?? 'medium',
         sparte: input.sparte ?? null,
+        type: input.type ?? 'bug',
         capturedContext: input.capturedContext ?? null,
       })
       .returning();

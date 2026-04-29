@@ -30,6 +30,7 @@ export const ticketsCache = pgTable(
     reporterEmail: text('reporter_email'),
     labels: jsonb('labels'),
     components: jsonb('components'),
+    fixVersions: jsonb('fix_versions'),
     raw: jsonb('raw'),
     embedding: vector('embedding', { dimensions: EMBEDDING_DIMENSIONS }),
     syncStatus: text('sync_status')

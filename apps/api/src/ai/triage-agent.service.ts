@@ -253,7 +253,7 @@ export class TriageAgentService {
         similarIds.includes(
           (r as unknown as { id?: string }).id ?? ''
         ) ||
-        (r.jiraIssueKey && r.status === 'resolved')
+        (r.jiraIssueKey && r.status === 'ticket_created')
     );
     void candidates;
     // Conservative MVP: return null until W7 (Jira sync) provides the

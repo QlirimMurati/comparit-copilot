@@ -3,6 +3,7 @@ export interface CopilotBugDraft {
   description?: string;
   severity?: 'blocker' | 'high' | 'medium' | 'low';
   sparte?: string;
+  type?: 'bug' | 'feature';
 }
 
 export interface CopilotState {

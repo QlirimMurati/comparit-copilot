@@ -59,6 +59,8 @@ export interface JiraCreateIssueInput {
   /** Plain text — converted to ADF (Atlassian Document Format) at request time. */
   description?: string;
   labels?: string[];
+  /** Jira priority name (e.g. "Highest", "High", "Medium", "Low"). */
+  priority?: string;
   /**
    * Extra Jira fields (e.g. customfield_NNNNN) merged into `fields` verbatim.
    * Used for the LV project's required custom fields (Product, Sparte, Task area, etc).
@@ -122,6 +124,7 @@ export class JiraClient implements OnModuleInit {
         'priority',
         'labels',
         'components',
+        'fixVersions',
         'assignee',
         'reporter',
         'created',
@@ -159,6 +162,7 @@ export class JiraClient implements OnModuleInit {
         ...(input.labels && input.labels.length > 0
           ? { labels: input.labels }
           : {}),
+        ...(input.priority ? { priority: { name: input.priority } } : {}),
         ...(input.customFields ?? {}),
       },
     };

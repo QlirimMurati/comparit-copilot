@@ -23,6 +23,12 @@
 
       <div class="field-grid">
         <div class="field">
+          <label class="field-label">Type</label>
+          <select class="select" formControlName="type">
+            @for (t of types; track t) { <option [value]="t">{{ typeLabels[t] }}</option> }
+          </select>
+        </div>
+        <div class="field">
           <label class="field-label">Severity</label>
           <select class="select" formControlName="severity">
             @for (s of severities; track s) { <option [value]="s">{{ s }}</option> }

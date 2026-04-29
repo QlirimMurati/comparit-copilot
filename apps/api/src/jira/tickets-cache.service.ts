@@ -201,6 +201,11 @@ export class TicketsCacheService {
       components: Array.isArray(f.components)
         ? f.components.map((c) => c.name).filter(Boolean)
         : [],
+      fixVersions: Array.isArray(
+        (f as { fixVersions?: { id?: string; name?: string }[] }).fixVersions
+      )
+        ? (f as { fixVersions: { id?: string; name?: string }[] }).fixVersions
+        : [],
       raw,
       jiraCreated: f.created ? new Date(f.created) : null,
       jiraUpdated: f.updated ? new Date(f.updated) : null,

@@ -28,11 +28,11 @@ interface StatusRow {
   count: number;
 }
 
-const OPEN_STATUSES = new Set<ReportStatus>(['new', 'triaged', 'in_progress']);
+const OPEN_STATUSES = new Set<ReportStatus>(['new']);
 const RESOLVED_STATUSES = new Set<ReportStatus>([
-  'resolved',
-  'wontfix',
+  'ticket_created',
   'duplicate',
+  'declined',
 ]);
 
 @Component({
@@ -75,7 +75,7 @@ export class DashboardsComponent {
 
   protected readonly avgTtrHours = computed<number | null>(() => {
     const resolved = this.reports().filter(
-      (r) => r.status === 'resolved' && r.createdAt && r.updatedAt
+      (r) => r.status === 'ticket_created' && r.createdAt && r.updatedAt
     );
     if (resolved.length === 0) return null;
     const sumMs = resolved.reduce((acc, r) => {
@@ -88,7 +88,7 @@ export class DashboardsComponent {
   });
 
   protected readonly resolvedSampleSize = computed(
-    () => this.reports().filter((r) => r.status === 'resolved').length
+    () => this.reports().filter((r) => r.status === 'ticket_created').length
   );
 
   protected readonly statusRows = computed<StatusRow[]>(() => {
@@ -140,12 +140,9 @@ export class DashboardsComponent {
   protected statusBadgeClass(s: ReportStatus): string {
     switch (s) {
       case 'new': return 'badge-new';
-      case 'triaged': return 'badge-medium';
-      case 'in_progress': return 'badge-progress';
-      case 'resolved': return 'badge-resolved';
-      case 'wontfix':
-      case 'duplicate':
-        return 'badge-low';
+      case 'ticket_created': return 'badge-resolved';
+      case 'duplicate': return 'badge-low';
+      case 'declined': return 'badge-blocker';
     }
   }
 }

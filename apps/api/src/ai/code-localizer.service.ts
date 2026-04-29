@@ -12,6 +12,7 @@ import {
   bugReports,
   codeChunks,
   type BugReport,
+  type Sparte,
 } from '../db/schema';
 import { CodeIndexService } from '../index/code-index.service';
 import { AnthropicService } from './anthropic.service';
@@ -217,6 +218,100 @@ export class CodeLocalizerService {
       .where(eq(bugReports.id, reportId));
 
     return result;
+  }
+
+  /**
+   * Localize from free-form text — no bug report row required. Used by the
+   * chat-page "find affected files" tool so it can run before/without a
+   * submitted report. Doesn't persist anything.
+   */
+  async localizeFromText(input: {
+    query: string;
+    sparte?: Sparte | null;
+  }): Promise<LocalizationResult> {
+    if (!this.anthropic.isConfigured) {
+      throw new ServiceUnavailableException(
+        'AI is not configured (set ANTHROPIC_API_KEY)'
+      );
+    }
+    // Build a synthetic report-shape so the existing tool handlers can read
+    // `sparte` and use the title/description for prompts.
+    const fakeReport = {
+      id: 'adhoc',
+      title: input.query,
+      description: input.query,
+      severity: 'medium',
+      sparte: input.sparte ?? null,
+      capturedContext: null,
+      aiProposedTicket: null,
+    } as unknown as BugReport;
+
+    const apiMessages: Anthropic.Messages.MessageParam[] = [
+      { role: 'user', content: this.buildPromptFromText(input.query, input.sparte ?? null) },
+    ];
+
+    let final: LocalizationResult | null = null;
+    let summaryText = '';
+
+    for (let loop = 0; loop < MAX_TOOL_LOOPS; loop++) {
+      const response = await this.anthropic.client.messages.create({
+        model: MODEL,
+        max_tokens: 2048,
+        system: [
+          {
+            type: 'text',
+            text: SYSTEM,
+            cache_control: { type: 'ephemeral' },
+          },
+        ],
+        tools: TOOLS,
+        messages: apiMessages,
+      });
+
+      for (const block of response.content) {
+        if (block.type === 'text') summaryText += block.text;
+      }
+      if (response.stop_reason !== 'tool_use') break;
+      apiMessages.push({ role: 'assistant', content: response.content });
+
+      const toolResults: Anthropic.Messages.ToolResultBlockParam[] = [];
+      for (const block of response.content) {
+        if (block.type !== 'tool_use') continue;
+        if (block.name === 'submit_localization') {
+          final = this.parseSubmit(block.input);
+          toolResults.push({
+            type: 'tool_result',
+            tool_use_id: block.id,
+            content: 'localization recorded',
+          });
+        } else {
+          const result = await this.runTool(block, fakeReport);
+          toolResults.push({
+            type: 'tool_result',
+            tool_use_id: block.id,
+            content: result,
+          });
+        }
+      }
+      apiMessages.push({ role: 'user', content: toolResults });
+      if (final) break;
+    }
+
+    return final ?? {
+      candidates: [],
+      summary: summaryText.trim() || 'No localization produced.',
+      generatedAt: new Date().toISOString(),
+    };
+  }
+
+  private buildPromptFromText(query: string, sparte: Sparte | null): string {
+    return [
+      `## Localize the following`,
+      `Query: ${query}`,
+      `Sparte: ${sparte ?? '(not set)'}`,
+      ``,
+      `Use the tools to find candidate code locations. End with submit_localization.`,
+    ].join('\n');
   }
 
   private async runTool(

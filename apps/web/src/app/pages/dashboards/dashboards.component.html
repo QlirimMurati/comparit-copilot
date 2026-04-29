@@ -30,9 +30,9 @@
         <div class="stat-trend">awaiting triage / in progress</div>
       </div>
       <div class="stat" data-tone="resolved">
-        <div class="stat-eyebrow"><span class="swatch" style="background: var(--secondary-100);"></span> Resolved / closed</div>
+        <div class="stat-eyebrow"><span class="swatch" style="background: var(--secondary-100);"></span> Closed</div>
         <div class="stat-value">{{ resolvedCount() }}</div>
-        <div class="stat-trend">resolved · wontfix · duplicate</div>
+        <div class="stat-trend">ticket created · duplicate · declined</div>
       </div>
       <div class="stat" [attr.data-tone]="avgTtrHours() === null ? 'muted' : null">
         <div class="stat-eyebrow"><span class="swatch" style="background: var(--highlight-mid-100);"></span> Avg time-to-resolution</div>

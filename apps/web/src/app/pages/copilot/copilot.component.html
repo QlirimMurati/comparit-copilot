@@ -162,12 +162,15 @@
               @if (streamingText()) {
                 <div class="msg-text">{{ streamingText() }}<span class="msg-cursor"></span></div>
               }
-              @if (activeToolName(); as tn) {
-                <div class="toolcard">
-                  <div class="toolcard-head">
-                    <span class="dot"></span>
-                    <span class="label">{{ toolLabel(tn) }}</span>
-                  </div>
+              @if (activeToolName()) {
+                <div class="status-line">
+                  <span class="status-dot"></span>
+                  <span class="status-text">{{ currentToolStatus() }}</span>
+                </div>
+              } @else if (!streamingText() && streamingToolResults().length === 0) {
+                <div class="status-line">
+                  <span class="status-dot"></span>
+                  <span class="status-text">Thinking…</span>
                 </div>
               }
               @for (tr of streamingToolResults(); track $index) {
@@ -280,6 +283,7 @@
                     </span>
                   </div>
                 }
+                <div class="kv"><span>Priority</span><span>{{ push.preview.priority }}</span></div>
                 @for (cf of push.preview.customFieldsDisplay; track cf.name) {
                   <div class="kv"><span>{{ cf.name }}</span><span>{{ cf.value }}</span></div>
                 }
@@ -400,6 +404,9 @@
                   @if (t.issueType) { {{ t.issueType }} · }
                   @if (t.status) { {{ t.status }} }
                   @if (t.assigneeName) { · {{ t.assigneeName }} }
+                  @if (t.fixVersions && t.fixVersions.length) {
+                    · fix: {{ asFixVersionNames(t.fixVersions) }}
+                  }
                 </div>
               </div>
               @if (t.distance !== undefined) {

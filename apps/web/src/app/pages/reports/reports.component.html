@@ -19,10 +19,17 @@
 
   <div class="filterbar">
     <div class="field">
+      <span class="field-label">Type</span>
+      <select class="select" (change)="onTypeChange($any($event.target).value)">
+        <option value="">all</option>
+        @for (t of types; track t) { <option [value]="t">{{ typeLabels[t] }}</option> }
+      </select>
+    </div>
+    <div class="field">
       <span class="field-label">Status</span>
       <select class="select" (change)="onStatusChange($any($event.target).value)">
         <option value="">all</option>
-        @for (s of statuses; track s) { <option [value]="s">{{ s }}</option> }
+        @for (s of statuses; track s) { <option [value]="s">{{ statusLabels[s] }}</option> }
       </select>
     </div>
     <div class="field">
@@ -81,20 +88,22 @@
       <table class="tbl">
         <thead>
           <tr>
+            <th>Type</th>
             <th>Title</th>
             <th>Status</th>
             <th>Severity</th>
             <th>Sparte</th>
             <th>Reporter</th>
             <th>Created</th>
-            <th></th>
+            <th>View</th>
           </tr>
         </thead>
         <tbody>
           @for (r of rows(); track r.id) {
             <tr [routerLink]="['/reports', r.id]">
+              <td><span class="badge" [class]="r.type === 'feature' ? 'badge-progress' : 'badge-bu'">{{ typeLabels[r.type] }}</span></td>
               <td class="title-cell">{{ r.title }}</td>
-              <td><span class="badge" [class]="statusBadgeClass(r.status)">{{ r.status }}</span></td>
+              <td><span class="badge" [class]="statusBadgeClass(r.status)">{{ statusLabel(r.status) }}</span></td>
               <td><span class="badge" [class]="severityBadgeClass(r.severity)">{{ r.severity }}</span></td>
               <td>{{ sparteLabel(r.sparte) }}</td>
               <td>{{ reporterName(r) }}</td>

@@ -12,11 +12,15 @@ import { RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { BugReportsService } from '../../core/api/bug-reports.service';
 import {
+  BUG_REPORT_TYPES,
+  BUG_REPORT_TYPE_LABELS,
   REPORT_SEVERITIES,
   REPORT_STATUSES,
+  REPORT_STATUS_LABELS,
   SPARTE_LABELS,
   SPARTEN,
   type BugReport,
+  type BugReportType,
   type ListBugReportsFilter,
   type ReportSeverity,
   type ReportStatus,
@@ -36,8 +40,11 @@ export class ReportsComponent {
   private readonly api = inject(BugReportsService);
 
   protected readonly statuses = REPORT_STATUSES;
+  protected readonly statusLabels = REPORT_STATUS_LABELS;
   protected readonly severities = REPORT_SEVERITIES;
   protected readonly sparten = SPARTEN;
+  protected readonly types = BUG_REPORT_TYPES;
+  protected readonly typeLabels = BUG_REPORT_TYPE_LABELS;
 
   protected readonly filter = signal<ListBugReportsFilter>({});
   protected readonly state = signal<LoadState>('loading');
@@ -89,6 +96,13 @@ export class ReportsComponent {
     }));
   }
 
+  protected onTypeChange(value: string): void {
+    this.filter.update((f) => ({
+      ...f,
+      type: value === 'bug' || value === 'feature' ? (value as BugReportType) : undefined,
+    }));
+  }
+
   protected onMineChange(checked: boolean): void {
     this.filter.update((f) => ({ ...f, mine: checked || undefined }));
   }
@@ -99,7 +113,7 @@ export class ReportsComponent {
 
   protected get filterCount(): number {
     const f = this.filter();
-    return [f.status, f.severity, f.sparte, f.mine].filter(Boolean).length;
+    return [f.status, f.severity, f.sparte, f.type, f.mine].filter(Boolean).length;
   }
 
   protected sparteLabel(s: BugReport['sparte']): string {
@@ -109,13 +123,14 @@ export class ReportsComponent {
   protected statusBadgeClass(s: ReportStatus): string {
     switch (s) {
       case 'new': return 'badge-new';
-      case 'triaged': return 'badge-medium';
-      case 'in_progress': return 'badge-progress';
-      case 'resolved': return 'badge-resolved';
-      case 'wontfix':
-      case 'duplicate':
-        return 'badge-low';
+      case 'ticket_created': return 'badge-resolved';
+      case 'duplicate': return 'badge-low';
+      case 'declined': return 'badge-blocker';
     }
+  }
+
+  protected statusLabel(s: ReportStatus | string): string {
+    return REPORT_STATUS_LABELS[s as ReportStatus] ?? String(s);
   }
 
   protected severityBadgeClass(s: ReportSeverity): string {

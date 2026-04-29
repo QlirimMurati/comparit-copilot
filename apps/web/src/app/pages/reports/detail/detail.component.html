@@ -30,7 +30,8 @@
         }
 
         <div class="detail-tags">
-          <span class="badge" [class]="statusBadgeClass(r.status)">{{ r.status }}</span>
+          <span class="badge" [class]="r.type === 'feature' ? 'badge-progress' : 'badge-bu'">{{ typeLabels[r.type] }}</span>
+          <span class="badge" [class]="statusBadgeClass(r.status)">{{ statusLabel(r.status) }}</span>
           <span class="badge" [class]="severityBadgeClass(r.severity)">{{ r.severity }}</span>
           @if (r.sparte) {
             <span class="badge badge-bu">{{ sparteLabels[r.sparte] }}</span>
@@ -64,9 +65,15 @@
           <div class="section-body">
             <div class="field-grid">
               <div class="field">
+                <label class="field-label">Type</label>
+                <select class="select" formControlName="type">
+                  @for (t of types; track t) { <option [value]="t">{{ typeLabels[t] }}</option> }
+                </select>
+              </div>
+              <div class="field">
                 <label class="field-label">Status</label>
                 <select class="select" formControlName="status">
-                  @for (s of statuses; track s) { <option [value]="s">{{ s }}</option> }
+                  @for (s of statuses; track s) { <option [value]="s">{{ statusLabels[s] }}</option> }
                 </select>
               </div>
               <div class="field">
@@ -176,6 +183,7 @@
                       </span>
                     </div>
                   }
+                  <div class="kv"><span>Priority</span><span>{{ push.preview.priority }}</span></div>
                   @for (cf of push.preview.customFieldsDisplay; track cf.name) {
                     <div class="kv"><span>{{ cf.name }}</span><span>{{ cf.value }}</span></div>
                   }

@@ -15,16 +15,17 @@ export const EMBEDDING_DIMENSIONS = 1024;
 
 export const REPORT_STATUSES = [
   'new',
-  'triaged',
-  'in_progress',
-  'resolved',
-  'wontfix',
+  'ticket_created',
   'duplicate',
+  'declined',
 ] as const;
 export type ReportStatus = (typeof REPORT_STATUSES)[number];
 
 export const REPORT_SEVERITIES = ['blocker', 'high', 'medium', 'low'] as const;
 export type ReportSeverity = (typeof REPORT_SEVERITIES)[number];
+
+export const BUG_REPORT_TYPES = ['bug', 'feature'] as const;
+export type BugReportType = (typeof BUG_REPORT_TYPES)[number];
 
 export const SPARTEN = [
   'bu',
@@ -56,6 +57,7 @@ export const bugReports = pgTable(
       .$type<ReportSeverity>()
       .notNull()
       .default('medium'),
+    type: text('type').$type<BugReportType>().notNull().default('bug'),
     sparte: text('sparte').$type<Sparte>(),
     capturedContext: jsonb('captured_context'),
     aiProposedTicket: jsonb('ai_proposed_ticket'),
@@ -74,11 +76,15 @@ export const bugReports = pgTable(
   (table) => ({
     statusCheck: check(
       'bug_reports_status_check',
-      sql`${table.status} IN ('new','triaged','in_progress','resolved','wontfix','duplicate')`
+      sql`${table.status} IN ('new','ticket_created','duplicate','declined')`
     ),
     severityCheck: check(
       'bug_reports_severity_check',
       sql`${table.severity} IN ('blocker','high','medium','low')`
+    ),
+    typeCheck: check(
+      'bug_reports_type_check',
+      sql`${table.type} IN ('bug','feature')`
     ),
     sparteCheck: check(
       'bug_reports_sparte_check',
@@ -86,6 +92,7 @@ export const bugReports = pgTable(
     ),
     reporterIdx: index('bug_reports_reporter_idx').on(table.reporterId),
     statusIdx: index('bug_reports_status_idx').on(table.status),
+    typeIdx: index('bug_reports_type_idx').on(table.type),
     createdAtIdx: index('bug_reports_created_at_idx').on(table.createdAt),
     taskIdIdx: index('bug_reports_task_id_idx').on(table.taskId),
   })

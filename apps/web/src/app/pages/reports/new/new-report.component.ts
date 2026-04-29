@@ -3,9 +3,12 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { BugReportsService } from '../../../core/api/bug-reports.service';
 import {
+  BUG_REPORT_TYPES,
+  BUG_REPORT_TYPE_LABELS,
   REPORT_SEVERITIES,
   SPARTE_LABELS,
   SPARTEN,
+  type BugReportType,
   type ReportSeverity,
   type Sparte,
 } from '../../../core/api/bug-reports.types';
@@ -24,12 +27,15 @@ export class NewReportComponent {
   protected readonly severities = REPORT_SEVERITIES;
   protected readonly sparten = SPARTEN;
   protected readonly sparteLabels = SPARTE_LABELS;
+  protected readonly types = BUG_REPORT_TYPES;
+  protected readonly typeLabels = BUG_REPORT_TYPE_LABELS;
 
   protected readonly form = this.fb.nonNullable.group({
     title: ['', [Validators.required, Validators.minLength(5)]],
     description: ['', [Validators.required, Validators.minLength(10)]],
     severity: ['medium' as ReportSeverity, [Validators.required]],
     sparte: [null as Sparte | null],
+    type: ['bug' as BugReportType, [Validators.required]],
   });
   protected readonly submitting = signal(false);
   protected readonly error = signal<string | null>(null);

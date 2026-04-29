@@ -17,11 +17,15 @@ import type {
   JiraPushResult,
 } from '../../../core/api/copilot.types';
 import {
+  BUG_REPORT_TYPES,
+  BUG_REPORT_TYPE_LABELS,
   REPORT_SEVERITIES,
   REPORT_STATUSES,
+  REPORT_STATUS_LABELS,
   SPARTEN,
   SPARTE_LABELS,
   type BugReport,
+  type BugReportType,
   type DuplicateCandidate,
   type LocalizationCandidate,
   type LocalizationResult,
@@ -59,9 +63,12 @@ export class ReportDetailComponent {
   readonly id = input.required<string>();
 
   protected readonly statuses = REPORT_STATUSES;
+  protected readonly statusLabels = REPORT_STATUS_LABELS;
   protected readonly severities = REPORT_SEVERITIES;
   protected readonly sparten = SPARTEN;
   protected readonly sparteLabels = SPARTE_LABELS;
+  protected readonly types = BUG_REPORT_TYPES;
+  protected readonly typeLabels = BUG_REPORT_TYPE_LABELS;
 
   protected readonly state = signal<LoadState>({ kind: 'loading' });
   protected readonly saving = signal(false);
@@ -72,6 +79,7 @@ export class ReportDetailComponent {
     status: ['new' as ReportStatus, [Validators.required]],
     severity: ['medium' as ReportSeverity, [Validators.required]],
     sparte: [null as Sparte | null],
+    type: ['bug' as BugReportType, [Validators.required]],
     jiraIssueKey: [''],
   });
 
@@ -115,6 +123,7 @@ export class ReportDetailComponent {
             status: report.status,
             severity: report.severity,
             sparte: report.sparte,
+            type: report.type ?? 'bug',
             jiraIssueKey: report.jiraIssueKey ?? '',
           });
         },
@@ -141,6 +150,7 @@ export class ReportDetailComponent {
       status: value.status,
       severity: value.severity,
       sparte: value.sparte,
+      type: value.type,
       jiraIssueKey: value.jiraIssueKey.trim() || null,
     };
 
@@ -305,13 +315,14 @@ export class ReportDetailComponent {
   protected statusBadgeClass(s: ReportStatus): string {
     switch (s) {
       case 'new': return 'badge-new';
-      case 'triaged': return 'badge-medium';
-      case 'in_progress': return 'badge-progress';
-      case 'resolved': return 'badge-resolved';
-      case 'wontfix':
-      case 'duplicate':
-        return 'badge-low';
+      case 'ticket_created': return 'badge-resolved';
+      case 'duplicate': return 'badge-low';
+      case 'declined': return 'badge-blocker';
     }
+  }
+
+  protected statusLabel(s: ReportStatus | string): string {
+    return REPORT_STATUS_LABELS[s as ReportStatus] ?? String(s);
   }
 
   protected severityBadgeClass(s: ReportSeverity): string {
