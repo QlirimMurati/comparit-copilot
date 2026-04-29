@@ -33,7 +33,7 @@
       </select>
     </div>
     <div class="field">
-      <span class="field-label">Severity</span>
+      <span class="field-label">Priority</span>
       <select class="select" (change)="onSeverityChange($any($event.target).value)">
         <option value="">all</option>
         @for (s of severities; track s) { <option [value]="s">{{ s }}</option> }
@@ -91,7 +91,7 @@
             <th>Type</th>
             <th>Title</th>
             <th>Status</th>
-            <th>Severity</th>
+            <th>Priority</th>
             <th>Sparte</th>
             <th>Reporter</th>
             <th>Created</th>

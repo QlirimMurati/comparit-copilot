@@ -77,7 +77,7 @@
                 </select>
               </div>
               <div class="field">
-                <label class="field-label">Severity</label>
+                <label class="field-label">Priority</label>
                 <select class="select" formControlName="severity">
                   @for (s of severities; track s) { <option [value]="s">{{ s }}</option> }
                 </select>
@@ -268,7 +268,7 @@
             <div class="section-body">
               <div class="field-grid">
                 <div>
-                  <div class="eyebrow">Severity</div>
+                  <div class="eyebrow">Priority</div>
                   <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                     <span class="badge" [class]="severityBadgeClass(t.proposedSeverity.value)">{{ t.proposedSeverity.value }}</span>
                     <span class="confidence">
