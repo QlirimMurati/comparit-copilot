@@ -80,7 +80,6 @@ export class ReportDetailComponent {
     severity: ['medium' as ReportSeverity, [Validators.required]],
     sparte: [null as Sparte | null],
     type: ['bug' as BugReportType, [Validators.required]],
-    jiraIssueKey: [''],
   });
 
   protected readonly report = computed(() => {
@@ -124,7 +123,6 @@ export class ReportDetailComponent {
             severity: report.severity,
             sparte: report.sparte,
             type: report.type ?? 'bug',
-            jiraIssueKey: report.jiraIssueKey ?? '',
           });
         },
         error: (err) => {
@@ -151,7 +149,6 @@ export class ReportDetailComponent {
       severity: value.severity,
       sparte: value.sparte,
       type: value.type,
-      jiraIssueKey: value.jiraIssueKey.trim() || null,
     };
 
     this.api.update(r.id, patch).subscribe({

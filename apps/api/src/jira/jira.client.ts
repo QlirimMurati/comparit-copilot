@@ -214,20 +214,107 @@ export class JiraClient implements OnModuleInit {
     return (await res.json()) as T;
   }
 
-  /** Minimal Atlassian Document Format — paragraph per non-empty line. */
+  /**
+   * Convert lightweight Markdown into Atlassian Document Format. Supports:
+   * - "- " / "* " / "• " lines → bulletList items (consecutive lines grouped)
+   * - "## " / "### " lines → heading levels 2 / 3
+   * - "**bold**" inline runs → text with strong mark
+   * - Empty lines → paragraph break
+   * - Everything else → paragraph
+   * Anything not recognised falls back to a literal paragraph so we never lose content.
+   */
   private textToAdf(text: string): unknown {
+    type AdfNode = Record<string, unknown>;
     const lines = text.split(/\r?\n/);
-    return {
-      type: 'doc',
-      version: 1,
-      content: lines.map((line) =>
-        line.trim().length === 0
-          ? { type: 'paragraph', content: [] }
-          : {
-              type: 'paragraph',
-              content: [{ type: 'text', text: line }],
-            }
-      ),
+    const content: AdfNode[] = [];
+
+    const inlineFromText = (s: string): AdfNode[] => {
+      const parts: AdfNode[] = [];
+      const re = /\*\*([^*]+)\*\*/g;
+      let lastIdx = 0;
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(s)) !== null) {
+        if (m.index > lastIdx) {
+          parts.push({ type: 'text', text: s.slice(lastIdx, m.index) });
+        }
+        parts.push({
+          type: 'text',
+          text: m[1],
+          marks: [{ type: 'strong' }],
+        });
+        lastIdx = m.index + m[0].length;
+      }
+      if (lastIdx < s.length) {
+        parts.push({ type: 'text', text: s.slice(lastIdx) });
+      }
+      return parts.length === 0 ? [{ type: 'text', text: s }] : parts;
     };
+
+    let i = 0;
+    while (i < lines.length) {
+      const raw = lines[i];
+      const line = raw.trimEnd();
+
+      if (line.trim().length === 0) {
+        i++;
+        continue;
+      }
+
+      // Headings
+      const h = /^(#{1,3})\s+(.*)$/.exec(line);
+      if (h) {
+        content.push({
+          type: 'heading',
+          attrs: { level: Math.min(3, h[1].length) },
+          content: inlineFromText(h[2]),
+        });
+        i++;
+        continue;
+      }
+
+      // Bullet group
+      if (/^[\s]*[-*•]\s+/.test(line)) {
+        const items: AdfNode[] = [];
+        while (i < lines.length && /^[\s]*[-*•]\s+/.test(lines[i].trimEnd())) {
+          const itemText = lines[i].trimEnd().replace(/^[\s]*[-*•]\s+/, '');
+          items.push({
+            type: 'listItem',
+            content: [
+              { type: 'paragraph', content: inlineFromText(itemText) },
+            ],
+          });
+          i++;
+        }
+        content.push({ type: 'bulletList', content: items });
+        continue;
+      }
+
+      // Numbered group
+      if (/^[\s]*\d+\.\s+/.test(line)) {
+        const items: AdfNode[] = [];
+        while (i < lines.length && /^[\s]*\d+\.\s+/.test(lines[i].trimEnd())) {
+          const itemText = lines[i].trimEnd().replace(/^[\s]*\d+\.\s+/, '');
+          items.push({
+            type: 'listItem',
+            content: [
+              { type: 'paragraph', content: inlineFromText(itemText) },
+            ],
+          });
+          i++;
+        }
+        content.push({ type: 'orderedList', content: items });
+        continue;
+      }
+
+      // Plain paragraph
+      content.push({ type: 'paragraph', content: inlineFromText(line) });
+      i++;
+    }
+
+    if (content.length === 0) {
+      content.push({ type: 'paragraph', content: [] });
+    }
+
+    return { type: 'doc', version: 1, content };
   }
 }

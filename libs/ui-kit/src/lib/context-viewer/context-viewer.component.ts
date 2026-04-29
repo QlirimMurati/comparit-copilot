@@ -135,10 +135,18 @@ export class ContextViewerComponent {
   protected readonly idRows = computed<KV[]>(() => {
     const ctx = this.asObject();
     if (!ctx?.ids || typeof ctx.ids !== 'object') return [];
-    return Object.entries(ctx.ids).map(([key, value]) => ({
-      key,
-      value: String(value),
-    }));
+    const sparte = ctx.sparte ? String(ctx.sparte).toLowerCase() : null;
+    const rows: KV[] = [];
+    for (const [key, value] of Object.entries(ctx.ids)) {
+      const v = String(value);
+      // Drop ids that just duplicate the sparte (e.g. vergleichId === "BU"
+      // when sparte is already "BU"). Also drop the literal "vergleichId"
+      // key — comparer-ui sends it as a synonym for sparte, not a real id.
+      if (key.toLowerCase() === 'vergleichid') continue;
+      if (sparte && v.toLowerCase() === sparte) continue;
+      rows.push({ key, value: v });
+    }
+    return rows;
   });
 
   protected readonly metaRows = computed<KV[]>(() => {

@@ -508,7 +508,7 @@ export class CopilotAgentService {
               severity: fields.severity,
               sparte: fields.sparte as typeof bugReports.$inferInsert['sparte'] ?? null,
               type: ticketType,
-              capturedContext: { copilotSessionId: ctx.sessionId },
+              capturedContext: {},
             })
             .returning({ id: bugReports.id, status: bugReports.status, createdAt: bugReports.createdAt });
           await this.embedQueue.enqueueReportEmbedding(row.id);

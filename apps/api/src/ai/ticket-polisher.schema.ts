@@ -43,14 +43,14 @@ export const TICKET_POLISHER_TOOL: Anthropic.Tool = {
         minLength: 5,
         maxLength: 200,
         description:
-          'One-line ticket title — concrete, scannable, no marketing fluff. Mirror the language used in the transcript (German if the user wrote German).',
+          'One-line ticket title — concrete, scannable, no marketing fluff. Always in English, even if the transcript is in German or another language.',
       },
       description: {
         type: 'string',
         minLength: 20,
         maxLength: 8000,
         description:
-          'Markdown body for the Jira ticket. Use sections: a short summary paragraph, then ## Steps to reproduce, ## Expected, ## Actual, optionally ## Environment / Notes. Keep it self-contained — a developer should be able to act on it without reading the chat transcript.',
+          'Body for the Jira ticket. Format with bold section labels followed by bullet lists. Do NOT use Markdown headers (##) or blockquotes (>). Sections: a short summary paragraph, then **Steps to reproduce:** (numbered or "- " bullets), **Expected:**, **Actual:**, **Acceptance criteria:** ("- " bullets, one per criterion), optional **Environment / Notes:**. Keep it self-contained — a developer should be able to act on it without reading the chat transcript.',
       },
       proposedType: {
         type: 'string',
@@ -98,13 +98,24 @@ You will receive:
 Your job is to call the \`submit_polished_ticket\` tool exactly once with a polished version of the ticket. Do not write any prose outside the tool call.
 
 Rules:
-- Mirror the language of the transcript (German default — if the reporter wrote German, German output; otherwise English).
+- LANGUAGE: ALWAYS write the polished ticket in English, regardless of the transcript language. If the reporter wrote in German (or any other language), translate as you go — title, description, section labels, repro steps, expected, actual, acceptance criteria. Section labels are fixed English: **Steps to reproduce:**, **Expected:**, **Actual:**, **Acceptance criteria:**, **User goal:**, **Why / Motivation:**, **What needs to happen:**, **Notes:**, **Environment / Notes:**. Keep proper nouns and identifiers (sparte codes, route paths, product names, error messages quoted verbatim) as-is.
 - Do not invent facts. If steps to reproduce are unclear, write the best-effort version and add a note in the description that some details were inferred.
 - Keep it concrete. No "I think", no apologies, no greetings.
 - The Markdown description must stand on its own without reference to the chat transcript.
 - Use the captured page context (URL, sparte, IDs) when relevant — do not omit them just because they were not literally typed by the reporter.
 - proposedType:
-    "bug"   — something is broken (default for reports). Description sections: short summary, ## Steps to reproduce, ## Expected, ## Actual, optional ## Environment / Notes. Fill repro_steps + expected + actual.
-    "story" — user-visible feature, change, or improvement. Description sections: short summary, ## User goal, ## Why / Motivation, ## Acceptance criteria. Emit repro_steps as []; expected/actual as "—". Skip "Steps to reproduce" in the body.
-    "task"  — config / follow-up / non-defect work. Mirror "story" structure (no repro_steps), but use ## What needs to happen + ## Notes.
+    "bug"   — something is broken (default for reports). Description sections (use **bold labels + "- " bullets**, never ## headers or > quotes):
+              short summary paragraph,
+              **Steps to reproduce:** ("- " bullets, one per step),
+              **Expected:**, **Actual:** (one short bullet or sentence each),
+              **Acceptance criteria:** ("- " bullets — what does "fixed" look like; written as testable statements),
+              optional **Environment / Notes:**.
+              Fill repro_steps + expected + actual.
+    "story" — user-visible feature, change, or improvement. Description sections (bold labels + bullets):
+              short summary paragraph,
+              **User goal:**, **Why / Motivation:**,
+              **Acceptance criteria:** ("- " bullets, one per criterion).
+              Emit repro_steps as []; expected/actual as "—".
+    "task"  — config / follow-up / non-defect work. Mirror "story" structure (no repro_steps), but use **What needs to happen:** and **Notes:** instead of user-goal sections. Always include **Acceptance criteria:** bullets.
+- The description must NOT contain "##", "###", or "> " — use bold labels and "- " bullets so it renders as readable bullets in Jira and the chat widget.
 - Do not call any tool other than \`submit_polished_ticket\`. Do not produce text content alongside the tool call.`;

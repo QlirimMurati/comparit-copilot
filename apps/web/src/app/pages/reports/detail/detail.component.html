@@ -89,10 +89,6 @@
                   @for (s of sparten; track s) { <option [value]="s">{{ sparteLabels[s] }}</option> }
                 </select>
               </div>
-              <div class="field">
-                <label class="field-label">Jira issue key</label>
-                <input class="input" type="text" formControlName="jiraIssueKey" placeholder="e.g. COP-123"/>
-              </div>
             </div>
 
             @if (saveError(); as msg) {
@@ -123,7 +119,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/>
                 </svg>
-                @if (polishing()) { Polishing… } @else if (aiProposed()) { Re-run polisher } @else { Run polisher }
+                @if (polishing()) { Refining… } @else if (aiProposed()) { Refine again } @else { Refine ticket }
               </button>
               @if (r.jiraIssueKey) {
                 <a class="btn btn-ghost btn-sm" [href]="'https://comparit.atlassian.net/browse/' + r.jiraIssueKey" target="_blank" rel="noopener" style="text-decoration: none;">
@@ -251,7 +247,7 @@
                 </div>
               </div>
             } @else {
-              <p style="margin: 0; font-size: 13px; color: var(--fg-3); font-style: italic;">No AI proposal yet — run the polisher to generate a Jira-ready ticket draft.</p>
+              <p style="margin: 0; font-size: 13px; color: var(--fg-3); font-style: italic;">No AI proposal yet — refine the ticket to generate a Jira-ready draft.</p>
             }
           </div>
         </div>

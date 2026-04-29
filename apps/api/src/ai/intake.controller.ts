@@ -197,7 +197,6 @@ export class IntakeController {
     const capturedContext = sessionContext;
     const reportContext = {
       ...capturedContext,
-      chatSessionId: session.id,
       transcriptMessageCount: transcript.length,
     };
 

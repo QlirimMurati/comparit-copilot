@@ -150,7 +150,12 @@ export class PushToJiraService {
       proposedLabels?: string[];
     } | null;
 
-    const summary = (polished?.title ?? report.title).trim();
+    const rawSummary = (polished?.title ?? report.title).trim();
+    // Comparit convention: every Jira ticket created from the copilot is a
+    // UI-app ticket. Prefix the summary so triage in Jira is consistent.
+    const summary = /^UI\s*:/i.test(rawSummary)
+      ? rawSummary
+      : `UI: ${rawSummary}`;
     const descriptionParts: string[] = [];
     if (polished?.description) {
       descriptionParts.push(polished.description);
@@ -165,6 +170,7 @@ export class PushToJiraService {
     const description = descriptionParts.join('\n');
 
     const labelSet = new Set<string>();
+    labelSet.add('UI');
     if (report.sparte) labelSet.add(report.sparte.toLowerCase());
     labelSet.add('comparit-copilot');
     if (Array.isArray(polished?.proposedLabels)) {
