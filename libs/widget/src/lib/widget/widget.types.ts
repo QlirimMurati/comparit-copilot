@@ -63,6 +63,8 @@ export interface WidgetIntakeState {
 export interface ChatStartInput {
   reporterEmail: string;
   capturedContext: CapturedContext;
+  /** Ticket type the user picked on the widget home screen. Defaults to "bug". */
+  type?: 'bug' | 'feature';
 }
 
 export interface ChatStartResult {

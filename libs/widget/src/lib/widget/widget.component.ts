@@ -168,12 +168,17 @@ export class WidgetComponent {
     const ctx = this.capturedContext();
     if (!ctx) return;
 
+    // The home picker decides the ticket type — feature or bug. "ask" mode
+    // also files as a bug if it ends up submitting (catch-all fallback).
+    const ticketType = this.mode() === 'feature' ? 'feature' : 'bug';
+
     this.chatLoading.set(true);
     this.chatError.set(null);
     this.api
       .chatStart(this.config(), {
         reporterEmail: this.reporterEmail,
         capturedContext: ctx,
+        type: ticketType,
       })
       .subscribe({
         next: (res) => {

@@ -152,7 +152,7 @@ const COPILOT_TOOLS: Anthropic.Tool[] = [
         },
         fixVersion: {
           type: 'string',
-          description: 'Fix version name to filter by (e.g. "Sprint 12", "1.4.0"). Substring match against any fix version on the ticket.',
+          description: 'Fix version filter. Pass whatever fragment the user gave — usually just the date (e.g. "29.04.26", "15.09"). Do NOT add "Update" or any prefix; the LV team names versions "Update <date>" so a bare date matches via substring. Examples: "29.04.26" matches "Update 29.04.26"; "29.01" matches "Update 29.01.2025".',
         },
         limit: {
           type: 'number',

@@ -59,11 +59,13 @@ export class IntakeController {
       body.capturedContext && typeof body.capturedContext === 'object'
         ? (body.capturedContext as Record<string, unknown>)
         : {};
+    const ticketType = body.type === 'feature' ? 'feature' : 'bug';
     const capturedContext = {
       ...baseContext,
       isFromCompare: body.isFromCompare === true,
       reporterFirstName: body.firstName ?? null,
       reporterLastName: body.lastName ?? null,
+      ticketType,
     };
     const session = await this.sessions.create({
       reporterEmail: body.reporterEmail,
@@ -197,6 +199,9 @@ export class IntakeController {
         ? (capturedContext['sparte'] as string)
         : null;
 
+    const ticketType =
+      capturedContext['ticketType'] === 'feature' ? 'feature' : 'bug';
+
     const taskId = body.taskId ?? session.taskId ?? null;
 
     const [row] = await this.db
@@ -205,10 +210,11 @@ export class IntakeController {
         reporterId,
         title: intake.title!.trim(),
         description: intake.description!.trim(),
-        severity: intake.severity ?? 'medium',
+        severity: intake.severity ?? (ticketType === 'feature' ? 'low' : 'medium'),
         sparte: (intake.sparte ?? sparteFromContext) as
           | (typeof bugReports)['sparte']['_']['data']
           | null,
+        type: ticketType,
         capturedContext: reportContext,
         taskId,
       })

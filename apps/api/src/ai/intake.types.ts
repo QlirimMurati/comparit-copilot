@@ -7,6 +7,8 @@ export interface ChatStartInput {
   isFromCompare?: boolean;
   firstName?: string | null;
   lastName?: string | null;
+  /** Ticket type the user picked on the widget home screen. Defaults to "bug". */
+  type?: 'bug' | 'feature';
 }
 
 export interface ChatStartResult {
