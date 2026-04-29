@@ -9,6 +9,12 @@ export interface ChatStartInput {
   lastName?: string | null;
   /** Ticket type the user picked on the widget home screen. Defaults to "bug". */
   type?: 'bug' | 'feature';
+  /**
+   * Raw home-picker choice. "ask" mode runs as free Q&A — agent answers
+   * questions, doesn't push for ticket creation unless the user clearly
+   * describes something to file.
+   */
+  widgetMode?: 'bug' | 'feature' | 'ask' | null;
 }
 
 export interface ChatStartResult {

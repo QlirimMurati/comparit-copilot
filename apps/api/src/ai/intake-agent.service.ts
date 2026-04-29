@@ -383,6 +383,53 @@ export class IntakeAgentService {
         `## Current intake state\n\`\`\`json\n${JSON.stringify(intakeState, null, 2)}\n\`\`\``,
     });
 
+    // ── Mode-specific behavior ────────────────────────────────────────
+    // The widget home screen has 3 picks: "Report a bug" / "Request a
+    // feature" / "Ask me something". The first two are intake flows; "ask"
+    // is free Q&A — the agent must NOT push toward ticket creation unless
+    // the user clearly describes something to file.
+    const widgetMode = (
+      capturedContext as { widgetMode?: 'bug' | 'feature' | 'ask' | null } | null
+    )?.widgetMode;
+    if (widgetMode === 'ask') {
+      blocks.push({
+        type: 'text',
+        text: [
+          '## MODE: ASK (free Q&A)',
+          '',
+          'The user picked "Ask me something" — this is NOT a bug-intake session. Behave like a helpful in-product assistant:',
+          '',
+          '- Answer the user\'s question directly. Use the captured page context, recent browser errors, and reference knowledge as needed.',
+          '- Do NOT call update_intake or complete_intake.',
+          '- Do NOT steer the user toward filing a bug or feature unless they explicitly say so ("can you file this?", "report it"), or unless they describe a clearly broken thing in passing AND the conversation has wrapped up. In that case, offer ONCE: "Want me to also file this as a bug/feature?" — then drop it if they say no.',
+          '- Never write phrases like "let\'s get your bug reported", "let me capture that", "I\'ll open a ticket". You are answering questions.',
+          '- Keep answers tight: 1–3 sentences for definitions, a short list for procedures.',
+        ].join('\n'),
+      });
+    } else if (widgetMode === 'feature') {
+      blocks.push({
+        type: 'text',
+        text: [
+          '## MODE: FEATURE REQUEST',
+          '',
+          'The user picked "Request a feature". Set type="feature" via update_intake on your first turn. Skip "what broke / repro steps". Gather: title, description (user goal + motivation), severity (treat as priority — default "low"), sparte if relevant.',
+        ].join('\n'),
+      });
+    } else {
+      // Default + 'bug' picker — bug-intake flow, but still answer
+      // off-topic questions before redirecting back.
+      blocks.push({
+        type: 'text',
+        text: [
+          '## MODE: BUG INTAKE',
+          '',
+          'The user picked "Report a bug" (or just started typing). Run the standard bug intake flow: title, description (steps + expected vs actual), severity, sparte.',
+          '',
+          'If during intake the user asks an off-topic question (definition of a field, "what does X mean?"), answer it briefly first (1–2 sentences) and THEN ask if they want to continue with the bug report. Do not jam "let\'s get your bug reported" onto the same turn as a definition answer — that feels pushy. Wait for them to confirm they want to proceed.',
+        ].join('\n'),
+      });
+    }
+
     const active = (
       capturedContext as { activeCalculation?: ActiveCalc | null } | null
     )?.activeCalculation;

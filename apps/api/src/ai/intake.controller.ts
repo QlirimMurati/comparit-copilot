@@ -60,12 +60,19 @@ export class IntakeController {
         ? (body.capturedContext as Record<string, unknown>)
         : {};
     const ticketType = body.type === 'feature' ? 'feature' : 'bug';
+    const widgetMode =
+      body.widgetMode === 'bug' ||
+      body.widgetMode === 'feature' ||
+      body.widgetMode === 'ask'
+        ? body.widgetMode
+        : null;
     const capturedContext = {
       ...baseContext,
       isFromCompare: body.isFromCompare === true,
       reporterFirstName: body.firstName ?? null,
       reporterLastName: body.lastName ?? null,
       ticketType,
+      widgetMode,
     };
     const session = await this.sessions.create({
       reporterEmail: body.reporterEmail,
