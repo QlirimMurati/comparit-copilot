@@ -7,37 +7,35 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { captureContext } from './context';
 import { WidgetService } from './widget.service';
 import type {
   CapturedContext,
   WidgetApiConfig,
-  WidgetSeverity,
   WidgetSparte,
 } from './widget.types';
 
-const SEVERITIES: WidgetSeverity[] = ['blocker', 'high', 'medium', 'low'];
-const SPARTEN: WidgetSparte[] = [
-  'bu',
-  'gf',
-  'risikoleben',
-  'kvv',
-  'kvz',
-  'hausrat',
-  'phv',
-  'wohngebaeude',
-  'kfz',
-  'basis_rente',
-  'private_rente',
-  'comparit',
-];
-
-type WidgetMode = 'chat' | 'form';
+type WidgetMode = 'home' | 'bug' | 'feature' | 'ask';
 interface ChatLine {
   role: 'user' | 'assistant';
   text: string;
 }
+
+const PROMPTS: Record<Exclude<WidgetMode, 'home'>, { title: string; greet: string }> = {
+  bug: {
+    title: 'Report a bug',
+    greet: 'Was hast du angeklickt, und was hätte passieren sollen?',
+  },
+  feature: {
+    title: 'Request a feature',
+    greet: 'Beschreib kurz, was du dir wünschst — und wofür du es brauchst.',
+  },
+  ask: {
+    title: 'Ask me something',
+    greet: 'Frag los — ich helfe dir mit Reports, Sparten, Jira oder dem Code.',
+  },
+};
 
 @Component({
   selector: 'lib-copilot-widget',
@@ -59,28 +57,12 @@ export class WidgetComponent {
   @Input() sparte: WidgetSparte | null = null;
   @Input() appVersion: string | null = null;
 
-  protected readonly severities = SEVERITIES;
-  protected readonly sparten = SPARTEN;
-
   // panel state
   protected readonly open = signal(false);
-  protected readonly mode = signal<WidgetMode>('chat');
+  protected readonly mode = signal<WidgetMode>('home');
   protected readonly capturedContext = signal<CapturedContext | null>(null);
-  protected readonly contextExpanded = signal(false);
 
-  // form mode state
-  protected readonly submitting = signal(false);
-  protected readonly success = signal<string | null>(null);
-  protected readonly error = signal<string | null>(null);
-
-  protected readonly form = this.fb.nonNullable.group({
-    title: ['', [Validators.required, Validators.minLength(5)]],
-    description: ['', [Validators.required, Validators.minLength(10)]],
-    severity: ['medium' as WidgetSeverity, [Validators.required]],
-    sparte: [null as WidgetSparte | null],
-  });
-
-  // chat mode state
+  // chat state
   protected readonly chatSessionId = signal<string | null>(null);
   protected readonly chatMessages = signal<ChatLine[]>([]);
   protected readonly chatInput = this.fb.nonNullable.control('');
@@ -91,9 +73,9 @@ export class WidgetComponent {
   protected readonly chatSubmitError = signal<string | null>(null);
   protected readonly chatSubmitted = signal<string | null>(null);
 
-  protected readonly capturedJson = computed(() => {
-    const c = this.capturedContext();
-    return c ? JSON.stringify(c, null, 2) : '';
+  protected readonly modeTitle = computed(() => {
+    const m = this.mode();
+    return m === 'home' ? 'Workdesk' : PROMPTS[m].title;
   });
 
   protected toggle(): void {
@@ -105,80 +87,80 @@ export class WidgetComponent {
           reporterEmail: this.reporterEmail,
         })
       );
-      this.form.patchValue({ sparte: this.sparte });
-      this.success.set(null);
-      this.error.set(null);
-      this.maybeKickoffChat();
     }
     this.open.update((v) => !v);
   }
 
   protected close(): void {
     this.open.set(false);
-    this.resetChat();
+    this.resetAll();
   }
 
-  protected toggleContext(event: Event): void {
-    event.preventDefault();
-    this.contextExpanded.update((v) => !v);
+  protected backToHome(): void {
+    this.mode.set('home');
+    this.chatMessages.set([]);
+    this.chatInput.setValue('');
+    this.chatError.set(null);
+    this.chatComplete.set(false);
+    this.chatSubmitError.set(null);
+    this.chatSubmitted.set(null);
+    // keep sessionId so re-entering doesn't double-create
   }
 
-  protected switchMode(m: WidgetMode): void {
+  protected pickMode(m: Exclude<WidgetMode, 'home'>): void {
     this.mode.set(m);
-    if (m === 'chat') this.maybeKickoffChat();
+    this.chatMessages.set([{ role: 'assistant', text: PROMPTS[m].greet }]);
+    this.ensureSession();
   }
 
-  // ---- form mode ---------------------------------------------------------
+  /** Home-screen send: switch to "ask", seed the user message, fire it. */
+  protected sendFromHome(): void {
+    const text = this.chatInput.value.trim();
+    if (!text) return;
+    this.mode.set('ask');
+    this.chatMessages.set([
+      { role: 'assistant', text: PROMPTS.ask.greet },
+      { role: 'user', text },
+    ]);
+    this.chatInput.setValue('');
+    this.ensureSession((sid) => this.deliverMessage(sid, text));
+  }
 
-  protected submit(): void {
-    if (this.form.invalid) return;
-    if (!this.reporterEmail) {
-      this.error.set('reporter-email attribute is required');
+  protected sendMessage(): void {
+    const text = this.chatInput.value.trim();
+    if (!text || this.chatLoading()) return;
+    const sid = this.chatSessionId();
+    if (!sid) return;
+    this.chatMessages.update((m) => [...m, { role: 'user', text }]);
+    this.chatInput.setValue('');
+    this.deliverMessage(sid, text);
+  }
+
+  private deliverMessage(sid: string, text: string): void {
+    this.chatLoading.set(true);
+    this.chatError.set(null);
+    this.api.chatMessage(this.config(), { sessionId: sid, text }).subscribe({
+      next: (res) => {
+        this.chatMessages.update((m) => [
+          ...m,
+          { role: 'assistant', text: res.assistantText },
+        ]);
+        this.chatComplete.set(res.isComplete);
+        this.chatLoading.set(false);
+      },
+      error: (err) => {
+        this.chatLoading.set(false);
+        this.chatError.set(this.errorMessage(err, 'Send failed'));
+      },
+    });
+  }
+
+  private ensureSession(after?: (sid: string) => void): void {
+    const existing = this.chatSessionId();
+    if (existing) {
+      after?.(existing);
       return;
     }
-    this.submitting.set(true);
-    this.success.set(null);
-    this.error.set(null);
-
-    const value = this.form.getRawValue();
-    const config = this.config();
-
-    this.api
-      .submit(config, {
-        title: value.title,
-        description: value.description,
-        severity: value.severity,
-        sparte: value.sparte,
-        reporterEmail: this.reporterEmail,
-        capturedContext: this.capturedContext() ?? undefined,
-      })
-      .subscribe({
-        next: (res) => {
-          this.submitting.set(false);
-          this.success.set(`Submitted — report id ${res.id.slice(0, 8)}…`);
-          this.form.reset({
-            title: '',
-            description: '',
-            severity: 'medium',
-            sparte: null,
-          });
-          setTimeout(() => this.close(), 1800);
-        },
-        error: (err) => {
-          this.submitting.set(false);
-          this.error.set(
-            err?.error?.message ??
-              `Submit failed (${err?.status ?? 'network error'})`
-          );
-        },
-      });
-  }
-
-  // ---- chat mode ---------------------------------------------------------
-
-  private maybeKickoffChat(): void {
-    if (this.mode() !== 'chat') return;
-    if (this.chatSessionId()) return;
     if (!this.reporterEmail) {
       this.chatError.set('reporter-email attribute is required for chat mode');
       return;
@@ -196,44 +178,16 @@ export class WidgetComponent {
       .subscribe({
         next: (res) => {
           this.chatSessionId.set(res.sessionId);
-          this.chatMessages.set([
-            { role: 'assistant', text: res.assistantText },
-          ]);
+          // Don't override the mode-specific greeting we already showed.
           this.chatComplete.set(res.isComplete);
           this.chatLoading.set(false);
+          after?.(res.sessionId);
         },
         error: (err) => {
           this.chatLoading.set(false);
           this.chatError.set(this.errorMessage(err, 'Chat could not start'));
         },
       });
-  }
-
-  protected sendMessage(): void {
-    const text = this.chatInput.value.trim();
-    if (!text || this.chatLoading()) return;
-    const sid = this.chatSessionId();
-    if (!sid) return;
-
-    this.chatMessages.update((m) => [...m, { role: 'user', text }]);
-    this.chatInput.setValue('');
-    this.chatLoading.set(true);
-    this.chatError.set(null);
-
-    this.api.chatMessage(this.config(), { sessionId: sid, text }).subscribe({
-      next: (res) => {
-        this.chatMessages.update((m) => [
-          ...m,
-          { role: 'assistant', text: res.assistantText },
-        ]);
-        this.chatComplete.set(res.isComplete);
-        this.chatLoading.set(false);
-      },
-      error: (err) => {
-        this.chatLoading.set(false);
-        this.chatError.set(this.errorMessage(err, 'Send failed'));
-      },
-    });
   }
 
   protected submitChat(): void {
@@ -255,7 +209,8 @@ export class WidgetComponent {
     });
   }
 
-  private resetChat(): void {
+  private resetAll(): void {
+    this.mode.set('home');
     this.chatSessionId.set(null);
     this.chatMessages.set([]);
     this.chatInput.setValue('');
@@ -266,8 +221,6 @@ export class WidgetComponent {
     this.chatSubmitError.set(null);
     this.chatSubmitted.set(null);
   }
-
-  // ---- shared ------------------------------------------------------------
 
   private config(): WidgetApiConfig {
     return {

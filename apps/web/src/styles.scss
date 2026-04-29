@@ -521,12 +521,16 @@ body { overflow: hidden; }
 .btn-primary { background: var(--primary-100); color: white; }
 .btn-primary:hover { background: var(--primary-hover-100); }
 .btn-brand {
-  background: var(--grad-brand);
+  background: var(--secondary-100);
   color: white;
   position: relative; overflow: hidden;
   box-shadow: 0 4px 12px rgba(10,183,167,0.20);
 }
-.btn-brand:hover { box-shadow: 0 6px 16px rgba(10,183,167,0.32); transform: translateY(-1px); }
+.btn-brand:hover {
+  background: var(--secondary-hover-100);
+  box-shadow: 0 6px 16px rgba(10,183,167,0.32);
+  transform: translateY(-1px);
+}
 .btn-ghost { background: transparent; color: var(--fg-2); border-color: var(--border-1); }
 .btn-ghost:hover { color: var(--fg-1); border-color: var(--border-2); }
 .btn-icon { width: 34px; padding: 0; justify-content: center; }
@@ -744,15 +748,14 @@ body { overflow: hidden; }
 }
 .msg-avatar.user { background: var(--primary-10); color: var(--primary-100); }
 .msg-avatar.assistant {
-  background: var(--grad-brand);
-  color: white;
-  position: relative; overflow: hidden;
+  background: transparent;
+  color: var(--primary-100);
+  border-radius: 0;
+  position: relative;
+  overflow: visible;
 }
-.msg-avatar.assistant::after {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(circle at 30% 25%, rgba(255,255,255,0.35), transparent 50%);
-}
-.msg-avatar.assistant svg { width: 16px; height: 16px; position: relative; z-index: 1; color: white; }
+.msg-avatar.assistant::after { content: none; }
+.msg-avatar.assistant svg { width: 24px; height: 24px; position: relative; z-index: 1; }
 .msg-body { flex: 1; min-width: 0; padding-top: 4px; }
 .msg-name {
   font: 700 13px var(--font-sans);
@@ -1048,7 +1051,8 @@ body { overflow: hidden; }
   font-style: italic;
   color: var(--fg-3);
 }
-.bug-input-row { display: flex; gap: 8px; }
+.bug-input-row { display: flex; gap: 8px; align-items: stretch; }
+.bug-input-row .btn-sm { height: 36px; min-width: 36px; padding: 0 12px; flex-shrink: 0; }
 .bug-input-row input {
   flex: 1; height: 36px;
   padding: 0 12px;
@@ -1364,7 +1368,11 @@ body { overflow: hidden; }
   max-width: 980px;
   margin: 0 auto;
   padding: 24px 32px 80px;
+  background: transparent;
 }
+/* Keep detail page on chat-white; cards define themselves via border + accent header */
+.content:has(.detail) { background: var(--bg-chat); }
+[data-theme='dark'] .content:has(.detail) { background: var(--bg-chat); }
 .detail-back {
   display: inline-flex; align-items: center; gap: 6px;
   font: 700 13px var(--font-sans);
@@ -1393,26 +1401,36 @@ body { overflow: hidden; }
 
 /* Sections */
 .section {
-  margin-bottom: 16px;
-  border: 1px solid var(--border-1);
+  margin-bottom: 22px;
+  border: 1px solid #E2E4EB;
   border-radius: 14px;
   background: var(--bg-chat);
   overflow: hidden;
+  box-shadow: 0 1px 0 rgba(15,23,42,0.025), 0 8px 24px -16px rgba(27,28,77,0.12);
 }
 .section-head {
   display: flex; align-items: center; gap: 12px;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--border-1);
+  padding: 12px 18px;
+  background: linear-gradient(180deg, rgba(27,28,77,0.06), rgba(27,28,77,0.02));
+  border-bottom: 1px solid #E2E4EB;
 }
 .section-head h3 {
   font: 700 11px var(--font-sans);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--fg-3);
+  letter-spacing: 0.10em;
+  color: var(--fg-2);
   margin: 0;
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.section-head h3::before {
+  content: '';
+  width: 3px; height: 14px;
+  border-radius: 2px;
+  background: var(--secondary-100);
+  display: inline-block;
 }
 .section-head .right { margin-left: auto; display: flex; gap: 6px; }
-.section-body { padding: 18px; }
+.section-body { padding: 20px; }
 .section-body .eyebrow {
   font: 700 11px var(--font-sans);
   text-transform: uppercase;
@@ -1541,4 +1559,91 @@ body { overflow: hidden; }
   display: inline-block;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* Inline async UI used by Jira push flow on both the chat bug card and
+   the report detail page. Globally scoped so detail (a different
+   Angular component) inherits the same look. */
+.action-row {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-top: 10px;
+}
+.action-status {
+  display: flex; align-items: center; gap: 8px;
+  font: 700 12.5px var(--font-sans);
+  color: var(--fg-3);
+  margin-top: 8px;
+}
+.action-success {
+  font: 700 12.5px var(--font-sans);
+  color: var(--secondary-hover-100);
+  background: var(--success-bg);
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-top: 8px;
+}
+.action-success a {
+  color: var(--secondary-hover-100);
+  text-decoration: underline;
+}
+.action-error {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  font: 700 12.5px var(--font-sans);
+  color: #B7270B;
+  background: #FFF1EC;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+.jira-preview {
+  background: var(--bg-subtle);
+  border-radius: 10px;
+  padding: 12px;
+  margin-top: 8px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.jira-preview .kv {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 12px;
+  font-size: 12.5px;
+  align-items: baseline;
+}
+.jira-preview .kv > span:first-child {
+  font: 700 11px var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fg-3);
+}
+.jira-preview .kv .labels {
+  display: flex; flex-wrap: wrap; gap: 4px;
+}
+.preview-desc {
+  margin-top: 4px;
+  border-top: 1px solid var(--border-1);
+  padding-top: 8px;
+}
+.preview-desc summary {
+  font: 700 11px var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fg-3);
+  cursor: pointer;
+}
+.preview-desc pre {
+  margin: 8px 0 0;
+  font: 11.5px var(--font-mono);
+  color: var(--fg-2);
+  white-space: pre-wrap;
+  max-height: 240px;
+  overflow: auto;
+}
+.preview-warning {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #B7400B;
+  background: #FFE4DA;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
 

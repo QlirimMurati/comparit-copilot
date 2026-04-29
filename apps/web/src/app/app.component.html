@@ -51,7 +51,6 @@
           </svg>
         }
       </button>
-      <div class="rail-avatar" [title]="auth.user()?.name ?? ''">{{ initials() }}</div>
     </aside>
 
     <!-- Sidebar -->
@@ -124,8 +123,6 @@
         @if (toolsOpen()) {
           <div class="sb-sub">
             <a routerLink="/prefill" class="sb-sub-item" [attr.data-active]="currentRoute() === 'prefill'">Prefill validator</a>
-            <a routerLink="/transcripts" class="sb-sub-item">Transcript decomposer</a>
-            <a routerLink="/qa" class="sb-sub-item">QA workspace</a>
           </div>
         }
         @if (isAdmin()) {
