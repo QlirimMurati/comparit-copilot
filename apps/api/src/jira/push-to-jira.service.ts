@@ -169,18 +169,10 @@ export class PushToJiraService {
 
     const description = descriptionParts.join('\n');
 
-    const labelSet = new Set<string>();
-    labelSet.add('UI');
-    if (report.sparte) labelSet.add(report.sparte.toLowerCase());
-    labelSet.add('comparit-copilot');
-    if (Array.isArray(polished?.proposedLabels)) {
-      for (const lbl of polished!.proposedLabels) {
-        if (typeof lbl === 'string' && lbl.trim().length > 0) {
-          labelSet.add(lbl.trim().toLowerCase().replace(/\s+/g, '-'));
-        }
-      }
-    }
-    const labels = [...labelSet];
+    // Comparit convention: every ticket created from the copilot is a
+    // UI-app ticket — that's the only Jira label we emit. Sparte / area
+    // / etc. are conveyed through the dedicated custom fields below.
+    const labels = ['UI'];
 
     // LV-required custom fields (discovered via Jira's createmeta endpoint).
     // Sparte is derived from the bug report; everything else uses safe defaults.
